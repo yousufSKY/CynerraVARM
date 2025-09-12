@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { UserButton, useUser } from '@clerk/nextjs'
-import { cyberGuardTheme } from '@/lib/clerk-theme'
+import { cynerraTheme } from '@/lib/clerk-theme'
 import { 
   Shield, 
   Menu, 
@@ -47,7 +47,7 @@ export function Header() {
             <div className="absolute inset-0 bg-cyan-400/20 rounded-full blur-lg group-hover:bg-cyan-300/30 transition-all" />
           </div>
           <span className="text-xl font-semibold text-cyan-100 tracking-wide group-hover:text-white transition-colors">
-            CyberGuard
+            Cynerra
           </span>
         </Link>
 
@@ -107,7 +107,7 @@ export function Header() {
                 Dashboard
               </Link>
               <UserButton 
-                appearance={cyberGuardTheme}
+                appearance={cynerraTheme}
               />
             </>
           ) : (
@@ -214,7 +214,7 @@ export function Header() {
             {isSignedIn && (
               <div className="pt-4 flex justify-center">
                 <UserButton 
-                  appearance={cyberGuardTheme}
+                  appearance={cynerraTheme}
                 />
               </div>
             )}

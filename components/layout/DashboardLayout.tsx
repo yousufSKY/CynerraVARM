@@ -74,7 +74,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Logo */}
       <div className="flex items-center gap-2 px-6 py-4 border-b">
         <Shield className="h-8 w-8 text-orange-500" />
-        <span className="text-xl font-bold text-gray-900">CyberGuard</span>
+        <span className="text-xl font-bold text-gray-900">Cynerra</span>
       </div>
 
       {/* Navigation */}

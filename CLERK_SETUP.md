@@ -59,7 +59,7 @@ Then test:
 ✅ **Route Protection**: Dashboard routes require authentication
 ✅ **User Management**: UserButton for profile and sign-out
 ✅ **Responsive Design**: Works on desktop and mobile
-✅ **Custom Styling**: Matches your CyberGuard theme
+✅ **Custom Styling**: Matches your Cynerra theme
 ✅ **Automatic Redirects**: Users go to dashboard after auth
 
 ## Troubleshooting

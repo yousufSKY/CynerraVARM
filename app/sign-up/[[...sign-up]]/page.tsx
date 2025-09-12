@@ -1,7 +1,7 @@
 import { SignUp } from '@clerk/nextjs'
 import Link from 'next/link'
 import { ArrowLeft, Shield, Lock, Eye, Users, Globe, CheckCircle } from 'lucide-react'
-import { cyberGuardTheme } from '@/lib/clerk-theme'
+import { cynerraTheme } from '@/lib/clerk-theme'
 
 export default function Page() {
   return (
@@ -39,7 +39,7 @@ export default function Page() {
                 <div className="absolute inset-0 bg-cyan-400/20 rounded-full blur-lg group-hover:bg-cyan-300/30 transition-all" />
               </div>
               <span className="text-3xl lg:text-4xl font-bold text-cyan-100 tracking-wide group-hover:text-white transition-colors">
-                CyberGuard
+                Cynerra
               </span>
             </Link>
 
@@ -50,7 +50,7 @@ export default function Page() {
             </h1>
             
             <p className="text-lg lg:text-xl text-gray-300 mb-6 lg:mb-8 leading-relaxed">
-              Join thousands of organizations that trust CyberGuard to protect their digital infrastructure.
+              Join thousands of organizations that trust Cynerra to protect their digital infrastructure.
             </p>
 
             {/* Benefits */}
@@ -130,7 +130,7 @@ export default function Page() {
                     <div className="absolute inset-0 bg-cyan-400/20 rounded-full blur-lg group-hover:bg-cyan-300/30 transition-all" />
                   </div>
                   <span className="text-xl sm:text-2xl font-bold text-cyan-100 tracking-wide group-hover:text-white transition-colors">
-                    CyberGuard
+                    Cynerra
                   </span>
                 </Link>
               </div>
@@ -152,7 +152,7 @@ export default function Page() {
                 
                 <div className="relative bg-[#1a1a2e]/90 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-blue-900/30 shadow-2xl p-4 sm:p-6 md:p-8">
                   <SignUp 
-                    appearance={cyberGuardTheme}
+                    appearance={cynerraTheme}
                   />
                 </div>
               </div>

@@ -12,40 +12,40 @@ import { Shield, HelpCircle } from "lucide-react"
 
 const faqs = [
   {
-    question: "How does CyberGuard's vulnerability scanning work?",
-    answer: "CyberGuard uses advanced scanning engines that integrate with multiple CVE databases to identify vulnerabilities across your infrastructure. Our AI-powered system continuously monitors your assets and provides real-time threat detection with minimal false positives."
+    question: "How does Cynerra's vulnerability scanning work?",
+    answer: "Cynerra uses advanced scanning engines that integrate with multiple CVE databases to identify vulnerabilities across your infrastructure. Our AI-powered system continuously monitors your assets and provides real-time threat detection with minimal false positives."
   },
   {
-    question: "What compliance standards does CyberGuard support?",
+    question: "What compliance standards does Cynerra support?",
     answer: "We support major compliance frameworks including NIST Cybersecurity Framework, ISO 27001, OWASP Top 10, SOC 2, PCI DSS, and HIPAA. Our automated reporting features help you maintain compliance with detailed audit trails and documentation."
   },
   {
-    question: "How quickly can CyberGuard detect new vulnerabilities?",
-    answer: "CyberGuard detects vulnerabilities in real-time as they emerge. Our threat intelligence feeds are updated continuously, and our scanning engines can identify new vulnerabilities within minutes of their disclosure in public databases."
+    question: "How quickly can Cynerra detect new vulnerabilities?",
+    answer: "Cynerra detects vulnerabilities in real-time as they emerge. Our threat intelligence feeds are updated continuously, and our scanning engines can identify new vulnerabilities within minutes of their disclosure in public databases."
   },
   {
-    question: "Can CyberGuard integrate with our existing security tools?",
-    answer: "Yes, CyberGuard offers extensive integrations with popular security tools including SIEM systems, ticketing platforms (JIRA, ServiceNow), and other security orchestration tools through our comprehensive API and pre-built connectors."
+    question: "Can Cynerra integrate with our existing security tools?",
+    answer: "Yes, Cynerra offers extensive integrations with popular security tools including SIEM systems, ticketing platforms (JIRA, ServiceNow), and other security orchestration tools through our comprehensive API and pre-built connectors."
   },
   {
-    question: "What types of assets can CyberGuard scan?",
-    answer: "CyberGuard can scan a wide range of assets including servers, workstations, network devices, cloud infrastructure (AWS, Azure, GCP), containers, web applications, databases, and IoT devices. Our asset discovery automatically identifies and categorizes all connected devices."
+    question: "What types of assets can Cynerra scan?",
+    answer: "Cynerra can scan a wide range of assets including servers, workstations, network devices, cloud infrastructure (AWS, Azure, GCP), containers, web applications, databases, and IoT devices. Our asset discovery automatically identifies and categorizes all connected devices."
   },
   {
     question: "How does the risk prioritization work?",
     answer: "Our risk prioritization uses CVSS scores combined with business context, asset criticality, and threat intelligence to rank vulnerabilities. This ensures you focus on the most critical security issues that pose the greatest risk to your organization."
   },
   {
-    question: "Is CyberGuard suitable for small businesses?",
+    question: "Is Cynerra suitable for small businesses?",
     answer: "Absolutely! Our Starter plan is designed specifically for small teams and growing businesses. It provides essential vulnerability scanning and reporting capabilities at an affordable price point, with the ability to scale as your organization grows."
   },
   {
-    question: "What kind of support does CyberGuard provide?",
+    question: "What kind of support does Cynerra provide?",
     answer: "We offer 24/7 technical support for all paid plans, with priority support for Professional and Enterprise customers. Our support includes email, chat, phone support, and dedicated customer success managers for Enterprise clients."
   },
   {
-    question: "How secure is CyberGuard's platform?",
-    answer: "CyberGuard follows the highest security standards with SOC 2 Type II certification, end-to-end encryption, zero-trust architecture, and regular third-party security audits. We practice what we preach when it comes to cybersecurity."
+    question: "How secure is Cynerra's platform?",
+    answer: "Cynerra follows the highest security standards with SOC 2 Type II certification, end-to-end encryption, zero-trust architecture, and regular third-party security audits. We practice what we preach when it comes to cybersecurity."
   },
   {
     question: "Can we get a custom deployment or on-premise solution?",
@@ -72,7 +72,7 @@ export function FaqSection() {
             </span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Find answers to common questions about CyberGuard's vulnerability assessment platform
+            Find answers to common questions about Cynerra's vulnerability assessment platform
           </p>
         </div>
 
@@ -111,7 +111,7 @@ export function FaqSection() {
               Still have questions?
             </h3>
             <p className="text-gray-300 mb-6">
-              Our security experts are here to help you understand how CyberGuard can protect your organization.
+              Our security experts are here to help you understand how Cynerra can protect your organization.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="px-8 py-3 bg-gradient-to-r from-cyan-400 to-blue-700 text-white font-semibold rounded-lg hover:from-cyan-300 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-cyan-400/20">

@@ -12,7 +12,7 @@ const testimonials = [
     role: 'CISO at TechCorp',
     company: 'TechCorp',
     avatar: 'SC',
-    content: 'CyberGuard transformed our vulnerability management process. The automated prioritization and remediation tracking saved us 70% of our time.',
+    content: 'Cynerra transformed our vulnerability management process. The automated prioritization and remediation tracking saved us 70% of our time.',
     rating: 5,
     industry: 'Technology'
   },
@@ -39,7 +39,7 @@ const testimonials = [
     role: 'IT Security Manager at GlobalCorp',
     company: 'GlobalCorp',
     avatar: 'DT',
-    content: 'The automated asset discovery found vulnerabilities we didn\'t even know existed. CyberGuard is now essential to our security operations.',
+    content: 'The automated asset discovery found vulnerabilities we didn\'t even know existed. Cynerra is now essential to our security operations.',
     rating: 5,
     industry: 'Manufacturing'
   }
@@ -70,7 +70,7 @@ export function TestimonialsSection() {
             </span>
           </h2>
           <p className="text-sm sm:text-base lg:text-lg text-gray-300 max-w-4xl mx-auto px-4">
-            See how organizations worldwide are strengthening their security posture with CyberGuard
+            See how organizations worldwide are strengthening their security posture with Cynerra
           </p>
         </div>
 

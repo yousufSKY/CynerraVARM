@@ -65,9 +65,9 @@ const certifications = [
 ];
 
 const socialLinks = [
-  { name: "Twitter", icon: Twitter, href: "https://twitter.com/cyberguard" },
-  { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com/company/cyberguard" },
-  { name: "GitHub", icon: Github, href: "https://github.com/cyberguard" }
+  { name: "Twitter", icon: Twitter, href: "https://twitter.com/cynerra" },
+  { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com/company/cynerra" },
+  { name: "GitHub", icon: Github, href: "https://github.com/cynerra" }
 ];
 
 export function Footer() {
@@ -81,7 +81,7 @@ export function Footer() {
           <div className="text-center mb-6">
             <Link href="/" className="flex items-center justify-center space-x-2 mb-3">
               <Shield className="h-4 w-4 text-cyan-400" />
-              <span className="text-base font-semibold text-cyan-100">CyberGuard</span>
+              <span className="text-base font-semibold text-cyan-100">Cynerra</span>
             </Link>
             <p className="text-gray-400 text-xs leading-relaxed mb-3 px-4">
               Advanced cybersecurity solutions for modern enterprises.
@@ -91,7 +91,7 @@ export function Footer() {
             <div className="flex flex-wrap justify-center gap-4 text-xs mb-4">
               <div className="flex items-center text-gray-400">
                 <Mail className="h-3 w-3 mr-1 text-cyan-400" />
-                <span>support@cyberguard.com</span>
+                <span>support@cynerra.com</span>
               </div>
               <div className="flex items-center text-gray-400">
                 <Phone className="h-3 w-3 mr-1 text-cyan-400" />
@@ -144,7 +144,7 @@ export function Footer() {
           <div className="md:col-span-2 lg:col-span-2">
             <Link href="/" className="flex items-center space-x-3 mb-4 sm:mb-6">
               <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-400" />
-              <span className="text-lg sm:text-xl font-semibold text-cyan-100">CyberGuard</span>
+              <span className="text-lg sm:text-xl font-semibold text-cyan-100">Cynerra</span>
             </Link>
             <p className="text-gray-400 mb-4 sm:mb-6 leading-relaxed text-xs sm:text-sm">
               Advanced vulnerability assessment and cybersecurity solutions for modern enterprises. 
@@ -155,7 +155,7 @@ export function Footer() {
             <div className="space-y-2 sm:space-y-3 text-xs">
               <div className="flex items-center text-gray-400">
                 <Mail className="h-3 w-3 mr-2 sm:mr-3 text-cyan-400 flex-shrink-0" />
-                <span className="break-all sm:break-normal">support@cyberguard.com</span>
+                <span className="break-all sm:break-normal">support@cynerra.com</span>
               </div>
               <div className="flex items-center text-gray-400">
                 <Phone className="h-3 w-3 mr-2 sm:mr-3 text-cyan-400 flex-shrink-0" />
@@ -234,7 +234,7 @@ export function Footer() {
           {/* Mobile Layout - Compact */}
           <div className="block md:hidden text-center space-y-2">
             <div className="text-gray-400 text-xs">
-              © 2025 CyberGuard. All rights reserved.
+              © 2025 Cynerra. All rights reserved.
             </div>
             <div className="flex items-center justify-center gap-3">
               <span className="text-gray-400 text-xs">Follow:</span>
@@ -254,7 +254,7 @@ export function Footer() {
           {/* Desktop Layout */}
           <div className="hidden md:flex md:flex-row items-center justify-between gap-3 sm:gap-4">
             <div className="text-gray-400 text-xs text-center sm:text-left">
-              © 2025 CyberGuard. All rights reserved. | Protecting enterprises worldwide.
+              © 2025 Cynerra. All rights reserved. | Protecting enterprises worldwide.
             </div>
             
             {/* Social Links */}

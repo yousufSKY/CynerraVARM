@@ -22,7 +22,7 @@ const contactInfo = [
     icon: Mail,
     title: "Email Support",
     description: "Get help from our security experts",
-    contact: "support@cyberguard.com",
+    contact: "support@cynerra.com",
     available: "24/7 Response"
   },
   {

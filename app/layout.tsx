@@ -6,7 +6,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'CyberGuard - Vulnerability Assessment & Risk Management Platform',
+  title: 'Cynerra - Vulnerability Assessment & Risk Management Platform',
   description: 'Enterprise-grade cybersecurity vulnerability assessment and risk management SaaS platform',
 };
 

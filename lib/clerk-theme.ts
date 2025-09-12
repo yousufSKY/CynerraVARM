@@ -1,7 +1,7 @@
 import { Appearance } from '@clerk/types'
 
-// CyberGuard Dark Theme Configuration for Clerk
-export const cyberGuardTheme: Appearance = {
+// Cynerra Dark Theme Configuration for Clerk
+export const cynerraTheme: Appearance = {
   variables: {
     // Color Variables
     colorPrimary: '#00D8FF',
@@ -218,7 +218,7 @@ export const cyberGuardTheme: Appearance = {
 }
 
 // Simplified theme for basic usage
-export const cyberGuardSimpleTheme: Appearance = {
+export const cynerraSimpleTheme: Appearance = {
   variables: {
     colorPrimary: '#00D8FF',
     colorBackground: '#0D1117',
