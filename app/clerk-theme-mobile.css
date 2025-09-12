@@ -1,0 +1,544 @@
+/* CyberGuard Dark Theme for Clerk Authentication - Mobile Optimized */
+
+/* CSS Custom Properties for Mobile Responsiveness */
+:root {
+  --clerk-primary-color: #00D8FF;
+  --clerk-background-dark: #0D1117;
+  --clerk-card-background: rgba(26, 26, 46, 0.9);
+  --clerk-input-background: rgba(15, 23, 42, 0.6);
+  --clerk-border-color: #334155;
+  --clerk-text-primary: #F8FAFC;
+  --clerk-text-secondary: #94A3B8;
+  --clerk-text-tertiary: #64748B;
+  
+  /* Mobile-first spacing variables */
+  --clerk-mobile-padding: 1rem;
+  --clerk-tablet-padding: 1.5rem;
+  --clerk-desktop-padding: 2rem;
+  
+  /* Touch target sizes */
+  --clerk-touch-target-min: 44px;
+  --clerk-touch-target-comfortable: 48px;
+  --clerk-touch-target-large: 52px;
+  
+  /* Responsive font sizes */
+  --clerk-font-xs: clamp(0.75rem, 3vw, 0.875rem);
+  --clerk-font-sm: clamp(0.875rem, 3.5vw, 1rem);
+  --clerk-font-base: clamp(1rem, 4vw, 1.125rem);
+  --clerk-font-lg: clamp(1.125rem, 4.5vw, 1.25rem);
+  --clerk-font-xl: clamp(1.25rem, 5vw, 1.5rem);
+  --clerk-font-2xl: clamp(1.5rem, 6vw, 2rem);
+  
+  /* Safe area support for devices with notches */
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Base responsive container improvements */
+.cl-rootBox {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+
+/* Main Card Container - Mobile First */
+.cl-card {
+  background: var(--clerk-card-background) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(51, 65, 85, 0.3) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  width: 100% !important;
+  max-width: min(90vw, 400px) !important;
+  margin: 0 auto !important;
+  padding: var(--clerk-mobile-padding) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* Header Elements */
+.cl-headerTitle {
+  color: var(--clerk-text-primary) !important;
+  font-size: var(--clerk-font-xl) !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  margin-bottom: 0.5rem !important;
+  line-height: 1.3 !important;
+}
+
+.cl-headerSubtitle {
+  color: var(--clerk-text-secondary) !important;
+  font-size: var(--clerk-font-sm) !important;
+  text-align: center !important;
+  margin-bottom: 1.5rem !important;
+  line-height: 1.4 !important;
+}
+
+/* Form Fields - Mobile Optimized */
+.cl-formFieldInput {
+  background: var(--clerk-input-background) !important;
+  border: 1px solid var(--clerk-border-color) !important;
+  border-radius: 0.5rem !important;
+  color: var(--clerk-text-primary) !important;
+  font-size: 16px !important; /* Prevents iOS zoom */
+  line-height: 1.5 !important;
+  padding: 1rem !important;
+  min-height: var(--clerk-touch-target-comfortable) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  transition: all 0.3s ease !important;
+  touch-action: manipulation !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+.cl-formFieldInput:focus {
+  border-color: var(--clerk-primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(0, 216, 255, 0.1) !important;
+  outline: none !important;
+}
+
+.cl-formFieldInput::placeholder {
+  color: var(--clerk-text-tertiary) !important;
+  opacity: 1 !important;
+}
+
+.cl-formFieldLabel {
+  color: var(--clerk-text-primary) !important;
+  font-size: var(--clerk-font-sm) !important;
+  font-weight: 500 !important;
+  margin-bottom: 0.5rem !important;
+  display: block !important;
+  line-height: 1.4 !important;
+}
+
+/* Primary Button - Mobile Optimized */
+.cl-formButtonPrimary {
+  background: linear-gradient(135deg, var(--clerk-primary-color), #0EA5E9) !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  color: #0F172A !important;
+  font-size: 16px !important; /* Prevents iOS zoom */
+  font-weight: 600 !important;
+  padding: 1rem 1.5rem !important;
+  min-height: var(--clerk-touch-target-comfortable) !important;
+  width: 100% !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 14px 0 rgba(0, 216, 255, 0.25) !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  user-select: none !important;
+  box-sizing: border-box !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background: linear-gradient(135deg, #22D3EE, #0284C7) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px 0 rgba(0, 216, 255, 0.35) !important;
+}
+
+.cl-formButtonPrimary:active {
+  transform: translateY(0) !important;
+}
+
+/* Social OAuth Buttons - Mobile Optimized */
+.cl-socialButtonsBlockButton {
+  background: var(--clerk-input-background) !important;
+  border: 1px solid var(--clerk-border-color) !important;
+  border-radius: 0.5rem !important;
+  color: var(--clerk-text-primary) !important;
+  font-size: 16px !important;
+  padding: 1rem !important;
+  min-height: var(--clerk-touch-target-comfortable) !important;
+  width: 100% !important;
+  transition: all 0.3s ease !important;
+  margin-bottom: 0.75rem !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.cl-socialButtonsBlockButton:hover {
+  background: rgba(0, 216, 255, 0.1) !important;
+  border-color: var(--clerk-primary-color) !important;
+}
+
+.cl-socialButtonsBlockButtonText {
+  color: var(--clerk-text-primary) !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+}
+
+/* Links and Actions - Touch Friendly with Baseline Alignment Fix */
+.cl-footerActionLink,
+.cl-formResendCodeLink {
+  color: var(--clerk-primary-color) !important;
+  font-weight: 500 !important;
+  font-size: var(--clerk-font-sm) !important;
+  text-decoration: none !important;
+  transition: color 0.3s ease !important;
+  padding: 0.5rem !important;
+  min-height: var(--clerk-touch-target-min) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  border-radius: 0.25rem !important;
+  /* Baseline alignment fix for inline text */
+  vertical-align: baseline !important;
+  line-height: 1.2 !important;
+}
+
+.cl-footerActionLink:hover,
+.cl-formResendCodeLink:hover {
+  color: #22D3EE !important;
+  background: rgba(0, 216, 255, 0.1) !important;
+}
+
+/* Footer Text and Link Baseline Alignment Fix */
+.cl-footer {
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  gap: 0.25rem !important;
+  text-align: center !important;
+  line-height: 1.2 !important;
+  flex-wrap: wrap !important;
+}
+
+.cl-footerText {
+  color: var(--clerk-text-secondary) !important;
+  font-size: var(--clerk-font-sm) !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+  display: inline !important;
+  vertical-align: baseline !important;
+}
+
+/* Specific baseline alignment for "Don't have an account?" and "Sign up" */
+.cl-footer .cl-footerText,
+.cl-footer .cl-footerActionLink {
+  vertical-align: baseline !important;
+  line-height: 1.2 !important;
+  font-size: var(--clerk-font-sm) !important;
+  display: inline !important;
+}
+
+.cl-footer .cl-footerActionLink {
+  padding: 0.25rem 0.5rem !important;
+  margin: 0 !important;
+  min-height: auto !important;
+}
+
+/* Alternative approach for stubborn baseline alignment issues */
+.cl-footer > * {
+  vertical-align: baseline !important;
+  display: inline !important;
+  line-height: 1.2 !important;
+}
+
+/* Ensure consistent font rendering for baseline alignment */
+.cl-footer,
+.cl-footer .cl-footerText,
+.cl-footer .cl-footerActionLink {
+  font-family: inherit !important;
+  font-weight: inherit !important;
+  letter-spacing: inherit !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* Divider Styling */
+.cl-dividerLine {
+  background: var(--clerk-border-color) !important;
+  height: 1px !important;
+  border: none !important;
+}
+
+.cl-dividerText {
+  color: var(--clerk-text-secondary) !important;
+  font-size: var(--clerk-font-sm) !important;
+  background: var(--clerk-card-background) !important;
+  padding: 0 1rem !important;
+}
+
+/* Error and Success Messages */
+.cl-formFieldErrorText {
+  color: #EF4444 !important;
+  font-size: var(--clerk-font-xs) !important;
+  margin-top: 0.25rem !important;
+  line-height: 1.4 !important;
+}
+
+.cl-formFieldSuccessText {
+  color: #10B981 !important;
+  font-size: var(--clerk-font-xs) !important;
+  margin-top: 0.25rem !important;
+  line-height: 1.4 !important;
+}
+
+/* Loading and Spinner */
+.cl-spinner {
+  border-color: var(--clerk-border-color) !important;
+  border-top-color: var(--clerk-primary-color) !important;
+}
+
+/* Form Container Spacing */
+.cl-form {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+  width: 100% !important;
+}
+
+.cl-formField {
+  width: 100% !important;
+  margin-bottom: 1rem !important;
+}
+
+.cl-formField:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Mobile Device Specific Optimizations */
+
+/* Extra Small Mobile Phones (320px - 480px) */
+@media (max-width: 480px) {
+  :root {
+    --clerk-mobile-padding: 0.75rem;
+  }
+  
+  .cl-card {
+    max-width: 95vw !important;
+    padding: var(--clerk-mobile-padding) !important;
+    margin: 1rem auto !important;
+    border-radius: 0.75rem !important;
+  }
+  
+  .cl-formFieldInput {
+    font-size: 16px !important;
+    padding: 1.125rem 1rem !important;
+    min-height: var(--clerk-touch-target-large) !important;
+  }
+  
+  .cl-formButtonPrimary {
+    font-size: 16px !important;
+    padding: 1.25rem 1.5rem !important;
+    min-height: var(--clerk-touch-target-large) !important;
+  }
+  
+  .cl-socialButtonsBlockButton {
+    font-size: 16px !important;
+    padding: 1.125rem 1rem !important;
+    min-height: var(--clerk-touch-target-large) !important;
+  }
+  
+  .cl-headerTitle {
+    font-size: clamp(1.25rem, 6vw, 1.5rem) !important;
+  }
+  
+  .cl-headerSubtitle {
+    margin-bottom: 1rem !important;
+  }
+  
+  .cl-footerActionLink,
+  .cl-formResendCodeLink {
+    padding: 0.75rem !important;
+    min-height: var(--clerk-touch-target-min) !important;
+  }
+}
+
+/* Standard Mobile and Small Tablets (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .cl-card {
+    max-width: min(85vw, 380px) !important;
+    padding: var(--clerk-tablet-padding) !important;
+    margin: 1.5rem auto !important;
+  }
+  
+  .cl-formFieldInput {
+    padding: 1rem 1.125rem !important;
+  }
+  
+  .cl-formButtonPrimary {
+    padding: 1rem 1.5rem !important;
+  }
+  
+  .cl-socialButtonsBlockButton {
+    padding: 1rem 1.125rem !important;
+  }
+}
+
+/* Medium Tablets (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .cl-card {
+    max-width: min(70vw, 420px) !important;
+    padding: var(--clerk-desktop-padding) !important;
+    margin: 2rem auto !important;
+  }
+  
+  .cl-headerTitle {
+    font-size: 1.75rem !important;
+  }
+}
+
+/* Desktop and Larger (1025px+) */
+@media (min-width: 1025px) {
+  .cl-card {
+    max-width: 400px !important;
+    padding: var(--clerk-desktop-padding) !important;
+  }
+  
+  .cl-formFieldInput {
+    font-size: 0.875rem !important;
+    padding: 0.875rem 1rem !important;
+    min-height: var(--clerk-touch-target-min) !important;
+  }
+  
+  .cl-formButtonPrimary {
+    font-size: 0.875rem !important;
+    padding: 0.875rem 1.5rem !important;
+    min-height: var(--clerk-touch-target-min) !important;
+  }
+  
+  .cl-socialButtonsBlockButton {
+    font-size: 0.875rem !important;
+    padding: 0.875rem 1rem !important;
+    min-height: var(--clerk-touch-target-min) !important;
+  }
+  
+  .cl-footerActionLink,
+  .cl-formResendCodeLink {
+    font-size: 0.875rem !important;
+    padding: 0.375rem 0.75rem !important;
+  }
+}
+
+/* Landscape Orientation Fixes */
+@media (max-height: 500px) and (orientation: landscape) {
+  .cl-card {
+    margin: 0.5rem auto !important;
+    padding: 1rem !important;
+  }
+  
+  .cl-headerTitle {
+    font-size: 1.25rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+  
+  .cl-headerSubtitle {
+    margin-bottom: 1rem !important;
+  }
+  
+  .cl-formField {
+    margin-bottom: 0.75rem !important;
+  }
+}
+
+/* iOS Specific Fixes */
+@supports (-webkit-touch-callout: none) {
+  .cl-formFieldInput {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    border-radius: 0.5rem !important;
+  }
+  
+  .cl-formButtonPrimary {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    -webkit-tap-highlight-color: rgba(0, 216, 255, 0.3) !important;
+  }
+}
+
+/* High DPI Display Optimization */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .cl-card {
+    border-width: 0.5px !important;
+  }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  .cl-formButtonPrimary,
+  .cl-socialButtonsBlockButton,
+  .cl-footerActionLink,
+  .cl-formResendCodeLink {
+    transition: none !important;
+  }
+  
+  .cl-formButtonPrimary:hover {
+    transform: none !important;
+  }
+}
+
+/* Focus Visible for Keyboard Navigation */
+.cl-formFieldInput:focus-visible,
+.cl-formButtonPrimary:focus-visible,
+.cl-socialButtonsBlockButton:focus-visible,
+.cl-footerActionLink:focus-visible {
+  outline: 2px solid var(--clerk-primary-color) !important;
+  outline-offset: 2px !important;
+}
+
+/* Prevent Horizontal Overflow */
+.cl-rootBox,
+.cl-card,
+.cl-form {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Ensure all interactive elements meet minimum touch target size */
+button,
+input,
+select,
+textarea,
+a[role="button"],
+[role="button"] {
+  min-height: var(--clerk-touch-target-min) !important;
+  min-width: var(--clerk-touch-target-min) !important;
+}
+
+/* UserButton Styling for Mobile */
+.cl-userButtonBox {
+  border: 1px solid rgba(51, 65, 85, 0.3) !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.3s ease !important;
+  min-height: var(--clerk-touch-target-min) !important;
+  min-width: var(--clerk-touch-target-min) !important;
+}
+
+.cl-userButtonBox:hover {
+  border-color: var(--clerk-primary-color) !important;
+  box-shadow: 0 0 0 2px rgba(0, 216, 255, 0.1) !important;
+}
+
+/* UserButton Dropdown */
+.cl-userButtonPopoverCard {
+  background: rgba(30, 41, 59, 0.95) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(51, 65, 85, 0.3) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  max-width: 90vw !important;
+}
+
+.cl-userButtonPopoverActionButton {
+  color: var(--clerk-text-primary) !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.3s ease !important;
+  min-height: var(--clerk-touch-target-min) !important;
+  padding: 0.75rem !important;
+}
+
+.cl-userButtonPopoverActionButton:hover {
+  background: rgba(0, 216, 255, 0.1) !important;
+  color: var(--clerk-primary-color) !important;
+}

@@ -8,6 +8,12 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'CyberGuard - Vulnerability Assessment & Risk Management Platform',
   description: 'Enterprise-grade cybersecurity vulnerability assessment and risk management SaaS platform',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 export default function RootLayout({

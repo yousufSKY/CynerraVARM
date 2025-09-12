@@ -4,7 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs'
+import { UserButton, useUser } from '@clerk/nextjs'
+import { cyberGuardTheme } from '@/lib/clerk-theme'
 import { 
   Shield, 
   Menu, 
@@ -106,27 +107,24 @@ export function Header() {
                 Dashboard
               </Link>
               <UserButton 
-                appearance={{
-                  elements: {
-                    avatarBox: "w-8 h-8",
-                  },
-                }}
+                appearance={cyberGuardTheme}
               />
             </>
           ) : (
             <>
-              <SignInButton mode="modal">
-                <button className="text-sm text-blue-200 hover:text-cyan-400 transition-colors">
-                  Login
-                </button>
-              </SignInButton>
+              <Link 
+                href="/sign-in"
+                className="text-sm text-blue-200 hover:text-cyan-400 transition-colors"
+              >
+                Login
+              </Link>
 
               {/* CTA Button */}
-              <SignUpButton mode="modal">
+              <Link href="/sign-up">
                 <Button className="bg-gradient-to-r from-cyan-400 to-blue-700 shadow-lg shadow-cyan-400/30 text-white font-medium text-xs px-3 py-1.5 rounded-lg hover:from-cyan-300 hover:to-blue-600 transition-all focus:ring-2 focus:ring-cyan-400">
                   Start Free Trial
                 </Button>
-              </SignUpButton>
+              </Link>
             </>
           )}
         </div>
@@ -188,28 +186,27 @@ export function Header() {
                   Dashboard
                 </Link>
               ) : (
-                <SignInButton mode="modal">
-                  <button 
-                    className="block text-sm text-blue-200 hover:text-cyan-400 transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Login
-                  </button>
-                </SignInButton>
+                <Link
+                  href="/sign-in"
+                  className="block text-sm text-blue-200 hover:text-cyan-400 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Login
+                </Link>
               )}
             </div>
 
             {/* Mobile CTA */}
             {!isSignedIn && (
               <div className="pt-4">
-                <SignUpButton mode="modal">
+                <Link href="/sign-up">
                   <Button 
                     className="w-full bg-gradient-to-r from-cyan-400 to-blue-700 shadow-lg shadow-cyan-400/30 text-white font-medium text-xs px-3 py-1.5 rounded-lg hover:from-cyan-300 hover:to-blue-600 transition-all focus:ring-2 focus:ring-cyan-400"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Start Free Trial
                   </Button>
-                </SignUpButton>
+                </Link>
               </div>
             )}
 
@@ -217,11 +214,7 @@ export function Header() {
             {isSignedIn && (
               <div className="pt-4 flex justify-center">
                 <UserButton 
-                  appearance={{
-                    elements: {
-                      avatarBox: "w-10 h-10",
-                    },
-                  }}
+                  appearance={cyberGuardTheme}
                 />
               </div>
             )}
