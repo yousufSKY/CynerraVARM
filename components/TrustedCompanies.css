@@ -1,0 +1,52 @@
+/* Trusted Companies Container */
+.trusted-companies {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: transparent;
+}
+
+/* Heading Styling */
+.trusted-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #e5e7eb; /* Light gray for dark theme */
+  margin-bottom: 1.5rem;
+}
+
+/* Companies Grid */
+.companies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 2rem;
+  justify-items: center;
+}
+
+/* Company Name Styling */
+.company-name {
+  font-size: 1.75rem;
+  font-weight: 500;
+  color: #f3f4f6; /* Slightly brighter gray */
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+.company-name:hover {
+  opacity: 1;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .trusted-heading {
+    font-size: 1.25rem;
+  }
+
+  .company-name {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .companies-grid {
+    grid-template-columns: 1fr;
+  }
+}
