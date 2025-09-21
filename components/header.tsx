@@ -4,8 +4,6 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { UserButton, useUser } from '@clerk/nextjs'
-import { cynerraTheme } from '@/lib/clerk-theme'
 import { 
   Shield, 
   Menu, 
@@ -35,7 +33,6 @@ const services = [
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
-  const { isSignedIn } = useUser();
 
   return (
     <header className="fixed top-0 z-50 w-full bg-[rgba(10,10,15,0.85)] border-b border-blue-900/60 shadow-lg backdrop-blur-xl">
@@ -98,35 +95,19 @@ export function Header() {
           ))}
 
           {/* Authentication Buttons */}
-          {isSignedIn ? (
-            <>
-              <Link 
-                href="/dashboard" 
-                className="text-sm text-blue-200 hover:text-cyan-400 transition-colors"
-              >
-                Dashboard
-              </Link>
-              <UserButton 
-                appearance={cynerraTheme}
-              />
-            </>
-          ) : (
-            <>
-              <Link 
-                href="/sign-in"
-                className="text-sm text-blue-200 hover:text-cyan-400 transition-colors"
-              >
-                Login
-              </Link>
+          <Link 
+            href="/sign-in"
+            className="text-sm text-blue-200 hover:text-cyan-400 transition-colors"
+          >
+            Login
+          </Link>
 
-              {/* CTA Button */}
-              <Link href="/sign-up">
-                <Button className="bg-gradient-to-r from-cyan-400 to-blue-700 shadow-lg shadow-cyan-400/30 text-white font-medium text-xs px-3 py-1.5 rounded-lg hover:from-cyan-300 hover:to-blue-600 transition-all focus:ring-2 focus:ring-cyan-400">
-                  Start Free Trial
-                </Button>
-              </Link>
-            </>
-          )}
+          {/* CTA Button */}
+          <Link href="/sign-up">
+            <Button className="bg-gradient-to-r from-cyan-400 to-blue-700 shadow-lg shadow-cyan-400/30 text-white font-medium text-xs px-3 py-1.5 rounded-lg hover:from-cyan-300 hover:to-blue-600 transition-all focus:ring-2 focus:ring-cyan-400">
+              Start Free Trial
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -177,47 +158,26 @@ export function Header() {
               ))}
               
               {/* Mobile Authentication */}
-              {isSignedIn ? (
-                <Link
-                  href="/dashboard"
-                  className="block text-sm text-blue-200 hover:text-cyan-400 transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Dashboard
-                </Link>
-              ) : (
-                <Link
-                  href="/sign-in"
-                  className="block text-sm text-blue-200 hover:text-cyan-400 transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Login
-                </Link>
-              )}
+              <Link
+                href="/sign-in"
+                className="block text-sm text-blue-200 hover:text-cyan-400 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Login
+              </Link>
             </div>
 
             {/* Mobile CTA */}
-            {!isSignedIn && (
-              <div className="pt-4">
-                <Link href="/sign-up">
-                  <Button 
-                    className="w-full bg-gradient-to-r from-cyan-400 to-blue-700 shadow-lg shadow-cyan-400/30 text-white font-medium text-xs px-3 py-1.5 rounded-lg hover:from-cyan-300 hover:to-blue-600 transition-all focus:ring-2 focus:ring-cyan-400"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Start Free Trial
-                  </Button>
-                </Link>
-              </div>
-            )}
-
-            {/* Mobile User Menu */}
-            {isSignedIn && (
-              <div className="pt-4 flex justify-center">
-                <UserButton 
-                  appearance={cynerraTheme}
-                />
-              </div>
-            )}
+            <div className="pt-4">
+              <Link href="/sign-up">
+                <Button 
+                  className="w-full bg-gradient-to-r from-cyan-400 to-blue-700 shadow-lg shadow-cyan-400/30 text-white font-medium text-xs px-3 py-1.5 rounded-lg hover:from-cyan-300 hover:to-blue-600 transition-all focus:ring-2 focus:ring-cyan-400"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Start Free Trial
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       )}

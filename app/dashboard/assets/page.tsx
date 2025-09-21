@@ -162,11 +162,11 @@ export default function AssetManagement() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Active</Badge>;
+        return <Badge className="bg-green-500/20 text-green-400 border-green-500/30"><CheckCircle className="w-3 h-3 mr-1" />Active</Badge>;
       case 'inactive':
-        return <Badge className="bg-gray-100 text-gray-800"><Clock className="w-3 h-3 mr-1" />Inactive</Badge>;
+        return <Badge className="bg-slate-500/20 text-slate-400 border-slate-500/30"><Clock className="w-3 h-3 mr-1" />Inactive</Badge>;
       case 'maintenance':
-        return <Badge className="bg-yellow-100 text-yellow-800"><AlertTriangle className="w-3 h-3 mr-1" />Maintenance</Badge>;
+        return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30"><AlertTriangle className="w-3 h-3 mr-1" />Maintenance</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -185,8 +185,8 @@ export default function AssetManagement() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Asset Management</h1>
-            <p className="text-gray-500">Manage and monitor your digital assets</p>
+            <h1 className="text-3xl font-bold text-white">Asset Management</h1>
+            <p className="text-slate-300">Manage and monitor your digital assets</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm">
@@ -237,70 +237,70 @@ export default function AssetManagement() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Assets</p>
-                  <p className="text-3xl font-bold text-gray-900">{filteredAssets.length}</p>
+                  <p className="text-sm font-medium text-slate-300">Total Assets</p>
+                  <p className="text-3xl font-bold text-white">{filteredAssets.length}</p>
                 </div>
-                <Server className="h-8 w-8 text-blue-600" />
+                <Server className="h-8 w-8 text-blue-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Active Assets</p>
-                  <p className="text-3xl font-bold text-gray-900">{activeAssets}</p>
+                  <p className="text-sm font-medium text-slate-300">Active Assets</p>
+                  <p className="text-3xl font-bold text-white">{activeAssets}</p>
                 </div>
-                <CheckCircle className="h-8 w-8 text-green-600" />
+                <CheckCircle className="h-8 w-8 text-green-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Critical Risk</p>
-                  <p className="text-3xl font-bold text-gray-900">{criticalAssets}</p>
+                  <p className="text-sm font-medium text-slate-300">Critical Risk</p>
+                  <p className="text-3xl font-bold text-white">{criticalAssets}</p>
                 </div>
-                <AlertTriangle className="h-8 w-8 text-red-600" />
+                <AlertTriangle className="h-8 w-8 text-red-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Vulnerabilities</p>
-                  <p className="text-3xl font-bold text-gray-900">{totalVulnerabilities}</p>
+                  <p className="text-sm font-medium text-slate-300">Total Vulnerabilities</p>
+                  <p className="text-3xl font-bold text-white">{totalVulnerabilities}</p>
                 </div>
-                <Eye className="h-8 w-8 text-orange-600" />
+                <Eye className="h-8 w-8 text-orange-400" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Filters */}
-        <Card>
+        <Card className="bg-slate-800/50 border-slate-700">
           <CardHeader>
-            <CardTitle>Asset Inventory</CardTitle>
-            <CardDescription>View and manage all your monitored assets</CardDescription>
+            <CardTitle className="text-white">Asset Inventory</CardTitle>
+            <CardDescription className="text-slate-300">View and manage all your monitored assets</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                 <Input
                   placeholder="Search assets..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder-slate-400"
                 />
               </div>
               <Select value={filterType} onValueChange={setFilterType}>
@@ -330,19 +330,19 @@ export default function AssetManagement() {
             </div>
 
             {/* Assets Table */}
-            <div className="border rounded-lg">
+            <div className="border border-slate-600 rounded-lg bg-slate-700/30">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Asset</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Owner</TableHead>
-                    <TableHead>Vulnerabilities</TableHead>
-                    <TableHead>Risk Score</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Last Scan</TableHead>
-                    <TableHead>Actions</TableHead>
+                  <TableRow className="border-slate-600">
+                    <TableHead className="text-slate-300">Asset</TableHead>
+                    <TableHead className="text-slate-300">Type</TableHead>
+                    <TableHead className="text-slate-300">Location</TableHead>
+                    <TableHead className="text-slate-300">Owner</TableHead>
+                    <TableHead className="text-slate-300">Vulnerabilities</TableHead>
+                    <TableHead className="text-slate-300">Risk Score</TableHead>
+                    <TableHead className="text-slate-300">Status</TableHead>
+                    <TableHead className="text-slate-300">Last Scan</TableHead>
+                    <TableHead className="text-slate-300">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -352,13 +352,13 @@ export default function AssetManagement() {
                                      asset.vulnerabilities.medium + asset.vulnerabilities.low;
                     
                     return (
-                      <TableRow key={asset.id}>
+                      <TableRow key={asset.id} className="border-slate-600 hover:bg-slate-700/50">
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <AssetIcon className="h-5 w-5 text-gray-500" />
+                            <AssetIcon className="h-5 w-5 text-slate-400" />
                             <div>
-                              <p className="font-medium text-gray-900">{asset.name}</p>
-                              <p className="text-sm text-gray-500">{asset.ip}</p>
+                              <p className="font-medium text-white">{asset.name}</p>
+                              <p className="text-sm text-slate-400">{asset.ip}</p>
                             </div>
                           </div>
                         </TableCell>
@@ -367,18 +367,18 @@ export default function AssetManagement() {
                             {assetTypes[asset.type as keyof typeof assetTypes].label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-sm text-gray-700">{asset.location}</TableCell>
-                        <TableCell className="text-sm text-gray-700">{asset.owner}</TableCell>
+                        <TableCell className="text-sm text-slate-300">{asset.location}</TableCell>
+                        <TableCell className="text-sm text-slate-300">{asset.owner}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">{totalVulns}</span>
+                            <span className="text-sm font-medium text-white">{totalVulns}</span>
                             {asset.vulnerabilities.critical > 0 && (
-                              <Badge className="bg-red-100 text-red-800 text-xs px-1 py-0">
+                              <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-xs px-1 py-0">
                                 {asset.vulnerabilities.critical}C
                               </Badge>
                             )}
                             {asset.vulnerabilities.high > 0 && (
-                              <Badge className="bg-orange-100 text-orange-800 text-xs px-1 py-0">
+                              <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-xs px-1 py-0">
                                 {asset.vulnerabilities.high}H
                               </Badge>
                             )}
@@ -390,16 +390,16 @@ export default function AssetManagement() {
                           </span>
                         </TableCell>
                         <TableCell>{getStatusBadge(asset.status)}</TableCell>
-                        <TableCell className="text-sm text-gray-700">{asset.lastScan}</TableCell>
+                        <TableCell className="text-sm text-slate-300">{asset.lastScan}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                            <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300">
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>

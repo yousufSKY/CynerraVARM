@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,10 +41,27 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 
 export default function Dashboard() {
   const [timeRange, setTimeRange] = useState('7d');
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded, isSignedIn } = useUser();
+  const router = useRouter();
+
+  // Handle authentication state
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push('/sign-in');
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   // Show loading state while user data is loading
   if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#151528] to-[#1a1a2e] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400"></div>
+      </div>
+    );
+  }
+
+  // Redirect if not signed in
+  if (!isSignedIn) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#151528] to-[#1a1a2e] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400"></div>
@@ -159,10 +177,10 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-white">
               Welcome back, {user?.firstName || 'User'}!
             </h1>
-            <p className="text-gray-500">Here's your comprehensive security overview</p>
+            <p className="text-slate-300">Here's your comprehensive security overview</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm">
@@ -182,73 +200,73 @@ export default function Dashboard() {
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Vulnerabilities</p>
-                  <p className="text-3xl font-bold text-gray-900">1,055</p>
+                  <p className="text-sm font-medium text-slate-300">Total Vulnerabilities</p>
+                  <p className="text-3xl font-bold text-white">1,055</p>
                   <div className="flex items-center mt-1">
-                    <TrendingUp className="h-4 w-4 text-red-500 mr-1" />
-                    <span className="text-sm text-red-500">+12% from last week</span>
+                    <TrendingUp className="h-4 w-4 text-red-400 mr-1" />
+                    <span className="text-sm text-red-400">+12% from last week</span>
                   </div>
                 </div>
-                <div className="bg-red-100 p-3 rounded-full">
-                  <AlertTriangle className="h-6 w-6 text-red-600" />
+                <div className="bg-red-500/20 p-3 rounded-full">
+                  <AlertTriangle className="h-6 w-6 text-red-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Critical Risks</p>
-                  <p className="text-3xl font-bold text-gray-900">52</p>
+                  <p className="text-sm font-medium text-slate-300">Critical Risks</p>
+                  <p className="text-3xl font-bold text-white">52</p>
                   <div className="flex items-center mt-1">
-                    <TrendingUp className="h-4 w-4 text-red-500 mr-1" />
-                    <span className="text-sm text-red-500">+3 new today</span>
+                    <TrendingUp className="h-4 w-4 text-red-400 mr-1" />
+                    <span className="text-sm text-red-400">+3 new today</span>
                   </div>
                 </div>
-                <div className="bg-red-100 p-3 rounded-full">
-                  <Shield className="h-6 w-6 text-red-600" />
+                <div className="bg-red-500/20 p-3 rounded-full">
+                  <Shield className="h-6 w-6 text-red-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Remediated</p>
-                  <p className="text-3xl font-bold text-gray-900">234</p>
+                  <p className="text-sm font-medium text-slate-300">Remediated</p>
+                  <p className="text-3xl font-bold text-white">234</p>
                   <div className="flex items-center mt-1">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
-                    <span className="text-sm text-green-500">+18 this week</span>
+                    <CheckCircle className="h-4 w-4 text-green-400 mr-1" />
+                    <span className="text-sm text-green-400">+18 this week</span>
                   </div>
                 </div>
-                <div className="bg-green-100 p-3 rounded-full">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
+                <div className="bg-green-500/20 p-3 rounded-full">
+                  <CheckCircle className="h-6 w-6 text-green-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Risk Score</p>
-                  <p className="text-3xl font-bold text-gray-900">7.2</p>
+                  <p className="text-sm font-medium text-slate-300">Risk Score</p>
+                  <p className="text-3xl font-bold text-white">7.2</p>
                   <div className="flex items-center mt-1">
-                    <Activity className="h-4 w-4 text-orange-500 mr-1" />
-                    <span className="text-sm text-orange-500">High Risk</span>
+                    <Activity className="h-4 w-4 text-orange-400 mr-1" />
+                    <span className="text-sm text-orange-400">High Risk</span>
                   </div>
                 </div>
-                <div className="bg-orange-100 p-3 rounded-full">
-                  <Activity className="h-6 w-6 text-orange-600" />
+                <div className="bg-orange-500/20 p-3 rounded-full">
+                  <Activity className="h-6 w-6 text-orange-400" />
                 </div>
               </div>
             </CardContent>
@@ -258,10 +276,10 @@ export default function Dashboard() {
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Vulnerability Trends */}
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
-              <CardTitle>Vulnerability Trends</CardTitle>
-              <CardDescription>7-day vulnerability discovery and remediation trends</CardDescription>
+              <CardTitle className="text-white">Vulnerability Trends</CardTitle>
+              <CardDescription className="text-slate-300">7-day vulnerability discovery and remediation trends</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-80">
@@ -282,10 +300,10 @@ export default function Dashboard() {
           </Card>
 
           {/* Risk Distribution */}
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
-              <CardTitle>Risk Distribution</CardTitle>
-              <CardDescription>Current vulnerability severity breakdown</CardDescription>
+              <CardTitle className="text-white">Risk Distribution</CardTitle>
+              <CardDescription className="text-slate-300">Current vulnerability severity breakdown</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-80">
@@ -315,7 +333,7 @@ export default function Dashboard() {
                       className="w-3 h-3 rounded-full" 
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-sm text-gray-600">{item.name}: {item.value}</span>
+                    <span className="text-sm text-slate-300">{item.name}: {item.value}</span>
                   </div>
                 ))}
               </div>
@@ -324,10 +342,10 @@ export default function Dashboard() {
         </div>
 
         {/* Asset Vulnerabilities */}
-        <Card>
+        <Card className="bg-slate-800/50 border-slate-700">
           <CardHeader>
-            <CardTitle>Asset Vulnerability Summary</CardTitle>
-            <CardDescription>Vulnerabilities by asset type</CardDescription>
+            <CardTitle className="text-white">Asset Vulnerability Summary</CardTitle>
+            <CardDescription className="text-slate-300">Vulnerabilities by asset type</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -347,36 +365,36 @@ export default function Dashboard() {
         {/* Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Scans */}
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <Eye className="h-5 w-5" />
                 Recent Scans
               </CardTitle>
-              <CardDescription>Latest vulnerability scanning activity</CardDescription>
+              <CardDescription className="text-slate-300">Latest vulnerability scanning activity</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {recentScans.map((scan) => (
-                  <div key={scan.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div key={scan.id} className="flex items-center justify-between p-4 border border-slate-600 rounded-lg bg-slate-700/30">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-gray-900">{scan.target}</h4>
+                        <h4 className="font-medium text-white">{scan.target}</h4>
                         <Badge className={getStatusColor(scan.status)} variant="secondary">
                           {scan.status}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-500">{scan.timestamp}</p>
-                      <p className="text-sm text-gray-500">Duration: {scan.duration}</p>
+                      <p className="text-sm text-slate-300">{scan.timestamp}</p>
+                      <p className="text-sm text-slate-300">Duration: {scan.duration}</p>
                     </div>
                     <div className="text-right">
                       {scan.vulnerabilities !== null && (
-                        <p className="text-lg font-semibold text-gray-900">{scan.vulnerabilities}</p>
+                        <p className="text-lg font-semibold text-white">{scan.vulnerabilities}</p>
                       )}
                       {scan.status === 'running' && (
                         <div className="flex items-center gap-2">
-                          <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full" />
-                          <span className="text-sm text-blue-600">Scanning...</span>
+                          <div className="animate-spin h-4 w-4 border-2 border-cyan-400 border-t-transparent rounded-full" />
+                          <span className="text-sm text-cyan-400">Scanning...</span>
                         </div>
                       )}
                     </div>
@@ -387,33 +405,33 @@ export default function Dashboard() {
           </Card>
 
           {/* Threat Intelligence */}
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <Globe className="h-5 w-5" />
                 Latest Threat Intelligence
               </CardTitle>
-              <CardDescription>Recent CVE discoveries affecting your assets</CardDescription>
+              <CardDescription className="text-slate-300">Recent CVE discoveries affecting your assets</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {threatIntelligence.map((threat) => (
-                  <div key={threat.id} className="p-4 border rounded-lg">
+                  <div key={threat.id} className="p-4 border border-slate-600 rounded-lg bg-slate-700/30">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="font-mono text-xs">
+                        <Badge variant="outline" className="font-mono text-xs border-slate-500 text-slate-300">
                           {threat.cve}
                         </Badge>
                         <Badge className={getSeverityColor(threat.severity)} variant="secondary">
                           {threat.severity}
                         </Badge>
                       </div>
-                      <span className="text-sm font-semibold text-gray-900">
+                      <span className="text-sm font-semibold text-white">
                         CVSS {threat.score}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-700 mb-2">{threat.description}</p>
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <p className="text-sm text-slate-200 mb-2">{threat.description}</p>
+                    <div className="flex justify-between text-xs text-slate-400">
                       <span>{threat.affected} assets affected</span>
                       <span>Published: {threat.published}</span>
                     </div>

@@ -181,21 +181,21 @@ export default function VulnerabilityScanning() {
 
   const getSeverityColor = (severity: string) => {
     switch (severity.toLowerCase()) {
-      case 'critical': return 'bg-red-100 text-red-800 border-red-300';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-300';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'low': return 'bg-green-100 text-green-800 border-green-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'critical': return 'bg-red-500/20 text-red-400 border-red-500/30';
+      case 'high': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+      case 'medium': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      case 'low': return 'bg-green-500/20 text-green-400 border-green-500/30';
+      default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'running': return <Activity className="h-4 w-4 text-blue-600 animate-pulse" />;
-      case 'failed': return <XCircle className="h-4 w-4 text-red-600" />;
-      case 'pending': return <Clock className="h-4 w-4 text-yellow-600" />;
-      default: return <Clock className="h-4 w-4 text-gray-600" />;
+      case 'completed': return <CheckCircle className="h-4 w-4 text-green-400" />;
+      case 'running': return <Activity className="h-4 w-4 text-blue-400 animate-pulse" />;
+      case 'failed': return <XCircle className="h-4 w-4 text-red-400" />;
+      case 'pending': return <Clock className="h-4 w-4 text-yellow-400" />;
+      default: return <Clock className="h-4 w-4 text-slate-400" />;
     }
   };
 
@@ -222,8 +222,8 @@ export default function VulnerabilityScanning() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Vulnerability Scanning</h1>
-            <p className="text-gray-500">Discover and assess security vulnerabilities</p>
+            <h1 className="text-3xl font-bold text-white">Vulnerability Scanning</h1>
+            <p className="text-slate-300">Discover and assess security vulnerabilities</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
@@ -366,7 +366,7 @@ export default function VulnerabilityScanning() {
                 {isScanning && (
                   <div className="space-y-2">
                     <Progress value={scanProgress} className="w-full" />
-                    <p className="text-sm text-gray-600 text-center">
+                    <p className="text-sm text-slate-300 text-center">
                       {Math.round(scanProgress)}% complete
                     </p>
                   </div>
@@ -375,28 +375,28 @@ export default function VulnerabilityScanning() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Scan Statistics</CardTitle>
-              <CardDescription>Recent scanning activity</CardDescription>
+              <CardTitle className="text-lg text-white">Scan Statistics</CardTitle>
+              <CardDescription className="text-slate-300">Recent scanning activity</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Scans Today</span>
-                  <span className="font-semibold">12</span>
+                  <span className="text-sm text-slate-300">Scans Today</span>
+                  <span className="font-semibold text-white">12</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Active Scans</span>
-                  <span className="font-semibold text-blue-600">2</span>
+                  <span className="text-sm text-slate-300">Active Scans</span>
+                  <span className="font-semibold text-blue-400">2</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">New Vulnerabilities</span>
-                  <span className="font-semibold text-red-600">15</span>
+                  <span className="text-sm text-slate-300">New Vulnerabilities</span>
+                  <span className="font-semibold text-red-400">15</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Scan Templates</span>
-                  <span className="font-semibold">{scanTemplates.length}</span>
+                  <span className="text-sm text-slate-300">Scan Templates</span>
+                  <span className="font-semibold text-white">{scanTemplates.length}</span>
                 </div>
               </div>
             </CardContent>
@@ -437,32 +437,32 @@ export default function VulnerabilityScanning() {
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
+              <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader>
-                  <CardTitle>Active Scans</CardTitle>
-                  <CardDescription>Currently running vulnerability scans</CardDescription>
+                  <CardTitle className="text-white">Active Scans</CardTitle>
+                  <CardDescription className="text-slate-300">Currently running vulnerability scans</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {recentScans.filter(scan => scan.status === 'running').map((scan) => (
-                      <div key={scan.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div key={scan.id} className="flex items-center justify-between p-4 border border-slate-600 rounded-lg bg-slate-700/30">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <Activity className="h-4 w-4 text-blue-600 animate-pulse" />
-                            <span className="font-medium">{scan.name}</span>
+                            <Activity className="h-4 w-4 text-cyan-400 animate-pulse" />
+                            <span className="font-medium text-white">{scan.name}</span>
                           </div>
-                          <p className="text-sm text-gray-600 mb-2">{scan.target}</p>
+                          <p className="text-sm text-slate-300 mb-2">{scan.target}</p>
                           <Progress value={scan.progress} className="w-full mb-2" />
-                          <div className="flex justify-between text-sm text-gray-500">
+                          <div className="flex justify-between text-sm text-slate-400">
                             <span>{scan.progress}% complete</span>
                             <span>Running for {scan.duration}</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 ml-4">
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
                             <Pause className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
                             <Square className="h-4 w-4" />
                           </Button>
                         </div>
@@ -470,32 +470,32 @@ export default function VulnerabilityScanning() {
                     ))}
                     
                     {recentScans.filter(scan => scan.status === 'running').length === 0 && (
-                      <p className="text-center text-gray-500 py-8">No active scans</p>
+                      <p className="text-center text-slate-400 py-8">No active scans</p>
                     )}
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader>
-                  <CardTitle>Recent Findings</CardTitle>
-                  <CardDescription>Latest vulnerability discoveries</CardDescription>
+                  <CardTitle className="text-white">Recent Findings</CardTitle>
+                  <CardDescription className="text-slate-300">Latest vulnerability discoveries</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {vulnerabilityDetails.map((vuln) => (
-                      <div key={vuln.id} className="flex items-start gap-3 p-3 border rounded-lg">
+                      <div key={vuln.id} className="flex items-start gap-3 p-3 border border-slate-600 rounded-lg bg-slate-700/30">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <Badge className={getSeverityColor(vuln.severity)} variant="secondary">
                               {vuln.severity}
                             </Badge>
-                            <span className="text-sm font-medium">CVSS {vuln.cvss}</span>
+                            <span className="text-sm font-medium text-white">CVSS {vuln.cvss}</span>
                           </div>
-                          <h4 className="font-medium text-gray-900 mb-1">{vuln.title}</h4>
-                          <p className="text-sm text-gray-600">{vuln.affected} assets affected</p>
+                          <h4 className="font-medium text-white mb-1">{vuln.title}</h4>
+                          <p className="text-sm text-slate-400">{vuln.affected} assets affected</p>
                         </div>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
                           <Eye className="h-4 w-4" />
                         </Button>
                       </div>
@@ -531,25 +531,25 @@ export default function VulnerabilityScanning() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {getStatusIcon(scan.status)}
-                            <span className="font-medium">{scan.name}</span>
+                            <span className="font-medium text-white">{scan.name}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="font-mono text-sm">{scan.target}</TableCell>
+                        <TableCell className="font-mono text-sm text-slate-300">{scan.target}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Badge 
                               className={
-                                scan.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                scan.status === 'running' ? 'bg-blue-100 text-blue-800' :
-                                scan.status === 'failed' ? 'bg-red-100 text-red-800' :
-                                'bg-gray-100 text-gray-800'
+                                scan.status === 'completed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                                scan.status === 'running' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                                scan.status === 'failed' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                'bg-slate-500/20 text-slate-400 border-slate-500/30'
                               }
                               variant="secondary"
                             >
                               {scan.status}
                             </Badge>
                             {scan.status === 'running' && (
-                              <span className="text-sm text-gray-500">{scan.progress}%</span>
+                              <span className="text-sm text-slate-400">{scan.progress}%</span>
                             )}
                           </div>
                         </TableCell>
@@ -557,38 +557,38 @@ export default function VulnerabilityScanning() {
                           {scan.vulnerabilities ? (
                             <div className="flex items-center gap-1">
                               {scan.vulnerabilities.critical > 0 && (
-                                <Badge className="bg-red-100 text-red-800 text-xs px-1 py-0">
+                                <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-xs px-1 py-0">
                                   {scan.vulnerabilities.critical}C
                                 </Badge>
                               )}
                               {scan.vulnerabilities.high > 0 && (
-                                <Badge className="bg-orange-100 text-orange-800 text-xs px-1 py-0">
+                                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-xs px-1 py-0">
                                   {scan.vulnerabilities.high}H
                                 </Badge>
                               )}
                               {scan.vulnerabilities.medium > 0 && (
-                                <Badge className="bg-yellow-100 text-yellow-800 text-xs px-1 py-0">
+                                <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs px-1 py-0">
                                   {scan.vulnerabilities.medium}M
                                 </Badge>
                               )}
                               {scan.vulnerabilities.low > 0 && (
-                                <Badge className="bg-green-100 text-green-800 text-xs px-1 py-0">
+                                <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs px-1 py-0">
                                   {scan.vulnerabilities.low}L
                                 </Badge>
                               )}
                             </div>
                           ) : (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-slate-400">-</span>
                           )}
                         </TableCell>
-                        <TableCell className="text-sm">{scan.duration}</TableCell>
-                        <TableCell className="text-sm">{scan.startTime}</TableCell>
+                        <TableCell className="text-sm text-slate-300">{scan.duration}</TableCell>
+                        <TableCell className="text-sm text-slate-300">{scan.startTime}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
                               <Download className="h-4 w-4" />
                             </Button>
                           </div>
@@ -619,31 +619,31 @@ export default function VulnerabilityScanning() {
                           <Badge variant="outline" className="font-mono">
                             {vuln.id}
                           </Badge>
-                          <span className="text-sm font-semibold">CVSS {vuln.cvss}</span>
+                          <span className="text-sm font-semibold text-white">CVSS {vuln.cvss}</span>
                         </div>
-                        <Badge className="bg-gray-100 text-gray-800" variant="secondary">
+                        <Badge className="bg-slate-500/20 text-slate-400 border-slate-500/30" variant="secondary">
                           {vuln.affected} affected
                         </Badge>
                       </div>
                       
-                      <h3 className="font-semibold text-lg text-gray-900 mb-2">{vuln.title}</h3>
-                      <p className="text-gray-700 mb-3">{vuln.description}</p>
+                      <h3 className="font-semibold text-lg text-white mb-2">{vuln.title}</h3>
+                      <p className="text-slate-300 mb-3">{vuln.description}</p>
                       
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                        <h4 className="font-medium text-blue-900 mb-1">Recommended Solution</h4>
-                        <p className="text-blue-800 text-sm">{vuln.solution}</p>
+                      <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-3 mb-3">
+                        <h4 className="font-medium text-blue-400 mb-1">Recommended Solution</h4>
+                        <p className="text-blue-300 text-sm">{vuln.solution}</p>
                       </div>
                       
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:text-white">
                             View Details
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:text-white">
                             Create Ticket
                           </Button>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-gray-500">
+                        <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
                           Mark as False Positive
                         </Button>
                       </div>
@@ -655,51 +655,51 @@ export default function VulnerabilityScanning() {
           </TabsContent>
 
           <TabsContent value="templates" className="space-y-6">
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700">
               <CardHeader>
-                <CardTitle>Scan Templates</CardTitle>
-                <CardDescription>Pre-configured scan templates for different scenarios</CardDescription>
+                <CardTitle className="text-white">Scan Templates</CardTitle>
+                <CardDescription className="text-slate-300">Pre-configured scan templates for different scenarios</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
                   {scanTemplates.map((template) => (
-                    <div key={template.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div key={template.id} className="flex items-center justify-between p-4 border border-slate-600 rounded-lg bg-slate-700/30">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-gray-900">{template.name}</h3>
+                          <h3 className="font-semibold text-white">{template.name}</h3>
                           <Badge 
-                            className={template.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+                            className={template.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-slate-500/20 text-slate-400 border-slate-500/30'}
                             variant="secondary"
                           >
                             {template.status}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">{template.description}</p>
+                        <p className="text-sm text-slate-300 mb-2">{template.description}</p>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                           <div>
-                            <span className="text-gray-500">Targets:</span>
-                            <p className="font-mono">{template.targets}</p>
+                            <span className="text-slate-400">Targets:</span>
+                            <p className="font-mono text-slate-300">{template.targets}</p>
                           </div>
                           <div>
-                            <span className="text-gray-500">Schedule:</span>
-                            <p>{template.schedule}</p>
+                            <span className="text-slate-400">Schedule:</span>
+                            <p className="text-slate-300">{template.schedule}</p>
                           </div>
                           <div>
-                            <span className="text-gray-500">Last Run:</span>
-                            <p>{template.lastRun}</p>
+                            <span className="text-slate-400">Last Run:</span>
+                            <p className="text-slate-300">{template.lastRun}</p>
                           </div>
                           <div>
-                            <span className="text-gray-500">Next Run:</span>
-                            <p>{template.nextRun}</p>
+                            <span className="text-slate-400">Next Run:</span>
+                            <p className="text-slate-300">{template.nextRun}</p>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 ml-4">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:text-white">
                           <Play className="h-4 w-4 mr-1" />
                           Run Now
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
                           <Settings className="h-4 w-4" />
                         </Button>
                       </div>

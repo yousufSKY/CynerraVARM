@@ -1,226 +1,252 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { 
-  BarChart3, 
-  Shield, 
-  Server, 
-  Eye, 
-  AlertTriangle, 
-  FileText, 
-  Globe, 
-  Settings, 
-  User, 
-  LogOut, 
-  Menu,
+import { UserButton, useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import {
   Bell,
   Search,
+  Menu,
+  X,
+  Shield,
+  BarChart3,
+  FileText,
+  Scan,
   Home,
-  Activity
+  Settings,
+  ChevronDown,
+  Users,
+  Activity,
+  TrendingUp
 } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Asset Management', href: '/dashboard/assets', icon: Server },
-  { name: 'Vulnerability Scanning', href: '/dashboard/scanning', icon: Eye },
-  { name: 'Risk Assessment', href: '/dashboard/risk', icon: AlertTriangle },
-  { name: 'Remediation', href: '/dashboard/remediation', icon: Shield },
-  { name: 'Reports & Compliance', href: '/dashboard/reports', icon: FileText },
-  { name: 'Threat Intelligence', href: '/dashboard/threats', icon: Globe },
-  { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
-];
-
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const notifications = [
-    { id: 1, type: 'critical', message: 'New critical vulnerability detected in production servers', time: '5 min ago' },
-    { id: 2, type: 'warning', message: 'Scheduled scan completed with 23 new findings', time: '1 hour ago' },
-    { id: 3, type: 'info', message: 'Weekly compliance report is ready for review', time: '2 hours ago' },
+  const navigationItems = [
+    { name: 'Overview', href: '/dashboard', icon: Home },
+    { name: 'Assets', href: '/dashboard/assets', icon: Shield },
+    { name: 'Risk Assessment', href: '/dashboard/risk', icon: BarChart3 },
+    { name: 'Scanning', href: '/dashboard/scanning', icon: Scan },
+    { name: 'Reports', href: '/dashboard/reports', icon: FileText },
   ];
 
-  const getNotificationColor = (type: string) => {
-    switch (type) {
-      case 'critical': return 'bg-red-100 border-red-300';
-      case 'warning': return 'bg-orange-100 border-orange-300';
-      case 'info': return 'bg-blue-100 border-blue-300';
-      default: return 'bg-gray-100 border-gray-300';
-    }
-  };
+  const quickActions = [
+    { name: 'Start Security Scan', action: () => router.push('/dashboard/scanning') },
+    { name: 'Generate Report', action: () => router.push('/dashboard/reports') },
+    { name: 'View Assets', action: () => router.push('/dashboard/assets') },
+  ];
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full">
-      {/* Logo */}
-      <div className="flex items-center gap-2 px-6 py-4 border-b">
-        <Shield className="h-8 w-8 text-orange-500" />
-        <span className="text-xl font-bold text-gray-900">Cynerra</span>
+  const notifications = [
+    { id: 1, title: 'Critical vulnerability detected', type: 'critical', time: '2 min ago' },
+    { id: 2, title: 'Security scan completed', type: 'success', time: '1 hour ago' },
+    { id: 3, title: 'New assets discovered', type: 'info', time: '3 hours ago' },
+  ];
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400"></div>
       </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-1">
-        {navigation.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-orange-50 text-orange-700 border border-orange-200'
-                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-              }`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <item.icon className="h-5 w-5" />
-              {item.name}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* User info */}
-      <div className="p-4 border-t">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src="/api/placeholder/40/40" />
-            <AvatarFallback className="bg-orange-100 text-orange-700">JD</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">John Doe</p>
-            <p className="text-xs text-gray-500 truncate">Security Administrator</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
-        <div className="flex flex-col flex-grow bg-white shadow-sm">
-          <SidebarContent />
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Header */}
+      <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-50">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Left section */}
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="lg:hidden text-slate-100 hover:text-cyan-100 hover:bg-slate-700/50 transition-colors"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              >
+                {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+              
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
+                    <Shield className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-xl font-bold text-white">Cynerra</span>
+                </div>
+              </div>
+            </div>
 
-      {/* Mobile Sidebar */}
-      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetContent side="left" className="p-0 w-72">
-          <SidebarContent />
-        </SheetContent>
-      </Sheet>
-
-      {/* Main Content */}
-      <div className="lg:pl-72">
-        {/* Top Header */}
-        <header className="bg-white shadow-sm border-b sticky top-0 z-40">
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-4">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="lg:hidden">
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="p-0 w-72">
-                  <SidebarContent />
-                </SheetContent>
-              </Sheet>
-
-              {/* Search */}
-              <div className="relative max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            {/* Center section - Search */}
+            <div className="hidden md:flex flex-1 max-w-md mx-8">
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                 <Input
-                  placeholder="Search vulnerabilities, assets..."
-                  className="pl-10 w-full md:w-96"
+                  type="text"
+                  placeholder="Search assets, vulnerabilities, reports..."
+                  className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            {/* Right section */}
+            <div className="flex items-center space-x-4">
+              {/* Quick Actions */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="hidden sm:flex text-slate-100 hover:text-cyan-100 hover:bg-slate-700/50 transition-colors">
+                    Quick Actions
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-slate-800 border-slate-700">
+                  <DropdownMenuLabel className="text-cyan-100 font-semibold">Quick Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-slate-700" />
+                  {quickActions.map((action) => (
+                    <DropdownMenuItem 
+                      key={action.name}
+                      onClick={action.action}
+                      className="text-slate-100 hover:bg-slate-700/80 hover:text-cyan-100 cursor-pointer transition-colors"
+                    >
+                      {action.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               {/* Notifications */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
+                  <Button variant="ghost" size="sm" className="relative text-slate-100 hover:text-cyan-100 hover:bg-slate-700/50 transition-colors">
                     <Bell className="h-5 w-5" />
-                    <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-red-500 text-xs">
-                      3
-                    </Badge>
+                    {notifications.length > 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-red-500 text-white text-xs flex items-center justify-center">
+                        {notifications.length}
+                      </Badge>
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80">
-                  <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <div className="max-h-64 overflow-y-auto">
-                    {notifications.map((notification) => (
-                      <DropdownMenuItem key={notification.id} className="p-0">
-                        <div className={`w-full p-3 border-l-4 ${getNotificationColor(notification.type)}`}>
-                          <p className="text-sm text-gray-900 mb-1">{notification.message}</p>
-                          <p className="text-xs text-gray-500">{notification.time}</p>
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
-                  </div>
+                <DropdownMenuContent align="end" className="w-80 bg-slate-800 border-slate-700">
+                  <DropdownMenuLabel className="text-cyan-100 font-semibold">Notifications</DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-slate-700" />
+                  {notifications.map((notification) => (
+                    <DropdownMenuItem key={notification.id} className="p-4 hover:bg-slate-700/80 transition-colors">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm text-slate-100 font-medium">{notification.title}</p>
+                        <p className="text-xs text-slate-300">{notification.time}</p>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
 
               {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-2">
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="/api/placeholder/32/32" />
-                      <AvatarFallback className="bg-orange-100 text-orange-700">JD</AvatarFallback>
+                      <AvatarImage src={user?.imageUrl} alt={user?.fullName || 'User'} />
+                      <AvatarFallback className="bg-gradient-to-r from-cyan-400 to-blue-500 text-white">
+                        {user?.firstName?.charAt(0) || 'U'}
+                      </AvatarFallback>
                     </Avatar>
-                    <span className="hidden md:block text-sm font-medium">John Doe</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
+                <DropdownMenuContent className="w-56 bg-slate-800 border-slate-700" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none text-cyan-100">
+                        {user?.fullName || 'User'}
+                      </p>
+                      <p className="text-xs leading-none text-slate-300">
+                        {user?.primaryEmailAddress?.emailAddress}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-slate-700" />
+                  <DropdownMenuItem className="text-slate-100 hover:bg-slate-700/80 hover:text-cyan-100 transition-colors">
+                    <Users className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem className="text-slate-100 hover:bg-slate-700/80 hover:text-cyan-100 transition-colors">
                     <Settings className="mr-2 h-4 w-4" />
-                    Settings
+                    <span>Settings</span>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign out
+                  <DropdownMenuSeparator className="bg-slate-700" />
+                  <DropdownMenuItem className="text-slate-100 hover:bg-slate-700/80 hover:text-cyan-100 transition-colors">
+                    <UserButton afterSignOutUrl="/" />
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Page Content */}
-        <main className="min-h-screen">
-          {children}
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className={`
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+          lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-40 w-64 
+          bg-slate-800/50 backdrop-blur-sm border-r border-slate-700/50 
+          transition-transform duration-300 ease-in-out lg:transition-none
+          mt-16 lg:mt-0
+        `}>
+          <div className="flex flex-col h-full pt-6 lg:pt-8">
+            <nav className="flex-1 px-4 space-y-2">
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Button
+                    key={item.name}
+                    variant="ghost"
+                    className="w-full justify-start text-slate-100 hover:text-cyan-100 hover:bg-slate-700/50 transition-colors"
+                    onClick={() => {
+                      router.push(item.href);
+                      setIsSidebarOpen(false);
+                    }}
+                  >
+                    <Icon className="mr-3 h-5 w-5" />
+                    {item.name}
+                  </Button>
+                );
+              })}
+            </nav>
+          </div>
+        </aside>
+
+        {/* Overlay for mobile */}
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* Main content */}
+        <main className="flex-1 min-h-screen lg:ml-0">
+          <div className="p-6">
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -180,9 +180,9 @@ export default function RiskAssessment() {
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'up': return <TrendingUp className="h-4 w-4 text-red-500" />;
-      case 'down': return <TrendingDown className="h-4 w-4 text-green-500" />;
-      default: return <Activity className="h-4 w-4 text-gray-500" />;
+      case 'up': return <TrendingUp className="h-4 w-4 text-red-400" />;
+      case 'down': return <TrendingDown className="h-4 w-4 text-green-400" />;
+      default: return <Activity className="h-4 w-4 text-slate-400" />;
     }
   };
 
@@ -205,8 +205,8 @@ export default function RiskAssessment() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Risk Assessment</h1>
-            <p className="text-gray-500">Analyze and prioritize security risks across your organization</p>
+            <h1 className="text-3xl font-bold text-white">Risk Assessment</h1>
+            <p className="text-slate-300">Analyze and prioritize security risks across your organization</p>
           </div>
           <div className="flex items-center gap-3">
             <Select value={timeRange} onValueChange={setTimeRange}>
@@ -233,73 +233,73 @@ export default function RiskAssessment() {
 
         {/* Risk Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Overall Risk Score</p>
-                  <p className="text-3xl font-bold text-red-600">8.2</p>
+                  <p className="text-sm font-medium text-slate-300">Overall Risk Score</p>
+                  <p className="text-3xl font-bold text-red-400">8.2</p>
                   <div className="flex items-center mt-1">
-                    <TrendingUp className="h-4 w-4 text-red-500 mr-1" />
-                    <span className="text-sm text-red-500">+0.3 this week</span>
+                    <TrendingUp className="h-4 w-4 text-red-400 mr-1" />
+                    <span className="text-sm text-red-400">+0.3 this week</span>
                   </div>
                 </div>
-                <div className="bg-red-100 p-3 rounded-full">
-                  <AlertTriangle className="h-6 w-6 text-red-600" />
+                <div className="bg-red-500/20 p-3 rounded-full">
+                  <AlertTriangle className="h-6 w-6 text-red-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Critical Risks</p>
-                  <p className="text-3xl font-bold text-gray-900">15</p>
+                  <p className="text-sm font-medium text-slate-300">Critical Risks</p>
+                  <p className="text-3xl font-bold text-white">15</p>
                   <div className="flex items-center mt-1">
-                    <TrendingUp className="h-4 w-4 text-red-500 mr-1" />
-                    <span className="text-sm text-red-500">+3 this week</span>
+                    <TrendingUp className="h-4 w-4 text-red-400 mr-1" />
+                    <span className="text-sm text-red-400">+3 this week</span>
                   </div>
                 </div>
-                <div className="bg-red-100 p-3 rounded-full">
-                  <Shield className="h-6 w-6 text-red-600" />
+                <div className="bg-red-500/20 p-3 rounded-full">
+                  <Shield className="h-6 w-6 text-red-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Business Impact</p>
-                  <p className="text-3xl font-bold text-gray-900">$4.1M</p>
+                  <p className="text-sm font-medium text-slate-300">Business Impact</p>
+                  <p className="text-3xl font-bold text-white">$4.1M</p>
                   <div className="flex items-center mt-1">
-                    <TrendingDown className="h-4 w-4 text-green-500 mr-1" />
-                    <span className="text-sm text-green-500">-5% this month</span>
+                    <TrendingDown className="h-4 w-4 text-green-400 mr-1" />
+                    <span className="text-sm text-green-400">-5% this month</span>
                   </div>
                 </div>
-                <div className="bg-orange-100 p-3 rounded-full">
-                  <Target className="h-6 w-6 text-orange-600" />
+                <div className="bg-orange-500/20 p-3 rounded-full">
+                  <Target className="h-6 w-6 text-orange-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Avg. Resolution Time</p>
-                  <p className="text-3xl font-bold text-gray-900">12d</p>
+                  <p className="text-sm font-medium text-slate-300">Avg. Resolution Time</p>
+                  <p className="text-3xl font-bold text-white">12d</p>
                   <div className="flex items-center mt-1">
-                    <TrendingDown className="h-4 w-4 text-green-500 mr-1" />
-                    <span className="text-sm text-green-500">-2 days improved</span>
+                    <TrendingDown className="h-4 w-4 text-green-400 mr-1" />
+                    <span className="text-sm text-green-400">-2 days improved</span>
                   </div>
                 </div>
-                <div className="bg-blue-100 p-3 rounded-full">
-                  <Calendar className="h-6 w-6 text-blue-600" />
+                <div className="bg-blue-500/20 p-3 rounded-full">
+                  <Calendar className="h-6 w-6 text-blue-400" />
                 </div>
               </div>
             </CardContent>
@@ -307,10 +307,10 @@ export default function RiskAssessment() {
         </div>
 
         {/* Risk Trends Chart */}
-        <Card>
+        <Card className="bg-slate-800/50 border-slate-700">
           <CardHeader>
-            <CardTitle>Risk Trend Analysis</CardTitle>
-            <CardDescription>Risk level distribution over time</CardDescription>
+            <CardTitle className="text-white">Risk Trend Analysis</CardTitle>
+            <CardDescription className="text-slate-300">Risk level distribution over time</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -340,82 +340,84 @@ export default function RiskAssessment() {
           </TabsList>
 
           <TabsContent value="risks" className="space-y-6">
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700">
               <CardHeader>
-                <CardTitle>Prioritized Risk Register</CardTitle>
-                <CardDescription>Risks ranked by score and business impact</CardDescription>
+                <CardTitle className="text-white">Prioritized Risk Register</CardTitle>
+                <CardDescription className="text-slate-300">Risks ranked by score and business impact</CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Risk</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Risk Score</TableHead>
-                      <TableHead>Probability</TableHead>
-                      <TableHead>Impact</TableHead>
-                      <TableHead>Business Impact</TableHead>
-                      <TableHead>Owner</TableHead>
-                      <TableHead>Trend</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {topRisks.map((risk) => (
-                      <TableRow key={risk.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium text-gray-900">{risk.title}</p>
-                            <p className="text-sm text-gray-500">{risk.assets} assets affected</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{risk.category}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${getRiskScoreColor(risk.riskScore)}`}>
-                            {risk.riskScore}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge 
-                            className={
-                              risk.probability === 'High' ? 'bg-red-100 text-red-800' :
-                              risk.probability === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-green-100 text-green-800'
-                            }
-                            variant="secondary"
-                          >
-                            {risk.probability}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge 
-                            className={
-                              risk.impact === 'Critical' ? 'bg-red-100 text-red-800' :
-                              risk.impact === 'High' ? 'bg-orange-100 text-orange-800' :
-                              risk.impact === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-green-100 text-green-800'
-                            }
-                            variant="secondary"
-                          >
-                            {risk.impact}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-semibold">{risk.businessImpact}</TableCell>
-                        <TableCell className="text-sm text-gray-700">{risk.owner}</TableCell>
-                        <TableCell>{getTrendIcon(risk.trend)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                <div className="border border-slate-600 rounded-lg bg-slate-700/30">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-slate-600">
+                        <TableHead className="text-slate-300">Risk</TableHead>
+                        <TableHead className="text-slate-300">Category</TableHead>
+                        <TableHead className="text-slate-300">Risk Score</TableHead>
+                        <TableHead className="text-slate-300">Probability</TableHead>
+                        <TableHead className="text-slate-300">Impact</TableHead>
+                        <TableHead className="text-slate-300">Business Impact</TableHead>
+                        <TableHead className="text-slate-300">Owner</TableHead>
+                        <TableHead className="text-slate-300">Trend</TableHead>
+                        <TableHead className="text-slate-300">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {topRisks.map((risk) => (
+                        <TableRow key={risk.id} className="border-slate-600 hover:bg-slate-700/50">
+                          <TableCell>
+                            <div>
+                              <p className="font-medium text-white">{risk.title}</p>
+                              <p className="text-sm text-slate-400">{risk.assets} assets affected</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="border-slate-500 text-slate-300">{risk.category}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${getRiskScoreColor(risk.riskScore)}`}>
+                              {risk.riskScore}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge 
+                              className={
+                                risk.probability === 'High' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                risk.probability === 'Medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                                'bg-green-500/20 text-green-400 border-green-500/30'
+                              }
+                              variant="secondary"
+                            >
+                              {risk.probability}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge 
+                              className={
+                                risk.impact === 'Critical' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                risk.impact === 'High' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' :
+                                risk.impact === 'Medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                                'bg-green-500/20 text-green-400 border-green-500/30'
+                              }
+                              variant="secondary"
+                            >
+                              {risk.impact}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-semibold text-white">{risk.businessImpact}</TableCell>
+                          <TableCell className="text-sm text-slate-300">{risk.owner}</TableCell>
+                          <TableCell>{getTrendIcon(risk.trend)}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -506,10 +508,10 @@ export default function RiskAssessment() {
           </TabsContent>
 
           <TabsContent value="impact" className="space-y-6">
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700">
               <CardHeader>
-                <CardTitle>Business Impact Analysis</CardTitle>
-                <CardDescription>Potential financial impact by risk category</CardDescription>
+                <CardTitle className="text-white">Business Impact Analysis</CardTitle>
+                <CardDescription className="text-slate-300">Potential financial impact by risk category</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-80">
@@ -529,21 +531,21 @@ export default function RiskAssessment() {
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
+              <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader>
-                  <CardTitle>Risk Categories</CardTitle>
-                  <CardDescription>Financial exposure by category</CardDescription>
+                  <CardTitle className="text-white">Risk Categories</CardTitle>
+                  <CardDescription className="text-slate-300">Financial exposure by category</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {businessImpactData.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div key={index} className="flex items-center justify-between p-3 border border-slate-600 rounded-lg bg-slate-700/30">
                         <div>
-                          <p className="font-medium text-gray-900">{item.category}</p>
-                          <p className="text-sm text-gray-500">{item.risks} active risks</p>
+                          <p className="font-medium text-white">{item.category}</p>
+                          <p className="text-sm text-slate-400">{item.risks} active risks</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-gray-900">
+                          <p className="text-lg font-bold text-white">
                             ${(item.value / 1000).toFixed(0)}K
                           </p>
                         </div>
@@ -595,23 +597,23 @@ export default function RiskAssessment() {
           </TabsContent>
 
           <TabsContent value="compliance" className="space-y-6">
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700">
               <CardHeader>
-                <CardTitle>Compliance Dashboard</CardTitle>
-                <CardDescription>Regulatory framework compliance status</CardDescription>
+                <CardTitle className="text-white">Compliance Dashboard</CardTitle>
+                <CardDescription className="text-slate-300">Regulatory framework compliance status</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
                   {complianceFrameworks.map((framework, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div key={index} className="flex items-center justify-between p-4 border border-slate-600 rounded-lg bg-slate-700/30">
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
-                          <h3 className="font-medium text-gray-900">{framework.name}</h3>
+                          <h3 className="font-medium text-white">{framework.name}</h3>
                           {getComplianceStatus(framework.status, framework.score)}
                         </div>
                         <div className="flex items-center gap-4">
                           <Progress value={framework.score} className="flex-1" />
-                          <span className="text-sm font-semibold text-gray-700">
+                          <span className="text-sm font-semibold text-slate-300">
                             {framework.score}%
                           </span>
                         </div>
