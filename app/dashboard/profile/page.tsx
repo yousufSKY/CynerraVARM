@@ -23,6 +23,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser();
@@ -101,23 +102,15 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6 bg-slate-900 min-h-screen">
+    <DashboardLayout>
+      <div className="p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6 bg-slate-900 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex-1">
           <h1 className="text-2xl sm:text-3xl font-bold text-white">Profile</h1>
           <p className="text-slate-400 mt-1 text-sm sm:text-base">Manage your personal information and preferences</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <Button
-            onClick={() => router.push('/dashboard')}
-            variant="ghost"
-            size="sm"
-            className="text-slate-400 hover:text-cyan-400 hover:bg-slate-800/50 transition-colors w-full sm:w-auto"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
+        <div className="flex justify-end">
           <Button
             onClick={() => isEditing ? handleSave() : setIsEditing(true)}
             className="bg-cyan-600 hover:bg-cyan-700 text-white w-full sm:w-auto"
@@ -313,5 +306,6 @@ export default function ProfilePage() {
         </Card>
       </div>
     </div>
+    </DashboardLayout>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useUser, useClerk } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   Bell,
   Search,
@@ -41,6 +41,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, isLoaded } = useUser();
   const { signOut } = useClerk();
   const router = useRouter();
+  const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // Auto logout functionality
@@ -174,6 +175,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: 'Risk Assessment', href: '/dashboard/risk', icon: BarChart3 },
     { name: 'Scanning', href: '/dashboard/scanning', icon: Scan },
     { name: 'Reports', href: '/dashboard/reports', icon: FileText },
+    { name: 'Profile', href: '/dashboard/profile', icon: Users },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
   ];
 
   const quickActions = [
@@ -353,11 +356,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <nav className="px-4 py-6 space-y-2">
                 {navigationItems.map((item) => {
                   const Icon = item.icon;
+                  const isActive = pathname === item.href;
                   return (
                     <Button
                       key={item.name}
                       variant="ghost"
-                      className="w-full justify-start text-slate-100 hover:text-cyan-100 hover:bg-slate-700/50 transition-colors"
+                      className={`w-full justify-start transition-colors ${
+                        isActive 
+                          ? 'bg-cyan-600/20 text-cyan-300 border-l-4 border-cyan-400' 
+                          : 'text-slate-100 hover:text-cyan-100 hover:bg-slate-700/50'
+                      }`}
                       onClick={() => {
                         router.push(item.href);
                         setIsSidebarOpen(false);
