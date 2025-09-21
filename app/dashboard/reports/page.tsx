@@ -464,11 +464,31 @@ export default function ReportsCompliance() {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="reports" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="reports">Report Templates</TabsTrigger>
-            <TabsTrigger value="recent">Recent Reports</TabsTrigger>
-            <TabsTrigger value="compliance">Compliance</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 bg-slate-800/30 p-1 rounded-lg mb-6">
+            <TabsTrigger 
+              value="reports" 
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+            >
+              Report Templates
+            </TabsTrigger>
+            <TabsTrigger 
+              value="recent" 
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+            >
+              Recent Reports
+            </TabsTrigger>
+            <TabsTrigger 
+              value="compliance" 
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+            >
+              Compliance
+            </TabsTrigger>
+            <TabsTrigger 
+              value="analytics" 
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+            >
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="reports" className="space-y-6">

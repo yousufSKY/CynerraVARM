@@ -68,31 +68,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     resetTimer();
   }, [resetTimer]);
 
-  // Handle page visibility change (when user switches tabs or closes browser)
-  const handleVisibilityChange = useCallback(() => {
-    if (document.hidden) {
-      // User switched away from the tab or closed browser
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      // Set a shorter timeout when page is hidden
-      timeoutRef.current = setTimeout(() => {
-        handleSignOut();
-      }, 1000); // 1 second when page is hidden
-    } else {
-      // User came back to the tab
-      resetTimer();
-    }
-  }, [resetTimer]);
-
-  // Handle beforeunload event (when user tries to close the browser/tab)
-  const handleBeforeUnload = useCallback((e: BeforeUnloadEvent) => {
-    // Sign out immediately when user closes the browser/tab
-    handleSignOut();
-    // Note: This might not always work due to browser restrictions
-    // The visibility change handler above is more reliable
-  }, []);
-
   useEffect(() => {
     // Only set up auto logout if user is loaded and authenticated
     if (!isLoaded || !user) return;
@@ -112,12 +87,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       document.addEventListener(event, handleUserActivity, true);
     });
 
-    // Add visibility change listener
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Add beforeunload listener
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
     // Start the initial timer
     resetTimer();
 
@@ -127,15 +96,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       activityEvents.forEach(event => {
         document.removeEventListener(event, handleUserActivity, true);
       });
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
 
       // Clear the timeout
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [isLoaded, user, handleUserActivity, handleVisibilityChange, handleBeforeUnload, resetTimer]);
+  }, [isLoaded, user, handleUserActivity, resetTimer]);
 
   const navigationItems = [
     { name: 'Overview', href: '/dashboard', icon: Home },
@@ -166,9 +133,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
       {/* Header */}
-      <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-50">
+      <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/50 fixed top-0 left-0 right-0 z-50">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Left section */}
@@ -308,35 +275,37 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex h-screen">
         {/* Sidebar */}
         <aside className={`
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-          lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-40 w-64 
+          lg:translate-x-0 fixed lg:fixed inset-y-0 left-0 z-40 w-64 
           bg-slate-800/50 backdrop-blur-sm border-r border-slate-700/50 
           transition-transform duration-300 ease-in-out lg:transition-none
-          mt-16 lg:mt-0
+          top-16
         `}>
-          <div className="flex flex-col h-full pt-6 lg:pt-8">
-            <nav className="flex-1 px-4 space-y-2">
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Button
-                    key={item.name}
-                    variant="ghost"
-                    className="w-full justify-start text-slate-100 hover:text-cyan-100 hover:bg-slate-700/50 transition-colors"
-                    onClick={() => {
-                      router.push(item.href);
-                      setIsSidebarOpen(false);
-                    }}
-                  >
-                    <Icon className="mr-3 h-5 w-5" />
-                    {item.name}
-                  </Button>
-                );
-              })}
-            </nav>
+          <div className="flex flex-col h-full overflow-hidden">
+            <div className="flex-1 overflow-y-auto">
+              <nav className="px-4 py-6 space-y-2">
+                {navigationItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Button
+                      key={item.name}
+                      variant="ghost"
+                      className="w-full justify-start text-slate-100 hover:text-cyan-100 hover:bg-slate-700/50 transition-colors"
+                      onClick={() => {
+                        router.push(item.href);
+                        setIsSidebarOpen(false);
+                      }}
+                    >
+                      <Icon className="mr-3 h-5 w-5" />
+                      {item.name}
+                    </Button>
+                  );
+                })}
+              </nav>
+            </div>
           </div>
         </aside>
 
@@ -349,8 +318,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         )}
 
         {/* Main content */}
-        <main className="flex-1 min-h-screen lg:ml-0">
-          <div className="p-6">
+        <main className="flex-1 lg:ml-64 overflow-y-auto">
+          <div className="p-6 mt-16">
             {children}
           </div>
         </main>
