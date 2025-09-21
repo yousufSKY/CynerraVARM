@@ -5,21 +5,9 @@ const isProtectedRoute = createRouteMatcher([
 ])
 
 export default clerkMiddleware(async (auth, req) => {
-  // Temporarily disable protection to test routing
-  // TODO: Re-enable after fixing Clerk authentication
-  console.log('Middleware called for:', req.url)
-  
-  // Add try-catch to handle authentication errors gracefully
-  try {
-    if (isProtectedRoute(req)) {
-      // Temporarily comment out protection to test dashboard access
-      // await auth.protect()
-      console.log('Protected route accessed:', req.url)
-    }
-  } catch (error) {
-    console.error('Auth middleware error:', error)
-    // Allow the request to continue to avoid infinite loops
-    return new Response(null, { status: 200 })
+  if (isProtectedRoute(req)) {
+    // Protect the route - this will automatically redirect to sign-in if not authenticated
+    await auth.protect()
   }
 })
 

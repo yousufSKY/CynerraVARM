@@ -1,6 +1,6 @@
 'use client';
 
-import { UserButton, useUser } from '@clerk/nextjs';
+import { useUser, useClerk } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import {
   Bell,
@@ -16,9 +16,10 @@ import {
   ChevronDown,
   Users,
   Activity,
-  TrendingUp
+  TrendingUp,
+  LogOut
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -38,8 +39,103 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // Auto logout functionality
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/');
+  };
+
+  // Reset the inactivity timer
+  const resetTimer = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    timeoutRef.current = setTimeout(() => {
+      handleSignOut();
+    }, INACTIVITY_TIMEOUT);
+  }, []);
+
+  // Handle user activity events
+  const handleUserActivity = useCallback(() => {
+    resetTimer();
+  }, [resetTimer]);
+
+  // Handle page visibility change (when user switches tabs or closes browser)
+  const handleVisibilityChange = useCallback(() => {
+    if (document.hidden) {
+      // User switched away from the tab or closed browser
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      // Set a shorter timeout when page is hidden
+      timeoutRef.current = setTimeout(() => {
+        handleSignOut();
+      }, 1000); // 1 second when page is hidden
+    } else {
+      // User came back to the tab
+      resetTimer();
+    }
+  }, [resetTimer]);
+
+  // Handle beforeunload event (when user tries to close the browser/tab)
+  const handleBeforeUnload = useCallback((e: BeforeUnloadEvent) => {
+    // Sign out immediately when user closes the browser/tab
+    handleSignOut();
+    // Note: This might not always work due to browser restrictions
+    // The visibility change handler above is more reliable
+  }, []);
+
+  useEffect(() => {
+    // Only set up auto logout if user is loaded and authenticated
+    if (!isLoaded || !user) return;
+
+    // List of events that indicate user activity
+    const activityEvents = [
+      'mousedown',
+      'mousemove',
+      'keypress',
+      'scroll',
+      'touchstart',
+      'click'
+    ];
+
+    // Add event listeners for user activity
+    activityEvents.forEach(event => {
+      document.addEventListener(event, handleUserActivity, true);
+    });
+
+    // Add visibility change listener
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Add beforeunload listener
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Start the initial timer
+    resetTimer();
+
+    // Cleanup function
+    return () => {
+      // Remove all event listeners
+      activityEvents.forEach(event => {
+        document.removeEventListener(event, handleUserActivity, true);
+      });
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+
+      // Clear the timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [isLoaded, user, handleUserActivity, handleVisibilityChange, handleBeforeUnload, resetTimer]);
 
   const navigationItems = [
     { name: 'Overview', href: '/dashboard', icon: Home },
@@ -183,17 +279,27 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-slate-700" />
-                  <DropdownMenuItem className="text-slate-100 hover:bg-slate-700/80 hover:text-cyan-100 transition-colors">
+                  <DropdownMenuItem 
+                    className="text-slate-100 hover:bg-slate-700/80 hover:text-cyan-100 transition-colors cursor-pointer"
+                    onClick={() => alert('Profile clicked')}
+                  >
                     <Users className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-slate-100 hover:bg-slate-700/80 hover:text-cyan-100 transition-colors">
+                  <DropdownMenuItem 
+                    className="text-slate-100 hover:bg-slate-700/80 hover:text-cyan-100 transition-colors cursor-pointer"
+                    onClick={() => alert('Settings clicked')}
+                  >
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-slate-700" />
-                  <DropdownMenuItem className="text-slate-100 hover:bg-slate-700/80 hover:text-cyan-100 transition-colors">
-                    <UserButton afterSignOutUrl="/" />
+                  <DropdownMenuItem 
+                    className="text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors cursor-pointer"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sign Out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
