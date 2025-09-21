@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle } from "lucide-react"
+import Link from "next/link"
 
 const pricingTiers = [
   {
@@ -120,16 +121,29 @@ export function PricingSection() {
                 </ul>
 
                 <div className="pt-4 sm:pt-6">
-                  <Button 
-                    className={`w-full py-2 font-medium rounded-lg transition-all duration-300 text-xs ${
-                      tier.popular 
-                        ? 'bg-gradient-to-r from-cyan-400 to-blue-700 text-white hover:from-cyan-300 hover:to-blue-600 shadow-lg shadow-cyan-400/20' 
-                        : 'border border-blue-500/30 text-blue-300 hover:bg-blue-500/10 bg-transparent'
-                    }`}
-                    variant={tier.popular ? "default" : "outline"}
-                  >
-                    {tier.name === 'Enterprise' ? 'Contact Sales' : 'Get Started'}
-                  </Button>
+                  {tier.name === 'Enterprise' ? (
+                    <Link href="/sign-in">
+                      <Button 
+                        className="w-full py-2 font-medium rounded-lg transition-all duration-300 text-xs border border-blue-500/30 text-blue-300 hover:bg-blue-500/10 bg-transparent"
+                        variant="outline"
+                      >
+                        Contact Sales
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href="/sign-up">
+                      <Button 
+                        className={`w-full py-2 font-medium rounded-lg transition-all duration-300 text-xs ${
+                          tier.popular 
+                            ? 'bg-gradient-to-r from-cyan-400 to-blue-700 text-white hover:from-cyan-300 hover:to-blue-600 shadow-lg shadow-cyan-400/20' 
+                            : 'border border-blue-500/30 text-blue-300 hover:bg-blue-500/10 bg-transparent'
+                        }`}
+                        variant={tier.popular ? "default" : "outline"}
+                      >
+                        Get Started
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </CardContent>
             </Card>

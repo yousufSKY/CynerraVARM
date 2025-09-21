@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Shield, Search, AlertTriangle, Lock, Zap, Eye } from "lucide-react"
+import Link from "next/link"
 
 export function HeroSection() {
   return (
@@ -44,21 +45,25 @@ export function HeroSection() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-up stagger-3 px-4">
-            <Button 
-              variant="outline" 
-              size="default" 
-              className="glass border-blue-500/20 text-white hover:border-blue-500/40 hover:bg-blue-500/10 transition-all duration-300 cursor-pointer text-xs px-4 py-2 rounded-lg w-full sm:w-auto"
-            >
-              Learn More
-            </Button>
-            <Button 
-              variant="default" 
-              size="default"
-              className="glass-button shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 cursor-pointer text-xs px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-700 hover:from-cyan-300 hover:to-blue-600 w-full sm:w-auto"
-              aria-label="Get Started Now"
-            >
-              Get Started Now
-            </Button>
+            <Link href="/sign-in">
+              <Button 
+                variant="outline" 
+                size="default" 
+                className="glass border-blue-500/20 text-white hover:border-blue-500/40 hover:bg-blue-500/10 transition-all duration-300 cursor-pointer text-xs px-4 py-2 rounded-lg w-full sm:w-auto"
+              >
+                Learn More
+              </Button>
+            </Link>
+            <Link href="/sign-up">
+              <Button 
+                variant="default" 
+                size="default"
+                className="glass-button shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 cursor-pointer text-xs px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-700 hover:from-cyan-300 hover:to-blue-600 w-full sm:w-auto"
+                aria-label="Get Started Now"
+              >
+                Get Started Now
+              </Button>
+            </Link>
           </div>
 
           {/* Feature Badges */}

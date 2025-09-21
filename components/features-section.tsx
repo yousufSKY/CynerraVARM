@@ -3,6 +3,7 @@
 import { Shield, Search, AlertTriangle, Lock, Zap, Eye, BarChart3, Users } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import Link from "next/link"
 
 const features = [
   {
@@ -95,12 +96,16 @@ export function FeaturesSection() {
             Ready to secure your infrastructure?
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-            <button className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-400 to-blue-700 text-white font-semibold rounded-lg hover:from-cyan-300 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-cyan-400/20 text-sm sm:text-base w-full sm:w-auto">
-              Start Free Trial
-            </button>
-            <button className="px-6 sm:px-8 py-3 sm:py-4 border border-blue-500/30 text-blue-300 font-semibold rounded-lg hover:bg-blue-500/10 transition-all duration-300 text-sm sm:text-base w-full sm:w-auto">
-              Schedule Demo
-            </button>
+            <Link href="/sign-up">
+              <button className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-400 to-blue-700 text-white font-semibold rounded-lg hover:from-cyan-300 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-cyan-400/20 text-sm sm:text-base w-full sm:w-auto">
+                Start Free Trial
+              </button>
+            </Link>
+            <Link href="/sign-in">
+              <button className="px-6 sm:px-8 py-3 sm:py-4 border border-blue-500/30 text-blue-300 font-semibold rounded-lg hover:bg-blue-500/10 transition-all duration-300 text-sm sm:text-base w-full sm:w-auto">
+                Schedule Demo
+              </button>
+            </Link>
           </div>
         </div>
       </div>

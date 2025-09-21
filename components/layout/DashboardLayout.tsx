@@ -46,11 +46,35 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // Auto logout functionality
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+  const SESSION_KEY = 'cynerra_varm_session';
+  const LAST_ACTIVITY_KEY = 'cynerra_varm_last_activity';
 
   const handleSignOut = async () => {
+    // Clear session data
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(LAST_ACTIVITY_KEY);
     await signOut();
     router.push('/');
   };
+
+  // Check if session has expired
+  const isSessionExpired = useCallback(() => {
+    const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
+    const sessionExists = localStorage.getItem(SESSION_KEY);
+    
+    if (!lastActivity || !sessionExists) {
+      return true;
+    }
+    
+    const timeSinceLastActivity = Date.now() - parseInt(lastActivity);
+    return timeSinceLastActivity > INACTIVITY_TIMEOUT;
+  }, [INACTIVITY_TIMEOUT]);
+
+  // Update last activity timestamp
+  const updateActivity = useCallback(() => {
+    localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+    localStorage.setItem(SESSION_KEY, 'active');
+  }, []);
 
   // Reset the inactivity timer
   const resetTimer = useCallback(() => {
@@ -58,19 +82,56 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       clearTimeout(timeoutRef.current);
     }
     
+    updateActivity();
+    
     timeoutRef.current = setTimeout(() => {
       handleSignOut();
     }, INACTIVITY_TIMEOUT);
-  }, []);
+  }, [updateActivity, INACTIVITY_TIMEOUT]);
 
   // Handle user activity events
   const handleUserActivity = useCallback(() => {
     resetTimer();
   }, [resetTimer]);
 
+  // Check session validity on component mount and page visibility change
   useEffect(() => {
-    // Only set up auto logout if user is loaded and authenticated
     if (!isLoaded || !user) return;
+
+    // Check if session has expired when component loads
+    if (isSessionExpired()) {
+      handleSignOut();
+      return;
+    }
+
+    // Initialize session
+    updateActivity();
+
+    // Handle page visibility change (when user switches tabs or comes back)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // User came back to the tab, check if session expired
+        if (isSessionExpired()) {
+          handleSignOut();
+          return;
+        }
+        // Reset timer if session is still valid
+        resetTimer();
+      }
+    };
+
+    // Handle beforeunload (when user closes browser/tab)
+    const handleBeforeUnload = () => {
+      // Clear session when browser is closed
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(LAST_ACTIVITY_KEY);
+    };
+
+    // Add visibility change listener
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Add beforeunload listener
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     // List of events that indicate user activity
     const activityEvents = [
@@ -97,12 +158,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         document.removeEventListener(event, handleUserActivity, true);
       });
 
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+
       // Clear the timeout
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [isLoaded, user, handleUserActivity, resetTimer]);
+  }, [isLoaded, user, handleUserActivity, resetTimer, isSessionExpired, updateActivity]);
 
   const navigationItems = [
     { name: 'Overview', href: '/dashboard', icon: Home },
@@ -248,14 +312,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <DropdownMenuSeparator className="bg-slate-700" />
                   <DropdownMenuItem 
                     className="text-slate-100 hover:bg-slate-700/80 hover:text-cyan-100 transition-colors cursor-pointer"
-                    onClick={() => alert('Profile clicked')}
+                    onClick={() => router.push('/dashboard/profile')}
                   >
                     <Users className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     className="text-slate-100 hover:bg-slate-700/80 hover:text-cyan-100 transition-colors cursor-pointer"
-                    onClick={() => alert('Settings clicked')}
+                    onClick={() => router.push('/dashboard/settings')}
                   >
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
