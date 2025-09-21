@@ -257,74 +257,74 @@ export default function RiskAssessment() {
         </div>
 
         {/* Risk Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-300">Overall Risk Score</p>
-                  <p className="text-3xl font-bold text-red-400">8.2</p>
+                  <p className="text-2xl md:text-3xl font-bold text-red-400">8.2</p>
                   <div className="flex items-center mt-1">
                     <TrendingUp className="h-4 w-4 text-red-400 mr-1" />
                     <span className="text-sm text-red-400">+0.3 this week</span>
                   </div>
                 </div>
-                <div className="bg-red-500/20 p-3 rounded-full">
-                  <AlertTriangle className="h-6 w-6 text-red-400" />
+                <div className="bg-red-500/20 p-2 md:p-3 rounded-full">
+                  <AlertTriangle className="h-5 w-5 md:h-6 md:w-6 text-red-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-300">Critical Risks</p>
-                  <p className="text-3xl font-bold text-white">15</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">15</p>
                   <div className="flex items-center mt-1">
                     <TrendingUp className="h-4 w-4 text-red-400 mr-1" />
                     <span className="text-sm text-red-400">+3 this week</span>
                   </div>
                 </div>
-                <div className="bg-red-500/20 p-3 rounded-full">
-                  <Shield className="h-6 w-6 text-red-400" />
+                <div className="bg-red-500/20 p-2 md:p-3 rounded-full">
+                  <Shield className="h-5 w-5 md:h-6 md:w-6 text-red-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-300">Business Impact</p>
-                  <p className="text-3xl font-bold text-white">$4.1M</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">$4.1M</p>
                   <div className="flex items-center mt-1">
                     <TrendingDown className="h-4 w-4 text-green-400 mr-1" />
                     <span className="text-sm text-green-400">-5% this month</span>
                   </div>
                 </div>
-                <div className="bg-orange-500/20 p-3 rounded-full">
-                  <Target className="h-6 w-6 text-orange-400" />
+                <div className="bg-orange-500/20 p-2 md:p-3 rounded-full">
+                  <Target className="h-5 w-5 md:h-6 md:w-6 text-orange-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-300">Avg. Resolution Time</p>
-                  <p className="text-3xl font-bold text-white">12d</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">12d</p>
                   <div className="flex items-center mt-1">
                     <TrendingDown className="h-4 w-4 text-green-400 mr-1" />
                     <span className="text-sm text-green-400">-2 days improved</span>
                   </div>
                 </div>
-                <div className="bg-blue-500/20 p-3 rounded-full">
-                  <Calendar className="h-6 w-6 text-blue-400" />
+                <div className="bg-blue-500/20 p-2 md:p-3 rounded-full">
+                  <Calendar className="h-5 w-5 md:h-6 md:w-6 text-blue-400" />
                 </div>
               </div>
             </CardContent>
@@ -357,28 +357,28 @@ export default function RiskAssessment() {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="risks" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-slate-800/30 p-1 rounded-lg mb-6">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-slate-800/30 p-1 rounded-lg mb-6 gap-1">
             <TabsTrigger 
               value="risks" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
             >
               Top Risks
             </TabsTrigger>
             <TabsTrigger 
               value="matrix" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
             >
               Risk Matrix
             </TabsTrigger>
             <TabsTrigger 
               value="impact" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
             >
               Business Impact
             </TabsTrigger>
             <TabsTrigger 
               value="compliance" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
             >
               Compliance
             </TabsTrigger>
@@ -391,39 +391,39 @@ export default function RiskAssessment() {
                 <CardDescription className="text-slate-300">Risks ranked by score and business impact</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="border border-slate-600 rounded-lg bg-slate-700/30">
-                  <Table>
+                <div className="border border-slate-600 rounded-lg bg-slate-700/30 overflow-x-auto">
+                  <Table className="min-w-full">
                     <TableHeader>
                       <TableRow className="border-slate-600">
-                        <TableHead className="text-slate-300">Risk</TableHead>
-                        <TableHead className="text-slate-300">Category</TableHead>
-                        <TableHead className="text-slate-300">Risk Score</TableHead>
-                        <TableHead className="text-slate-300">Probability</TableHead>
-                        <TableHead className="text-slate-300">Impact</TableHead>
-                        <TableHead className="text-slate-300">Business Impact</TableHead>
-                        <TableHead className="text-slate-300">Owner</TableHead>
-                        <TableHead className="text-slate-300">Trend</TableHead>
-                        <TableHead className="text-slate-300">Actions</TableHead>
+                        <TableHead className="text-slate-300 min-w-[200px]">Risk</TableHead>
+                        <TableHead className="text-slate-300 min-w-[100px]">Category</TableHead>
+                        <TableHead className="text-slate-300 min-w-[100px]">Risk Score</TableHead>
+                        <TableHead className="text-slate-300 min-w-[100px] hidden sm:table-cell">Probability</TableHead>
+                        <TableHead className="text-slate-300 min-w-[100px] hidden sm:table-cell">Impact</TableHead>
+                        <TableHead className="text-slate-300 min-w-[120px] hidden md:table-cell">Business Impact</TableHead>
+                        <TableHead className="text-slate-300 min-w-[100px] hidden lg:table-cell">Owner</TableHead>
+                        <TableHead className="text-slate-300 min-w-[80px] hidden lg:table-cell">Trend</TableHead>
+                        <TableHead className="text-slate-300 min-w-[100px]">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {topRisks.map((risk) => (
                         <TableRow key={risk.id} className="border-slate-600 hover:bg-slate-700/50">
-                          <TableCell>
+                          <TableCell className="min-w-[200px]">
                             <div>
                               <p className="font-medium text-white">{risk.title}</p>
                               <p className="text-sm text-slate-400">{risk.assets} assets affected</p>
                             </div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="min-w-[100px]">
                             <Badge variant="outline" className="border-slate-500 text-slate-300">{risk.category}</Badge>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="min-w-[100px]">
                             <div className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${getRiskScoreColor(risk.riskScore)}`}>
                               {risk.riskScore}
                             </div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="min-w-[100px] hidden sm:table-cell">
                             <Badge 
                               className={
                                 risk.probability === 'High' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
@@ -435,7 +435,7 @@ export default function RiskAssessment() {
                               {risk.probability}
                             </Badge>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="min-w-[100px] hidden sm:table-cell">
                             <Badge 
                               className={
                                 risk.impact === 'Critical' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
@@ -448,12 +448,12 @@ export default function RiskAssessment() {
                               {risk.impact}
                             </Badge>
                           </TableCell>
-                          <TableCell className="font-semibold text-white">{risk.businessImpact}</TableCell>
-                          <TableCell className="text-sm text-slate-300">{risk.owner}</TableCell>
-                          <TableCell>{getTrendIcon(risk.trend)}</TableCell>
-                          <TableCell>
+                          <TableCell className="font-semibold text-white min-w-[120px] hidden md:table-cell">{risk.businessImpact}</TableCell>
+                          <TableCell className="text-sm text-slate-300 min-w-[100px] hidden lg:table-cell">{risk.owner}</TableCell>
+                          <TableCell className="min-w-[80px] hidden lg:table-cell">{getTrendIcon(risk.trend)}</TableCell>
+                          <TableCell className="min-w-[100px]">
                             <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
+                              <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white p-1 md:p-2">
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </div>

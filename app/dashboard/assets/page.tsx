@@ -225,7 +225,7 @@ export default function AssetManagement() {
                   Add Asset
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="sm:max-w-[425px] max-w-[90vw]">
                 <DialogHeader>
                   <DialogTitle>Add New Asset</DialogTitle>
                   <DialogDescription>
@@ -233,10 +233,10 @@ export default function AssetManagement() {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <Input placeholder="Asset Name" />
-                  <Input placeholder="IP Address" />
+                  <Input placeholder="Asset Name" className="w-full" />
+                  <Input placeholder="IP Address" className="w-full" />
                   <Select>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Asset Type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -247,10 +247,10 @@ export default function AssetManagement() {
                       <SelectItem value="network">Network Device</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Input placeholder="Operating System" />
-                  <Input placeholder="Owner" />
-                  <Input placeholder="Location" />
-                  <div className="flex gap-2 pt-4">
+                  <Input placeholder="Operating System" className="w-full" />
+                  <Input placeholder="Owner" className="w-full" />
+                  <Input placeholder="Location" className="w-full" />
+                  <div className="flex flex-col sm:flex-row gap-2 pt-4">
                     <Button className="flex-1">Add Asset</Button>
                     <Button variant="outline" className="flex-1">Cancel</Button>
                   </div>
@@ -261,51 +261,51 @@ export default function AssetManagement() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-300">Total Assets</p>
-                  <p className="text-3xl font-bold text-white">{filteredAssets.length}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">{filteredAssets.length}</p>
                 </div>
-                <Server className="h-8 w-8 text-blue-400" />
+                <Server className="h-6 w-6 md:h-8 md:w-8 text-blue-400" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-300">Active Assets</p>
-                  <p className="text-3xl font-bold text-white">{activeAssets}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">{activeAssets}</p>
                 </div>
-                <CheckCircle className="h-8 w-8 text-green-400" />
+                <CheckCircle className="h-6 w-6 md:h-8 md:w-8 text-green-400" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-300">Critical Risk</p>
-                  <p className="text-3xl font-bold text-white">{criticalAssets}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">{criticalAssets}</p>
                 </div>
-                <AlertTriangle className="h-8 w-8 text-red-400" />
+                <AlertTriangle className="h-6 w-6 md:h-8 md:w-8 text-red-400" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-300">Total Vulnerabilities</p>
-                  <p className="text-3xl font-bold text-white">{totalVulnerabilities}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">{totalVulnerabilities}</p>
                 </div>
-                <Eye className="h-8 w-8 text-orange-400" />
+                <Eye className="h-6 w-6 md:h-8 md:w-8 text-orange-400" />
               </div>
             </CardContent>
           </Card>
@@ -355,19 +355,19 @@ export default function AssetManagement() {
             </div>
 
             {/* Assets Table */}
-            <div className="border border-slate-600 rounded-lg bg-slate-700/30">
-              <Table>
+            <div className="border border-slate-600 rounded-lg bg-slate-700/30 overflow-x-auto">
+              <Table className="min-w-full">
                 <TableHeader>
                   <TableRow className="border-slate-600">
-                    <TableHead className="text-slate-300">Asset</TableHead>
-                    <TableHead className="text-slate-300">Type</TableHead>
-                    <TableHead className="text-slate-300">Location</TableHead>
-                    <TableHead className="text-slate-300">Owner</TableHead>
-                    <TableHead className="text-slate-300">Vulnerabilities</TableHead>
-                    <TableHead className="text-slate-300">Risk Score</TableHead>
-                    <TableHead className="text-slate-300">Status</TableHead>
-                    <TableHead className="text-slate-300">Last Scan</TableHead>
-                    <TableHead className="text-slate-300">Actions</TableHead>
+                    <TableHead className="text-slate-300 min-w-[200px]">Asset</TableHead>
+                    <TableHead className="text-slate-300 min-w-[100px]">Type</TableHead>
+                    <TableHead className="text-slate-300 min-w-[120px] hidden sm:table-cell">Location</TableHead>
+                    <TableHead className="text-slate-300 min-w-[100px] hidden md:table-cell">Owner</TableHead>
+                    <TableHead className="text-slate-300 min-w-[120px]">Vulnerabilities</TableHead>
+                    <TableHead className="text-slate-300 min-w-[100px]">Risk Score</TableHead>
+                    <TableHead className="text-slate-300 min-w-[100px] hidden sm:table-cell">Status</TableHead>
+                    <TableHead className="text-slate-300 min-w-[120px] hidden lg:table-cell">Last Scan</TableHead>
+                    <TableHead className="text-slate-300 min-w-[100px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -378,7 +378,7 @@ export default function AssetManagement() {
                     
                     return (
                       <TableRow key={asset.id} className="border-slate-600 hover:bg-slate-700/50">
-                        <TableCell>
+                        <TableCell className="min-w-[200px]">
                           <div className="flex items-center gap-3">
                             <AssetIcon className="h-5 w-5 text-slate-400" />
                             <div>
@@ -387,14 +387,14 @@ export default function AssetManagement() {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="min-w-[100px]">
                           <Badge className={assetTypes[asset.type as keyof typeof assetTypes].color} variant="secondary">
                             {assetTypes[asset.type as keyof typeof assetTypes].label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-sm text-slate-300">{asset.location}</TableCell>
-                        <TableCell className="text-sm text-slate-300">{asset.owner}</TableCell>
-                        <TableCell>
+                        <TableCell className="text-sm text-slate-300 min-w-[120px] hidden sm:table-cell">{asset.location}</TableCell>
+                        <TableCell className="text-sm text-slate-300 min-w-[100px] hidden md:table-cell">{asset.owner}</TableCell>
+                        <TableCell className="min-w-[120px]">
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-medium text-white">{totalVulns}</span>
                             {asset.vulnerabilities.critical > 0 && (
@@ -409,22 +409,22 @@ export default function AssetManagement() {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="min-w-[100px]">
                           <span className={`font-semibold ${getRiskScoreColor(asset.riskScore)}`}>
                             {asset.riskScore.toFixed(1)}
                           </span>
                         </TableCell>
-                        <TableCell>{getStatusBadge(asset.status)}</TableCell>
-                        <TableCell className="text-sm text-slate-300">{asset.lastScan}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
+                        <TableCell className="min-w-[100px] hidden sm:table-cell">{getStatusBadge(asset.status)}</TableCell>
+                        <TableCell className="text-sm text-slate-300 min-w-[120px] hidden lg:table-cell">{asset.lastScan}</TableCell>
+                        <TableCell className="min-w-[100px]">
+                          <div className="flex items-center gap-1 md:gap-2">
+                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white p-1 md:p-2">
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
+                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white p-1 md:p-2">
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300">
+                            <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 p-1 md:p-2">
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>

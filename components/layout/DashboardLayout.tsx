@@ -391,7 +391,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         {/* Main content */}
         <main className="flex-1 lg:ml-64 overflow-y-auto">
-          <div className="p-6 mt-16">
+          <div className="p-3 sm:p-4 md:p-6 mt-16">
             {children}
           </div>
         </main>

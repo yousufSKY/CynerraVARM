@@ -173,100 +173,100 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">
               Welcome back, {user?.firstName || 'User'}!
             </h1>
-            <p className="text-slate-300">Here's your comprehensive security overview</p>
+            <p className="text-slate-300 text-sm sm:text-base">Here's your comprehensive security overview</p>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+              <RefreshCw className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
-            <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
+            <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+              <Filter className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Filter</span>
             </Button>
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export
+            <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+              <Download className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Export</span>
             </Button>
           </div>
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-300">Total Vulnerabilities</p>
-                  <p className="text-3xl font-bold text-white">1,055</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">1,055</p>
                   <div className="flex items-center mt-1">
                     <TrendingUp className="h-4 w-4 text-red-400 mr-1" />
-                    <span className="text-sm text-red-400">+12% from last week</span>
+                    <span className="text-xs md:text-sm text-red-400">+12% from last week</span>
                   </div>
                 </div>
-                <div className="bg-red-500/20 p-3 rounded-full">
-                  <AlertTriangle className="h-6 w-6 text-red-400" />
+                <div className="bg-red-500/20 p-2 md:p-3 rounded-full ml-3">
+                  <AlertTriangle className="h-5 w-5 md:h-6 md:w-6 text-red-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-300">Critical Risks</p>
-                  <p className="text-3xl font-bold text-white">52</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">52</p>
                   <div className="flex items-center mt-1">
                     <TrendingUp className="h-4 w-4 text-red-400 mr-1" />
-                    <span className="text-sm text-red-400">+3 new today</span>
+                    <span className="text-xs md:text-sm text-red-400">+3 new today</span>
                   </div>
                 </div>
-                <div className="bg-red-500/20 p-3 rounded-full">
-                  <Shield className="h-6 w-6 text-red-400" />
+                <div className="bg-red-500/20 p-2 md:p-3 rounded-full ml-3">
+                  <Shield className="h-5 w-5 md:h-6 md:w-6 text-red-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-300">Remediated</p>
-                  <p className="text-3xl font-bold text-white">234</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">234</p>
                   <div className="flex items-center mt-1">
                     <CheckCircle className="h-4 w-4 text-green-400 mr-1" />
-                    <span className="text-sm text-green-400">+18 this week</span>
+                    <span className="text-xs md:text-sm text-green-400">+18 this week</span>
                   </div>
                 </div>
-                <div className="bg-green-500/20 p-3 rounded-full">
-                  <CheckCircle className="h-6 w-6 text-green-400" />
+                <div className="bg-green-500/20 p-2 md:p-3 rounded-full ml-3">
+                  <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-green-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-300">Risk Score</p>
-                  <p className="text-3xl font-bold text-white">7.2</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">7.2</p>
                   <div className="flex items-center mt-1">
                     <Activity className="h-4 w-4 text-orange-400 mr-1" />
-                    <span className="text-sm text-orange-400">High Risk</span>
+                    <span className="text-xs md:text-sm text-orange-400">High Risk</span>
                   </div>
                 </div>
-                <div className="bg-orange-500/20 p-3 rounded-full">
-                  <Activity className="h-6 w-6 text-orange-400" />
+                <div className="bg-orange-500/20 p-2 md:p-3 rounded-full ml-3">
+                  <Activity className="h-5 w-5 md:h-6 md:w-6 text-orange-400" />
                 </div>
               </div>
             </CardContent>
@@ -274,7 +274,7 @@ export default function Dashboard() {
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
           {/* Vulnerability Trends */}
           <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
@@ -283,16 +283,30 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height={300}>
                   <AreaChart data={vulnerabilityTrends}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="critical" stackId="1" stroke="#dc2626" fill="#dc2626" />
-                    <Area type="monotone" dataKey="high" stackId="1" stroke="#ea580c" fill="#ea580c" />
-                    <Area type="monotone" dataKey="medium" stackId="1" stroke="#ca8a04" fill="#ca8a04" />
-                    <Area type="monotone" dataKey="low" stackId="1" stroke="#16a34a" fill="#16a34a" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                    <XAxis 
+                      dataKey="date" 
+                      stroke="#9ca3af"
+                      fontSize={12}
+                    />
+                    <YAxis 
+                      stroke="#9ca3af"
+                      fontSize={12}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#1f2937',
+                        border: '1px solid #374151',
+                        borderRadius: '8px',
+                        color: '#f9fafb'
+                      }}
+                    />
+                    <Area type="monotone" dataKey="critical" stackId="1" stroke="#dc2626" fill="#dc2626" fillOpacity={0.8} />
+                    <Area type="monotone" dataKey="high" stackId="1" stroke="#ea580c" fill="#ea580c" fillOpacity={0.8} />
+                    <Area type="monotone" dataKey="medium" stackId="1" stroke="#ca8a04" fill="#ca8a04" fillOpacity={0.8} />
+                    <Area type="monotone" dataKey="low" stackId="1" stroke="#16a34a" fill="#16a34a" fillOpacity={0.8} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -307,7 +321,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
                       data={riskDistribution}
@@ -322,7 +336,14 @@ export default function Dashboard() {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#1f2937',
+                        border: '1px solid #374151',
+                        borderRadius: '8px',
+                        color: '#f9fafb'
+                      }}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -349,13 +370,27 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={assetTypes}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="type" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="vulnerabilities" fill="#3b82f6" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis 
+                    dataKey="type" 
+                    stroke="#9ca3af"
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="#9ca3af"
+                    fontSize={12}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#1f2937',
+                      border: '1px solid #374151',
+                      borderRadius: '8px',
+                      color: '#f9fafb'
+                    }}
+                  />
+                  <Bar dataKey="vulnerabilities" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -363,7 +398,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
           {/* Recent Scans */}
           <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>

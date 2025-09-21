@@ -412,51 +412,51 @@ export default function ReportsCompliance() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-400">Active Reports</p>
-                  <p className="text-3xl font-bold text-white">{reportTemplates.length}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">{reportTemplates.length}</p>
                 </div>
-                <FileText className="h-8 w-8 text-blue-600" />
+                <FileText className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>
           
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-400">Generated This Month</p>
-                  <p className="text-3xl font-bold text-white">47</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">47</p>
                 </div>
-                <BarChart3 className="h-8 w-8 text-green-600" />
+                <BarChart3 className="h-6 w-6 md:h-8 md:w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-400">Compliance Score</p>
-                  <p className="text-3xl font-bold text-white">81%</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">81%</p>
                 </div>
-                <Shield className="h-8 w-8 text-orange-600" />
+                <Shield className="h-6 w-6 md:h-8 md:w-8 text-orange-600" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-400">Scheduled Reports</p>
-                  <p className="text-3xl font-bold text-white">12</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">12</p>
                 </div>
-                <Calendar className="h-8 w-8 text-purple-600" />
+                <Calendar className="h-6 w-6 md:h-8 md:w-8 text-purple-600" />
               </div>
             </CardContent>
           </Card>
@@ -464,28 +464,28 @@ export default function ReportsCompliance() {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="reports" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-slate-800/30 p-1 rounded-lg mb-6">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-slate-800/30 p-1 rounded-lg mb-6 gap-1">
             <TabsTrigger 
               value="reports" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
             >
               Report Templates
             </TabsTrigger>
             <TabsTrigger 
               value="recent" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
             >
               Recent Reports
             </TabsTrigger>
             <TabsTrigger 
               value="compliance" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
             >
               Compliance
             </TabsTrigger>
             <TabsTrigger 
               value="analytics" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
             >
               Analytics
             </TabsTrigger>
@@ -497,51 +497,51 @@ export default function ReportsCompliance() {
                 <CardTitle className="text-white">Report Templates</CardTitle>
                 <CardDescription className="text-slate-300">Manage automated report generation templates</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Table>
+              <CardContent className="overflow-x-auto">
+                <Table className="min-w-full">
                   <TableHeader>
                     <TableRow className="border-slate-700">
-                      <TableHead className="text-slate-300">Report Name</TableHead>
-                      <TableHead className="text-slate-300">Category</TableHead>
-                      <TableHead className="text-slate-300">Schedule</TableHead>
-                      <TableHead className="text-slate-300">Format</TableHead>
-                      <TableHead className="text-slate-300">Last Generated</TableHead>
-                      <TableHead className="text-slate-300">Recipients</TableHead>
-                      <TableHead className="text-slate-300">Actions</TableHead>
+                      <TableHead className="text-slate-300 min-w-[200px]">Report Name</TableHead>
+                      <TableHead className="text-slate-300 min-w-[100px]">Category</TableHead>
+                      <TableHead className="text-slate-300 min-w-[100px] hidden sm:table-cell">Schedule</TableHead>
+                      <TableHead className="text-slate-300 min-w-[80px] hidden md:table-cell">Format</TableHead>
+                      <TableHead className="text-slate-300 min-w-[120px] hidden lg:table-cell">Last Generated</TableHead>
+                      <TableHead className="text-slate-300 min-w-[100px] hidden lg:table-cell">Recipients</TableHead>
+                      <TableHead className="text-slate-300 min-w-[100px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {reportTemplates.map((template) => (
                       <TableRow key={template.id} className="border-slate-700">
-                        <TableCell>
+                        <TableCell className="min-w-[200px]">
                           <div>
                             <p className="font-medium text-white">{template.name}</p>
                             <p className="text-sm text-slate-400">{template.description}</p>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="min-w-[100px]">
                           <Badge variant="outline" className="border-slate-600 text-slate-300">{template.category}</Badge>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="min-w-[100px] hidden sm:table-cell">
                           <div className="flex items-center gap-2">
                             <Clock className="h-4 w-4 text-slate-400" />
                             <span className="text-slate-300">{template.schedule}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-sm text-slate-300">{template.format}</TableCell>
-                        <TableCell className="text-sm text-slate-400">{template.lastGenerated}</TableCell>
-                        <TableCell className="text-sm text-slate-400 max-w-xs truncate">
+                        <TableCell className="text-sm text-slate-300 min-w-[80px] hidden md:table-cell">{template.format}</TableCell>
+                        <TableCell className="text-sm text-slate-400 min-w-[120px] hidden lg:table-cell">{template.lastGenerated}</TableCell>
+                        <TableCell className="text-sm text-slate-400 max-w-xs truncate min-w-[100px] hidden lg:table-cell">
                           {template.recipients}
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
+                        <TableCell className="min-w-[100px]">
+                          <div className="flex items-center gap-1 md:gap-2">
+                            <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white p-1 md:p-2">
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
+                            <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white p-1 md:p-2">
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
+                            <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white p-1 md:p-2">
                               <Send className="h-4 w-4" />
                             </Button>
                           </div>

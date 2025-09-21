@@ -364,15 +364,15 @@ export default function VulnerabilityScanning() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Quick Scan</CardTitle>
+            <CardHeader className="pb-3 p-4 md:p-6">
+              <CardTitle className="text-base md:text-lg">Quick Scan</CardTitle>
               <CardDescription>Start an immediate vulnerability scan</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 md:p-6 pt-0">
               <div className="space-y-4">
-                <Input placeholder="Target IP or range" defaultValue="192.168.1.0/24" />
+                <Input placeholder="Target IP or range" defaultValue="192.168.1.0/24" className="w-full" />
                 <div className="flex gap-2">
                   <Button 
                     className="flex-1" 
@@ -401,11 +401,11 @@ export default function VulnerabilityScanning() {
           </Card>
 
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg text-white">Scan Statistics</CardTitle>
+            <CardHeader className="pb-3 p-4 md:p-6">
+              <CardTitle className="text-base md:text-lg text-white">Scan Statistics</CardTitle>
               <CardDescription className="text-slate-300">Recent scanning activity</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 md:p-6 pt-0">
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm text-slate-300">Scans Today</span>
@@ -428,11 +428,11 @@ export default function VulnerabilityScanning() {
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Next Scheduled</CardTitle>
+            <CardHeader className="pb-3 p-4 md:p-6">
+              <CardTitle className="text-base md:text-lg">Next Scheduled</CardTitle>
               <CardDescription>Upcoming automated scans</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 md:p-6 pt-0">
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="h-4 w-4 text-gray-400" />
@@ -453,28 +453,28 @@ export default function VulnerabilityScanning() {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-slate-800/30 p-1 rounded-lg mb-6">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-slate-800/30 p-1 rounded-lg mb-6 gap-1">
             <TabsTrigger 
               value="overview" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
             >
               Overview
             </TabsTrigger>
             <TabsTrigger 
               value="scans" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
             >
               Recent Scans
             </TabsTrigger>
             <TabsTrigger 
               value="vulnerabilities" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
             >
               Vulnerabilities
             </TabsTrigger>
             <TabsTrigger 
               value="templates" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md"
+              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
             >
               Templates
             </TabsTrigger>
@@ -557,30 +557,30 @@ export default function VulnerabilityScanning() {
                 <CardTitle>Scan History</CardTitle>
                 <CardDescription>All vulnerability scanning activities</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Table>
+              <CardContent className="overflow-x-auto">
+                <Table className="min-w-full">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Scan Name</TableHead>
-                      <TableHead>Target</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Vulnerabilities</TableHead>
-                      <TableHead>Duration</TableHead>
-                      <TableHead>Start Time</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead className="min-w-[150px]">Scan Name</TableHead>
+                      <TableHead className="min-w-[120px]">Target</TableHead>
+                      <TableHead className="min-w-[100px]">Status</TableHead>
+                      <TableHead className="min-w-[120px] hidden sm:table-cell">Vulnerabilities</TableHead>
+                      <TableHead className="min-w-[100px] hidden md:table-cell">Duration</TableHead>
+                      <TableHead className="min-w-[120px] hidden lg:table-cell">Start Time</TableHead>
+                      <TableHead className="min-w-[100px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {recentScans.map((scan) => (
                       <TableRow key={scan.id}>
-                        <TableCell>
+                        <TableCell className="min-w-[150px]">
                           <div className="flex items-center gap-2">
                             {getStatusIcon(scan.status)}
                             <span className="font-medium text-white">{scan.name}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="font-mono text-sm text-slate-300">{scan.target}</TableCell>
-                        <TableCell>
+                        <TableCell className="font-mono text-sm text-slate-300 min-w-[120px]">{scan.target}</TableCell>
+                        <TableCell className="min-w-[100px]">
                           <div className="flex items-center gap-2">
                             <Badge 
                               className={
@@ -598,7 +598,7 @@ export default function VulnerabilityScanning() {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="min-w-[120px] hidden sm:table-cell">
                           {scan.vulnerabilities ? (
                             <div className="flex items-center gap-1">
                               {scan.vulnerabilities.critical > 0 && (
@@ -626,14 +626,14 @@ export default function VulnerabilityScanning() {
                             <span className="text-slate-400">-</span>
                           )}
                         </TableCell>
-                        <TableCell className="text-sm text-slate-300">{scan.duration}</TableCell>
-                        <TableCell className="text-sm text-slate-300">{scan.startTime}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
+                        <TableCell className="text-sm text-slate-300 min-w-[100px] hidden md:table-cell">{scan.duration}</TableCell>
+                        <TableCell className="text-sm text-slate-300 min-w-[120px] hidden lg:table-cell">{scan.startTime}</TableCell>
+                        <TableCell className="min-w-[100px]">
+                          <div className="flex items-center gap-1 md:gap-2">
+                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white p-1 md:p-2">
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
+                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white p-1 md:p-2">
                               <Download className="h-4 w-4" />
                             </Button>
                           </div>
