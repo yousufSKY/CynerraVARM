@@ -1,0 +1,36 @@
+# Cynerra VARM Backend Dependencies
+# FastAPI and core dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database - Firebase
+firebase-admin==7.1.0  # Firebase Admin SDK
+
+# Authentication & Security
+pyjwt[crypto]==2.8.0
+cryptography==41.0.7
+httpx==0.25.2
+
+# Data validation
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# CORS and middleware
+python-jose[cryptography]==3.3.0
+
+# Background tasks and scanning
+celery==5.3.4  # Background task processing
+redis==5.0.1   # Celery broker and result backend
+defusedxml==0.7.1  # Safe XML parsing for Nmap output
+
+# Development dependencies
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2  # For testing
+
+# Optional: Redis for caching/sessions (now required for Celery)
+# redis==5.0.1
+
+# Utilities
+python-dotenv==1.0.0
