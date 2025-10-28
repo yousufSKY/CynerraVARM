@@ -7,6 +7,8 @@ import logging
 import re
 import ipaddress
 import socket
+import asyncio
+import threading
 from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Any, Optional, Tuple
 from uuid import uuid4
@@ -14,8 +16,8 @@ from uuid import uuid4
 from ..database import FirebaseManager
 from ..models import Scan, ScanStatus, ScanProfile, NmapHost, ScanSchedule
 from ..schemas import ScanCreate, ScanUpdate, ScanTargetValidation, ScanStatsResponse
-from ..utils.nmap_runner import nmap_runner
-from ..utils.nmap_worker import celery_app, execute_nmap_scan
+from ..utils.nmap_runner import nmap_runner, ScanProfile as NmapScanProfile, ScanResult
+from ..utils.nmap_parser import nmap_parser
 
 logger = logging.getLogger(__name__)
 
@@ -90,22 +92,15 @@ class ScanService:
             # Save to database
             self.db.create_document('scans', scan_id, scan.model_dump(exclude_none=True))
             
-            # Queue background task
-            task = execute_nmap_scan.delay(
-                scan_id=scan_id,
-                targets=scan_data.targets,
-                scan_profile=scan_data.scan_profile.value,
-                user_id=user_id,
-                custom_options=scan_data.custom_options
+            # Start scan in background thread to avoid blocking the API response
+            scan_thread = threading.Thread(
+                target=self._execute_scan_background,
+                args=(scan_id, scan_data.targets, scan_data.scan_profile, user_id, scan_data.custom_options),
+                daemon=True
             )
+            scan_thread.start()
             
-            # Update with task ID
-            self.db.update_document('scans', scan_id, {
-                'task_id': task.id,
-                'updated_at': datetime.now(timezone.utc)
-            })
-            
-            logger.info(f"✅ Scan {scan_id} created and queued with task {task.id}")
+            logger.info(f"✅ Scan {scan_id} created and started in background")
             return scan_id
             
         except Exception as e:
@@ -116,6 +111,205 @@ class ScanService:
             except:
                 pass
             raise RuntimeError(f"Failed to create scan: {str(e)}")
+    
+    def _execute_scan_background(self, scan_id: str, targets: str, scan_profile: ScanProfile, user_id: str, custom_options: Optional[str] = None):
+        """
+        Execute scan in background thread
+        
+        Args:
+            scan_id: Scan identifier
+            targets: Target specification
+            scan_profile: Scan profile to use
+            user_id: User ID
+            custom_options: Custom scan options (ignored for now)
+        """
+        try:
+            # Update status to running
+            self.db.update_document('scans', scan_id, {
+                'status': ScanStatus.RUNNING.value,
+                'started_at': datetime.now(timezone.utc),
+                'updated_at': datetime.now(timezone.utc)
+            })
+            
+            logger.info(f"🚀 Starting scan execution for {scan_id}")
+            
+            # Convert scan profile to nmap profile
+            nmap_profile_map = {
+                ScanProfile.QUICK: NmapScanProfile.QUICK,
+                ScanProfile.FULL: NmapScanProfile.FULL,
+                ScanProfile.SERVICE_DETECTION: NmapScanProfile.SERVICE_DETECTION,
+                ScanProfile.VULN_SCAN: NmapScanProfile.VULN_SCAN,
+                ScanProfile.UDP_SCAN: NmapScanProfile.UDP_SCAN
+            }
+            
+            nmap_profile = nmap_profile_map.get(scan_profile, NmapScanProfile.QUICK)
+            
+            # Parse targets and scan each one
+            target_list = [t.strip() for t in targets.replace(',', ' ').split() if t.strip()]
+            all_hosts = []
+            hosts_found = 0
+            vulnerabilities_found = 0
+            
+            for target in target_list:
+                logger.info(f"🎯 Scanning target: {target}")
+                
+                # Execute nmap scan
+                result = nmap_runner.execute_scan(target, nmap_profile)
+                
+                if result.status == ScanResult.SUCCESS and result.xml_output:
+                    # Parse XML output
+                    try:
+                        parsed_result = nmap_parser.parse_xml(result.xml_output)
+                        hosts = self._convert_parsed_hosts_to_models(parsed_result, scan_id)
+                        all_hosts.extend(hosts)
+                        hosts_found += len(hosts)
+                        
+                        # Count vulnerabilities (open ports)
+                        for host in hosts:
+                            vulnerabilities_found += len([p for p in host.ports if p.get('state') == 'open'])
+                        
+                        logger.info(f"✅ Target {target} scanned successfully: {len(hosts)} hosts found")
+                        
+                    except Exception as parse_error:
+                        logger.error(f"❌ Failed to parse scan results for {target}: {str(parse_error)}")
+                        
+                else:
+                    logger.error(f"❌ Scan failed for target {target}: {result.error_message}")
+            
+            # Save host results to database
+            for host in all_hosts:
+                try:
+                    host_id = str(uuid4())
+                    host_data = host.model_dump(exclude_none=True)
+                    host_data['id'] = host_id
+                    self.db.create_document('nmap_hosts', host_id, host_data)
+                except Exception as e:
+                    logger.error(f"❌ Failed to save host data: {str(e)}")
+            
+            # Calculate basic risk score (simplified)
+            risk_score = min(100.0, (vulnerabilities_found * 10.0) + (hosts_found * 5.0))
+            
+            # Update scan as completed
+            self.db.update_document('scans', scan_id, {
+                'status': ScanStatus.COMPLETED.value,
+                'completed_at': datetime.now(timezone.utc),
+                'updated_at': datetime.now(timezone.utc),
+                'hosts_found': hosts_found,
+                'vulnerabilities_found': vulnerabilities_found,
+                'risk_score': risk_score,
+                'scan_results': {
+                    'hosts_scanned': len(target_list),
+                    'hosts_up': hosts_found,
+                    'total_ports_found': sum(len(h.ports) for h in all_hosts),
+                    'open_ports': sum(len([p for p in h.ports if p.get('state') == 'open']) for h in all_hosts)
+                }
+            })
+            
+            logger.info(f"✅ Scan {scan_id} completed successfully")
+            
+        except Exception as e:
+            logger.error(f"❌ Scan {scan_id} failed: {str(e)}")
+            
+            # Update scan as failed
+            try:
+                self.db.update_document('scans', scan_id, {
+                    'status': ScanStatus.FAILED.value,
+                    'completed_at': datetime.now(timezone.utc),
+                    'updated_at': datetime.now(timezone.utc),
+                    'error_message': str(e)
+                })
+            except Exception as update_error:
+                logger.error(f"❌ Failed to update scan status: {str(update_error)}")
+    
+    def _convert_parsed_hosts_to_models(self, parsed_result, scan_id: str) -> List[NmapHost]:
+        """
+        Convert parsed nmap result to NmapHost models
+        
+        Args:
+            parsed_result: Parsed nmap XML result
+            scan_id: Scan identifier
+            
+        Returns:
+            List of NmapHost models
+        """
+        hosts = []
+        
+        for host_data in parsed_result.hosts:
+            # Extract host info
+            host_info = host_data.get('host_info', {})
+            if isinstance(host_info, dict):
+                ip_address = host_info.get('ip')
+                hostname = host_info.get('hostname')
+                status = host_info.get('status', 'unknown')
+                mac_address = host_info.get('mac_address')
+                vendor = host_info.get('vendor')
+            else:
+                # host_info might be a HostInfo dataclass instance
+                ip_address = getattr(host_info, 'ip', None)
+                hostname = getattr(host_info, 'hostname', None)
+                status = getattr(host_info, 'status', 'unknown')
+                mac_address = getattr(host_info, 'mac_address', None)
+                vendor = getattr(host_info, 'vendor', None)
+            
+            # Convert ports - handle both dict and PortInfo dataclass instances
+            ports = []
+            for port_data in host_data.get('ports', []):
+                if isinstance(port_data, dict):
+                    # It's already a dict
+                    port = {
+                        'port': port_data.get('port', 0),
+                        'protocol': port_data.get('protocol', 'tcp'),
+                        'state': port_data.get('state', 'unknown'),
+                        'service': port_data.get('service'),
+                        'version': port_data.get('version'),
+                        'product': port_data.get('product'),
+                        'reason': port_data.get('reason'),
+                        'confidence': port_data.get('confidence')
+                    }
+                else:
+                    # It's a PortInfo dataclass instance
+                    port = {
+                        'port': getattr(port_data, 'port', 0),
+                        'protocol': getattr(port_data, 'protocol', 'tcp'),
+                        'state': getattr(port_data, 'state', 'unknown'),
+                        'service': getattr(port_data, 'service', None),
+                        'version': getattr(port_data, 'version', None),
+                        'product': getattr(port_data, 'product', None),
+                        'reason': getattr(port_data, 'reason', None),
+                        'confidence': getattr(port_data, 'confidence', None)
+                    }
+                ports.append(port)
+            
+            # Handle OS detection
+            os_detection = host_data.get('os_detection', {})
+            if isinstance(os_detection, dict):
+                os_name = os_detection.get('name')
+                os_family = os_detection.get('family')
+                os_accuracy = os_detection.get('accuracy')
+            else:
+                os_name = getattr(os_detection, 'name', None)
+                os_family = getattr(os_detection, 'family', None)
+                os_accuracy = getattr(os_detection, 'accuracy', None)
+            
+            # Create NmapHost model
+            nmap_host = NmapHost(
+                scan_id=scan_id,
+                ip_address=ip_address,
+                hostname=hostname,
+                status=status,
+                mac_address=mac_address,
+                vendor=vendor,
+                os_name=os_name,
+                os_family=os_family,
+                os_accuracy=os_accuracy,
+                ports=ports,
+                scripts=host_data.get('scripts', []),
+                scan_time=datetime.now(timezone.utc)
+            )
+            
+            hosts.append(nmap_host)
+        
+        return hosts
     
     def validate_targets(self, targets: str) -> ScanTargetValidation:
         """
@@ -276,8 +470,9 @@ class ScanService:
             if status_filter:
                 query = query.where('status', '==', status_filter.value)
             
-            # Order by creation date (newest first)
-            query = query.order_by('created_at', direction='DESCENDING')
+            # Temporarily remove ordering to avoid index requirement
+            # TODO: Create composite index in Firebase console for user_id + created_at
+            # query = query.order_by('created_at', direction='DESCENDING')
             
             # Apply pagination
             if offset > 0:
@@ -285,7 +480,12 @@ class ScanService:
             query = query.limit(limit)
             
             docs = query.get()
-            return [{'id': doc.id, **doc.to_dict()} for doc in docs]
+            results = [{'id': doc.id, **doc.to_dict()} for doc in docs]
+            
+            # Sort in Python for now
+            results.sort(key=lambda x: x.get('created_at', datetime.min), reverse=True)
+            
+            return results
             
         except Exception as e:
             logger.error(f"❌ Failed to get user scans: {str(e)}")
@@ -306,38 +506,35 @@ class ScanService:
         if not scan_doc:
             return None
         
+        status = scan_doc.get('status', 'pending')
         progress_info = {
             'scan_id': scan_id,
-            'status': scan_doc.get('status', 'pending'),
+            'status': status,
             'progress': 0,
             'message': None,
             'started_at': scan_doc.get('started_at'),
             'estimated_completion': None
         }
         
-        # Get Celery task progress if available
-        task_id = scan_doc.get('task_id')
-        if task_id:
-            try:
-                task_result = celery_app.AsyncResult(task_id)
-                
-                if task_result.state == 'PROGRESS':
-                    meta = task_result.info or {}
-                    progress_info.update({
-                        'progress': meta.get('progress', 0),
-                        'message': meta.get('status', '')
-                    })
-                elif task_result.state == 'SUCCESS':
-                    progress_info['progress'] = 100
-                    progress_info['message'] = 'Scan completed successfully'
-                elif task_result.state == 'FAILURE':
-                    progress_info['message'] = 'Scan failed'
-                    
-            except Exception as e:
-                logger.warning(f"⚠️ Could not get task progress for {task_id}: {str(e)}")
+        # Calculate progress based on status
+        if status == 'pending':
+            progress_info['progress'] = 0
+            progress_info['message'] = 'Scan is queued and waiting to start'
+        elif status == 'running':
+            progress_info['progress'] = 50  # Assume 50% when running (no detailed progress tracking yet)
+            progress_info['message'] = 'Scan is currently running'
+        elif status == 'completed':
+            progress_info['progress'] = 100
+            progress_info['message'] = 'Scan completed successfully'
+        elif status == 'failed':
+            progress_info['progress'] = 0
+            progress_info['message'] = scan_doc.get('error_message', 'Scan failed')
+        elif status == 'cancelled':
+            progress_info['progress'] = 0
+            progress_info['message'] = 'Scan was cancelled'
         
         # Estimate completion time for running scans
-        if scan_doc.get('status') == 'running' and scan_doc.get('started_at'):
+        if status == 'running' and scan_doc.get('started_at'):
             try:
                 started_at = scan_doc['started_at']
                 if isinstance(started_at, str):
@@ -358,6 +555,8 @@ class ScanService:
                 if elapsed.total_seconds() < estimated_duration:
                     completion_time = started_at + timedelta(seconds=estimated_duration)
                     progress_info['estimated_completion'] = completion_time
+                    # Update progress based on elapsed time
+                    progress_info['progress'] = min(90, int((elapsed.total_seconds() / estimated_duration) * 100))
                     
             except Exception as e:
                 logger.warning(f"⚠️ Could not estimate completion time: {str(e)}")
@@ -385,11 +584,9 @@ class ScanService:
             return False
         
         try:
-            # Cancel Celery task if available
-            task_id = scan_doc.get('task_id')
-            if task_id:
-                celery_app.control.revoke(task_id, terminate=True)
-                logger.info(f"🚫 Cancelled Celery task {task_id}")
+            # Note: With direct execution, we can't easily interrupt running scans
+            # For now, just mark as cancelled - in production you'd want to implement
+            # proper cancellation mechanisms (process groups, etc.)
             
             # Update scan status
             self.db.update_document('scans', scan_id, {

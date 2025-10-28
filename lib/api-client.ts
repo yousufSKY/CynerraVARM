@@ -32,6 +32,7 @@ export interface ApiError {
 class ApiClient {
   private baseURL: string;
   private authToken: string | null = null;
+  private tokenRefreshCallback: (() => Promise<string | null>) | null = null;
 
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
@@ -42,6 +43,13 @@ class ApiClient {
    */
   setAuthToken(token: string | null) {
     this.authToken = token;
+  }
+
+  /**
+   * Set token refresh callback for automatic token renewal
+   */
+  setTokenRefreshCallback(callback: () => Promise<string | null>) {
+    this.tokenRefreshCallback = callback;
   }
 
   /**
@@ -79,6 +87,32 @@ class ApiClient {
       });
 
       if (!response.ok) {
+        // If we get a 401 and have a token refresh callback, try to refresh and retry once
+        if (response.status === 401 && this.tokenRefreshCallback && this.authToken) {
+          try {
+            const newToken = await this.tokenRefreshCallback();
+            if (newToken && newToken !== this.authToken) {
+              this.authToken = newToken;
+              // Retry the request with the new token
+              headers['Authorization'] = `Bearer ${this.authToken}`;
+              const retryResponse = await fetch(url, {
+                ...options,
+                headers,
+              });
+              
+              if (retryResponse.ok) {
+                const data = await retryResponse.json();
+                return {
+                  success: true,
+                  data,
+                };
+              }
+            }
+          } catch (refreshError) {
+            console.error('❌ Token refresh failed:', refreshError);
+          }
+        }
+
         const errorText = await response.text();
         let errorMessage: string;
         

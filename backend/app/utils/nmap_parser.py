@@ -299,15 +299,20 @@ class NmapXMLParser:
     
     def _parse_port(self, port_elem) -> PortInfo:
         """Parse port and service information"""
-        port_info = PortInfo(
-            port=int(port_elem.get('portid', 0)),
-            protocol=port_elem.get('protocol', 'tcp')
-        )
-        
-        # Port state
+        # Get state first since it's required
+        state = 'unknown'
         state_elem = port_elem.find('state')
         if state_elem is not None:
-            port_info.state = state_elem.get('state', 'unknown')
+            state = state_elem.get('state', 'unknown')
+        
+        port_info = PortInfo(
+            port=int(port_elem.get('portid', 0)),
+            protocol=port_elem.get('protocol', 'tcp'),
+            state=state
+        )
+        
+        # Additional state info
+        if state_elem is not None:
             port_info.reason = state_elem.get('reason', '')
         
         # Service information
