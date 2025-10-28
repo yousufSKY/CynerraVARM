@@ -26,7 +26,6 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Table, 
   TableBody, 
@@ -49,16 +48,37 @@ import {
   Activity,
   RefreshCw,
   Settings,
-  Download
+  Download,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
+// Import our custom hooks and types
+import { useScans, useScanStats, useScanProgress } from '@/hooks/use-scans';
+import { ScanProfile, ScanStatus, SCAN_STATUS_COLORS, SCAN_PROFILE_CONFIGS } from '@/types/api';
+
 export default function VulnerabilityScanning() {
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanProgress, setScanProgress] = useState(0);
   const [activeTab, setActiveTab] = useState('overview');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [activeScanId, setActiveScanId] = useState<string | null>(null);
   const { user, isLoaded, isSignedIn } = useUser();
   const router = useRouter();
+
+  // API hooks
+  const { scans, loading: scansLoading, error: scansError, refreshScans, createScan, cancelScan, deleteScan } = useScans();
+  const { stats, loading: statsLoading, error: statsError } = useScanStats();
+  const { progress: scanProgress } = useScanProgress(activeScanId, !!activeScanId);
+
+  // Form state for creating scans
+  const [scanForm, setScanForm] = useState({
+    targets: '',
+    scan_profile: ScanProfile.QUICK,
+    custom_options: ''
+  });
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   // Handle authentication state
   useEffect(() => {
@@ -81,128 +101,53 @@ export default function VulnerabilityScanning() {
     return null;
   }
 
-  const scanTemplates = [
-    {
-      id: 1,
-      name: 'Full Network Scan',
-      description: 'Comprehensive vulnerability scan across all network assets',
-      targets: '192.168.1.0/24',
-      schedule: 'Weekly',
-      lastRun: '2024-01-07 14:30',
-      nextRun: '2024-01-14 14:30',
-      status: 'active'
-    },
-    {
-      id: 2,
-      name: 'Web Application Scan',
-      description: 'OWASP Top 10 and web-specific vulnerability assessment',
-      targets: 'https://app.company.com',
-      schedule: 'Daily',
-      lastRun: '2024-01-07 20:00',
-      nextRun: '2024-01-08 20:00',
-      status: 'active'
-    },
-    {
-      id: 3,
-      name: 'Critical Infrastructure',
-      description: 'High-priority servers and database systems',
-      targets: 'DB-*, WEB-*, MAIL-*',
-      schedule: 'Daily',
-      lastRun: '2024-01-07 02:00',
-      nextRun: '2024-01-08 02:00',
-      status: 'active'
+  const handleCreateScan = async () => {
+    if (!scanForm.targets.trim()) {
+      setFormError('Please enter scan targets');
+      return;
     }
-  ];
 
-  const recentScans = [
-    {
-      id: 1,
-      name: 'Production Network Scan',
-      target: '192.168.1.0/24',
-      status: 'completed',
-      progress: 100,
-      vulnerabilities: {
-        critical: 3,
-        high: 12,
-        medium: 25,
-        low: 45
-      },
-      startTime: '2024-01-07 14:00:00',
-      endTime: '2024-01-07 16:15:30',
-      duration: '2h 15m 30s'
-    },
-    {
-      id: 2,
-      name: 'Web Server Assessment',
-      target: '192.168.1.10',
-      status: 'running',
-      progress: 67,
-      vulnerabilities: null,
-      startTime: '2024-01-07 18:00:00',
-      endTime: null,
-      duration: '1h 23m'
-    },
-    {
-      id: 3,
-      name: 'Database Security Audit',
-      target: '192.168.1.20-25',
-      status: 'failed',
-      progress: 23,
-      vulnerabilities: null,
-      startTime: '2024-01-07 12:00:00',
-      endTime: '2024-01-07 12:45:00',
-      duration: '45m'
-    },
-    {
-      id: 4,
-      name: 'Office Workstations',
-      target: '192.168.2.0/24',
-      status: 'completed',
-      progress: 100,
-      vulnerabilities: {
-        critical: 0,
-        high: 5,
-        medium: 18,
-        low: 32
-      },
-      startTime: '2024-01-06 16:00:00',
-      endTime: '2024-01-06 18:30:00',
-      duration: '2h 30m'
-    }
-  ];
+    setIsCreating(true);
+    setFormError(null);
 
-  const vulnerabilityDetails = [
-    {
-      id: 'CVE-2024-0001',
-      title: 'Remote Code Execution in Apache HTTP Server',
-      severity: 'Critical',
-      cvss: 9.8,
-      affected: 3,
-      description: 'A critical vulnerability allowing remote code execution through crafted HTTP requests.',
-      solution: 'Upgrade Apache HTTP Server to version 2.4.58 or later',
-      references: ['https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-0001']
-    },
-    {
-      id: 'CVE-2024-0002',
-      title: 'SQL Injection in Web Application',
-      severity: 'High',
-      cvss: 8.5,
-      affected: 1,
-      description: 'SQL injection vulnerability in user authentication module.',
-      solution: 'Apply security patch v1.2.3 and implement input validation',
-      references: ['https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-0002']
-    },
-    {
-      id: 'CVE-2024-0003',
-      title: 'Cross-Site Scripting (XSS)',
-      severity: 'Medium',
-      cvss: 6.1,
-      affected: 5,
-      description: 'Stored XSS vulnerability in user comment system.',
-      solution: 'Sanitize user input and implement Content Security Policy',
-      references: ['https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-0003']
+    try {
+      const newScan = await createScan({
+        targets: scanForm.targets,
+        scan_profile: scanForm.scan_profile,
+        custom_options: scanForm.custom_options || undefined
+      });
+
+      if (newScan) {
+        setShowCreateDialog(false);
+        setScanForm({ targets: '', scan_profile: ScanProfile.QUICK, custom_options: '' });
+        setActiveScanId(newScan.id); // Start tracking this scan
+      }
+    } catch (error) {
+      console.error('Failed to create scan:', error);
+      setFormError('Failed to create scan. Please try again.');
+    } finally {
+      setIsCreating(false);
     }
-  ];
+  };
+
+  const handleCancelScan = async (scanId: string) => {
+    const success = await cancelScan(scanId);
+    if (success && activeScanId === scanId) {
+      setActiveScanId(null);
+    }
+  };
+
+  const startQuickScan = async () => {
+    const defaultTargets = '127.0.0.1';
+    const newScan = await createScan({
+      targets: defaultTargets,
+      scan_profile: ScanProfile.QUICK
+    });
+
+    if (newScan) {
+      setActiveScanId(newScan.id);
+    }
+  };
 
   const getSeverityColor = (severity: string) => {
     switch (severity.toLowerCase()) {
@@ -224,138 +169,119 @@ export default function VulnerabilityScanning() {
     }
   };
 
-  const startQuickScan = () => {
-    setIsScanning(true);
-    setScanProgress(0);
-    
-    // Simulate scan progress
-    const interval = setInterval(() => {
-      setScanProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsScanning(false);
-          return 100;
-        }
-        return prev + Math.random() * 10;
-      });
-    }, 500);
-  };
+  // Filter scans by status
+  const runningScans = scans.filter(scan => scan.status === ScanStatus.RUNNING);
+  const completedScans = scans.filter(scan => scan.status === ScanStatus.COMPLETED);
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="space-y-6">
+        {/* Header Section */}
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-white">Vulnerability Scanning</h1>
-            <p className="text-slate-300">Discover and assess security vulnerabilities</p>
+            <p className="text-gray-400 mt-2">
+              Comprehensive network and application security assessment
+            </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+          <div className="flex gap-3">
+            <Button 
+              onClick={startQuickScan} 
+              className="bg-cyan-600 hover:bg-cyan-700 text-white"
+              disabled={scansLoading}
+            >
+              {scansLoading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4 mr-2" />
+              )}
+              Quick Scan
             </Button>
-            <Dialog>
+            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
               <DialogTrigger asChild>
-                <Button>
+                <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
                   <Plus className="h-4 w-4 mr-2" />
                   New Scan
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
                 <DialogHeader>
                   <DialogTitle>Create New Scan</DialogTitle>
-                  <DialogDescription>
-                    Configure a new vulnerability scan for your assets.
+                  <DialogDescription className="text-gray-400">
+                    Configure a new vulnerability scan
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="scanName">Scan Name</Label>
-                      <Input id="scanName" placeholder="My Vulnerability Scan" />
-                    </div>
-                    <div>
-                      <Label htmlFor="scanType">Scan Type</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select scan type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="network">Network Scan</SelectItem>
-                          <SelectItem value="web">Web Application Scan</SelectItem>
-                          <SelectItem value="database">Database Scan</SelectItem>
-                          <SelectItem value="custom">Custom Scan</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  
+                <div className="space-y-4">
+                  {formError && (
+                    <Alert className="border-red-500/50 bg-red-500/10">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription className="text-red-400">
+                        {formError}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                   <div>
-                    <Label htmlFor="targets">Scan Targets</Label>
-                    <Textarea 
-                      id="targets" 
-                      placeholder="192.168.1.0/24&#10;10.0.0.1-10.0.0.100&#10;https://example.com"
+                    <Label htmlFor="targets" className="text-gray-300">Scan Targets</Label>
+                    <Textarea
+                      id="targets"
+                      placeholder="Enter IP addresses, hostnames, or networks (one per line)&#10;Examples:&#10;192.168.1.1&#10;example.com&#10;192.168.1.0/24"
+                      value={scanForm.targets}
+                      onChange={(e) => setScanForm(prev => ({ ...prev, targets: e.target.value }))}
+                      className="bg-gray-800 border-gray-600 text-white placeholder-gray-500 mt-2"
                       rows={4}
                     />
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="schedule">Schedule</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select schedule" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="once">Run Once</SelectItem>
-                          <SelectItem value="daily">Daily</SelectItem>
-                          <SelectItem value="weekly">Weekly</SelectItem>
-                          <SelectItem value="monthly">Monthly</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="priority">Priority</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select priority" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
-                          <SelectItem value="critical">Critical</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <div>
+                    <Label htmlFor="scan_profile" className="text-gray-300">Scan Profile</Label>
+                    <Select 
+                      value={scanForm.scan_profile} 
+                      onValueChange={(value) => setScanForm(prev => ({ ...prev, scan_profile: value as ScanProfile }))}
+                    >
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white mt-2">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        {Object.entries(SCAN_PROFILE_CONFIGS).map(([profile, config]) => (
+                          <SelectItem key={profile} value={profile} className="text-white hover:bg-gray-700">
+                            <div>
+                              <div className="font-medium">{config.name}</div>
+                              <div className="text-xs text-gray-400">{config.description}</div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-
-                  <div className="space-y-3">
-                    <Label>Scan Options</Label>
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="portScan" defaultChecked />
-                        <Label htmlFor="portScan">Port Scanning</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="serviceScan" defaultChecked />
-                        <Label htmlFor="serviceScan">Service Detection</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="vulnScan" defaultChecked />
-                        <Label htmlFor="vulnScan">Vulnerability Assessment</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="complianceScan" />
-                        <Label htmlFor="complianceScan">Compliance Checking</Label>
-                      </div>
-                    </div>
+                  <div>
+                    <Label htmlFor="custom_options" className="text-gray-300">Custom Nmap Options (Optional)</Label>
+                    <Input
+                      id="custom_options"
+                      placeholder="e.g., -p 1-1000 --script vuln"
+                      value={scanForm.custom_options}
+                      onChange={(e) => setScanForm(prev => ({ ...prev, custom_options: e.target.value }))}
+                      className="bg-gray-800 border-gray-600 text-white placeholder-gray-500 mt-2"
+                    />
                   </div>
-
-                  <div className="flex gap-2 pt-4">
-                    <Button className="flex-1">Create Scan</Button>
-                    <Button variant="outline" className="flex-1">Cancel</Button>
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      onClick={handleCreateScan}
+                      className="bg-cyan-600 hover:bg-cyan-700 text-white flex-1"
+                      disabled={isCreating}
+                    >
+                      {isCreating ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Play className="h-4 w-4 mr-2" />
+                      )}
+                      Start Scan
+                    </Button>
+                    <Button
+                      onClick={() => setShowCreateDialog(false)}
+                      variant="outline"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                    >
+                      Cancel
+                    </Button>
                   </div>
                 </div>
               </DialogContent>
@@ -363,88 +289,87 @@ export default function VulnerabilityScanning() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
-          <Card>
-            <CardHeader className="pb-3 p-4 md:p-6">
-              <CardTitle className="text-base md:text-lg">Quick Scan</CardTitle>
-              <CardDescription>Start an immediate vulnerability scan</CardDescription>
-            </CardHeader>
-            <CardContent className="p-4 md:p-6 pt-0">
-              <div className="space-y-4">
-                <Input placeholder="Target IP or range" defaultValue="192.168.1.0/24" className="w-full" />
-                <div className="flex gap-2">
-                  <Button 
-                    className="flex-1" 
-                    onClick={startQuickScan}
-                    disabled={isScanning}
-                  >
-                    <Play className="h-4 w-4 mr-2" />
-                    {isScanning ? 'Scanning...' : 'Start Scan'}
-                  </Button>
-                  {isScanning && (
-                    <Button variant="outline" size="sm" onClick={() => setIsScanning(false)}>
-                      <Square className="h-4 w-4" />
-                    </Button>
+
+
+        {/* Show errors if any */}
+        {(scansError || statsError) && (
+          <Alert className="border-red-500/50 bg-red-500/10">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-red-400">
+              {scansError || statsError}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-blue-500/20 rounded-lg">
+                  <Activity className="h-6 w-6 text-blue-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-400">Active Scans</p>
+                  {statsLoading ? (
+                    <div className="h-7 w-8 bg-gray-700 animate-pulse rounded"></div>
+                  ) : (
+                    <p className="text-2xl font-bold text-white">{stats?.scans_running || 0}</p>
                   )}
                 </div>
-                {isScanning && (
-                  <div className="space-y-2">
-                    <Progress value={scanProgress} className="w-full" />
-                    <p className="text-sm text-slate-300 text-center">
-                      {Math.round(scanProgress)}% complete
-                    </p>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardHeader className="pb-3 p-4 md:p-6">
-              <CardTitle className="text-base md:text-lg text-white">Scan Statistics</CardTitle>
-              <CardDescription className="text-slate-300">Recent scanning activity</CardDescription>
-            </CardHeader>
-            <CardContent className="p-4 md:p-6 pt-0">
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-300">Scans Today</span>
-                  <span className="font-semibold text-white">12</span>
+          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-green-500/20 rounded-lg">
+                  <CheckCircle className="h-6 w-6 text-green-400" />
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-300">Active Scans</span>
-                  <span className="font-semibold text-blue-400">2</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-300">New Vulnerabilities</span>
-                  <span className="font-semibold text-red-400">15</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-300">Scan Templates</span>
-                  <span className="font-semibold text-white">{scanTemplates.length}</span>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-400">Completed Today</p>
+                  {statsLoading ? (
+                    <div className="h-7 w-8 bg-gray-700 animate-pulse rounded"></div>
+                  ) : (
+                    <p className="text-2xl font-bold text-white">{stats?.scans_last_24h || 0}</p>
+                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-3 p-4 md:p-6">
-              <CardTitle className="text-base md:text-lg">Next Scheduled</CardTitle>
-              <CardDescription>Upcoming automated scans</CardDescription>
-            </CardHeader>
-            <CardContent className="p-4 md:p-6 pt-0">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                  <span>Web App Scan - Today 20:00</span>
+          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-red-500/20 rounded-lg">
+                  <AlertTriangle className="h-6 w-6 text-red-400" />
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                  <span>Critical Infrastructure - Tomorrow 02:00</span>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-400">Total Vulns</p>
+                  {statsLoading ? (
+                    <div className="h-7 w-8 bg-gray-700 animate-pulse rounded"></div>
+                  ) : (
+                    <p className="text-2xl font-bold text-white">{stats?.total_vulnerabilities || 0}</p>
+                  )}
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                  <span>Full Network - Jan 14 14:30</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-purple-500/20 rounded-lg">
+                  <Settings className="h-6 w-6 text-purple-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-400">Total Scans</p>
+                  {statsLoading ? (
+                    <div className="h-7 w-8 bg-gray-700 animate-pulse rounded"></div>
+                  ) : (
+                    <p className="text-2xl font-bold text-white">{stats?.total_scans || 0}</p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -452,305 +377,291 @@ export default function VulnerabilityScanning() {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-slate-800/30 p-1 rounded-lg mb-6 gap-1">
-            <TabsTrigger 
-              value="overview" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
-            >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-gray-900/50 border border-gray-700">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white">
               Overview
             </TabsTrigger>
-            <TabsTrigger 
-              value="scans" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
-            >
-              Recent Scans
+            <TabsTrigger value="active" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white">
+              Active Scans ({runningScans.length})
             </TabsTrigger>
-            <TabsTrigger 
-              value="vulnerabilities" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
-            >
-              Vulnerabilities
-            </TabsTrigger>
-            <TabsTrigger 
-              value="templates" 
-              className="text-slate-300 data-[state=active]:bg-slate-700/70 data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm hover:text-cyan-100 hover:bg-slate-700/30 transition-all duration-200 rounded-md text-xs md:text-sm px-2 py-2"
-            >
-              Templates
+            <TabsTrigger value="history" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white">
+              Scan History
             </TabsTrigger>
           </TabsList>
 
+          {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Active Scans</CardTitle>
-                  <CardDescription className="text-slate-300">Currently running vulnerability scans</CardDescription>
+              {/* Recent Scans */}
+              <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-white">Recent Scans</CardTitle>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={refreshScans}
+                    disabled={scansLoading}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${scansLoading ? 'animate-spin' : ''}`} />
+                  </Button>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {recentScans.filter(scan => scan.status === 'running').map((scan) => (
-                      <div key={scan.id} className="flex items-center justify-between p-4 border border-slate-600 rounded-lg bg-slate-700/30">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Activity className="h-4 w-4 text-cyan-400 animate-pulse" />
-                            <span className="font-medium text-white">{scan.name}</span>
-                          </div>
-                          <p className="text-sm text-slate-300 mb-2">{scan.target}</p>
-                          <Progress value={scan.progress} className="w-full mb-2" />
-                          <div className="flex justify-between text-sm text-slate-400">
-                            <span>{scan.progress}% complete</span>
-                            <span>Running for {scan.duration}</span>
+                  {scansLoading ? (
+                    <div className="space-y-3">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="flex items-center space-x-4">
+                          <div className="h-4 w-4 bg-gray-700 animate-pulse rounded"></div>
+                          <div className="flex-1 space-y-2">
+                            <div className="h-4 bg-gray-700 animate-pulse rounded w-3/4"></div>
+                            <div className="h-3 bg-gray-700 animate-pulse rounded w-1/2"></div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 ml-4">
-                          <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
-                            <Pause className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
-                            <Square className="h-4 w-4" />
-                          </Button>
+                      ))}
+                    </div>
+                  ) : scans.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400">
+                      <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No scans found</p>
+                      <p className="text-sm">Create your first scan to get started</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {scans.slice(0, 5).map((scan) => (
+                        <div key={scan.id} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-0">
+                          <div className="flex items-center space-x-3">
+                            {getStatusIcon(scan.status)}
+                            <div>
+                              <p className="text-white font-medium">{scan.targets}</p>
+                              <p className="text-sm text-gray-400">
+                                {SCAN_PROFILE_CONFIGS[scan.scan_profile]?.name || scan.scan_profile}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <Badge 
+                              className={`${SCAN_STATUS_COLORS[scan.status]} border`}
+                            >
+                              {scan.status}
+                            </Badge>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {new Date(scan.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                    
-                    {recentScans.filter(scan => scan.status === 'running').length === 0 && (
-                      <p className="text-center text-slate-400 py-8">No active scans</p>
-                    )}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
-              <Card className="bg-slate-800/50 border-slate-700">
+              {/* Active Scan Progress */}
+              <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="text-white">Recent Findings</CardTitle>
-                  <CardDescription className="text-slate-300">Latest vulnerability discoveries</CardDescription>
+                  <CardTitle className="text-white">Scan Progress</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Real-time progress of active scans
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {vulnerabilityDetails.map((vuln) => (
-                      <div key={vuln.id} className="flex items-start gap-3 p-3 border border-slate-600 rounded-lg bg-slate-700/30">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge className={getSeverityColor(vuln.severity)} variant="secondary">
-                              {vuln.severity}
-                            </Badge>
-                            <span className="text-sm font-medium text-white">CVSS {vuln.cvss}</span>
+                  {runningScans.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400">
+                      <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No active scans</p>
+                      <p className="text-sm">Start a scan to see progress here</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {runningScans.map((scan) => (
+                        <div key={scan.id} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-white font-medium">{scan.targets}</span>
+                            <span className="text-sm text-gray-400">
+                              {scanProgress && activeScanId === scan.id ? `${scanProgress.progress}%` : 'Running...'}
+                            </span>
                           </div>
-                          <h4 className="font-medium text-white mb-1">{vuln.title}</h4>
-                          <p className="text-sm text-slate-400">{vuln.affected} assets affected</p>
+                          <Progress 
+                            value={scanProgress && activeScanId === scan.id ? scanProgress.progress : 0} 
+                            className="h-2"
+                          />
+                          <div className="flex items-center justify-between text-sm text-gray-400">
+                            <span>
+                              {scanProgress && activeScanId === scan.id ? (scanProgress.message || 'Running...') : 'Initializing...'}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleCancelScan(scan.id)}
+                              className="text-red-400 hover:text-red-300"
+                            >
+                              <Square className="h-3 w-3 mr-1" />
+                              Cancel
+                            </Button>
+                          </div>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-          <TabsContent value="scans" className="space-y-6">
-            <Card>
+          {/* Active Scans Tab */}
+          <TabsContent value="active">
+            <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>Scan History</CardTitle>
-                <CardDescription>All vulnerability scanning activities</CardDescription>
+                <CardTitle className="text-white">Active Scans</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Currently running vulnerability scans
+                </CardDescription>
               </CardHeader>
-              <CardContent className="overflow-x-auto">
-                <Table className="min-w-full">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="min-w-[150px]">Scan Name</TableHead>
-                      <TableHead className="min-w-[120px]">Target</TableHead>
-                      <TableHead className="min-w-[100px]">Status</TableHead>
-                      <TableHead className="min-w-[120px] hidden sm:table-cell">Vulnerabilities</TableHead>
-                      <TableHead className="min-w-[100px] hidden md:table-cell">Duration</TableHead>
-                      <TableHead className="min-w-[120px] hidden lg:table-cell">Start Time</TableHead>
-                      <TableHead className="min-w-[100px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentScans.map((scan) => (
-                      <TableRow key={scan.id}>
-                        <TableCell className="min-w-[150px]">
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(scan.status)}
-                            <span className="font-medium text-white">{scan.name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm text-slate-300 min-w-[120px]">{scan.target}</TableCell>
-                        <TableCell className="min-w-[100px]">
-                          <div className="flex items-center gap-2">
-                            <Badge 
-                              className={
-                                scan.status === 'completed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                                scan.status === 'running' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
-                                scan.status === 'failed' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                                'bg-slate-500/20 text-slate-400 border-slate-500/30'
-                              }
-                              variant="secondary"
-                            >
+              <CardContent>
+                {runningScans.length === 0 ? (
+                  <div className="text-center py-12 text-gray-400">
+                    <Activity className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                    <p className="text-lg">No active scans</p>
+                    <p className="text-sm">All scans are currently completed or idle</p>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-gray-700">
+                        <TableHead className="text-gray-300">Target</TableHead>
+                        <TableHead className="text-gray-300">Profile</TableHead>
+                        <TableHead className="text-gray-300">Progress</TableHead>
+                        <TableHead className="text-gray-300">Started</TableHead>
+                        <TableHead className="text-gray-300">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {runningScans.map((scan) => (
+                        <TableRow key={scan.id} className="border-gray-700">
+                          <TableCell className="text-white font-medium">{scan.targets}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="border-blue-500/50 text-blue-400">
+                              {SCAN_PROFILE_CONFIGS[scan.scan_profile]?.name || scan.scan_profile}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-2">
+                              <Progress 
+                                value={scanProgress && activeScanId === scan.id ? scanProgress.progress : 0} 
+                                className="h-2"
+                              />
+                              <span className="text-sm text-gray-400">
+                                {scanProgress && activeScanId === scan.id ? (scanProgress.message || 'Running...') : 'Initializing...'}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-gray-400">
+                            {new Date(scan.created_at).toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setActiveScanId(scan.id)}
+                                className="text-blue-400 hover:text-blue-300"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleCancelScan(scan.id)}
+                                className="text-red-400 hover:text-red-300"
+                              >
+                                <Square className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Scan History Tab */}
+          <TabsContent value="history">
+            <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-white">Scan History</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Completed vulnerability scans and their results
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {completedScans.length === 0 ? (
+                  <div className="text-center py-12 text-gray-400">
+                    <Calendar className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                    <p className="text-lg">No completed scans</p>
+                    <p className="text-sm">Scan history will appear here once scans are completed</p>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-gray-700">
+                        <TableHead className="text-gray-300">Target</TableHead>
+                        <TableHead className="text-gray-300">Profile</TableHead>
+                        <TableHead className="text-gray-300">Status</TableHead>
+                        <TableHead className="text-gray-300">Vulnerabilities</TableHead>
+                        <TableHead className="text-gray-300">Completed</TableHead>
+                        <TableHead className="text-gray-300">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {completedScans.map((scan) => (
+                        <TableRow key={scan.id} className="border-gray-700">
+                          <TableCell className="text-white font-medium">{scan.targets}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="border-green-500/50 text-green-400">
+                              {SCAN_PROFILE_CONFIGS[scan.scan_profile]?.name || scan.scan_profile}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={`${SCAN_STATUS_COLORS[scan.status]} border`}>
                               {scan.status}
                             </Badge>
-                            {scan.status === 'running' && (
-                              <span className="text-sm text-slate-400">{scan.progress}%</span>
+                          </TableCell>
+                          <TableCell>
+                            {scan.vulnerabilities_found > 0 ? (
+                              <span className="text-red-400 font-medium">{scan.vulnerabilities_found}</span>
+                            ) : (
+                              <span className="text-green-400">None</span>
                             )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="min-w-[120px] hidden sm:table-cell">
-                          {scan.vulnerabilities ? (
-                            <div className="flex items-center gap-1">
-                              {scan.vulnerabilities.critical > 0 && (
-                                <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-xs px-1 py-0">
-                                  {scan.vulnerabilities.critical}C
-                                </Badge>
-                              )}
-                              {scan.vulnerabilities.high > 0 && (
-                                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-xs px-1 py-0">
-                                  {scan.vulnerabilities.high}H
-                                </Badge>
-                              )}
-                              {scan.vulnerabilities.medium > 0 && (
-                                <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs px-1 py-0">
-                                  {scan.vulnerabilities.medium}M
-                                </Badge>
-                              )}
-                              {scan.vulnerabilities.low > 0 && (
-                                <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs px-1 py-0">
-                                  {scan.vulnerabilities.low}L
-                                </Badge>
-                              )}
+                          </TableCell>
+                          <TableCell className="text-gray-400">
+                            {scan.completed_at ? new Date(scan.completed_at).toLocaleString() : 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-blue-400 hover:text-blue-300"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-green-400 hover:text-green-300"
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
                             </div>
-                          ) : (
-                            <span className="text-slate-400">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-sm text-slate-300 min-w-[100px] hidden md:table-cell">{scan.duration}</TableCell>
-                        <TableCell className="text-sm text-slate-300 min-w-[120px] hidden lg:table-cell">{scan.startTime}</TableCell>
-                        <TableCell className="min-w-[100px]">
-                          <div className="flex items-center gap-1 md:gap-2">
-                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white p-1 md:p-2">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white p-1 md:p-2">
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="vulnerabilities" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Vulnerability Details</CardTitle>
-                <CardDescription>Detailed information about discovered vulnerabilities</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {vulnerabilityDetails.map((vuln) => (
-                    <div key={vuln.id} className="border rounded-lg p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <Badge className={getSeverityColor(vuln.severity)} variant="secondary">
-                            {vuln.severity}
-                          </Badge>
-                          <Badge variant="outline" className="font-mono">
-                            {vuln.id}
-                          </Badge>
-                          <span className="text-sm font-semibold text-white">CVSS {vuln.cvss}</span>
-                        </div>
-                        <Badge className="bg-slate-500/20 text-slate-400 border-slate-500/30" variant="secondary">
-                          {vuln.affected} affected
-                        </Badge>
-                      </div>
-                      
-                      <h3 className="font-semibold text-lg text-white mb-2">{vuln.title}</h3>
-                      <p className="text-slate-300 mb-3">{vuln.description}</p>
-                      
-                      <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-3 mb-3">
-                        <h4 className="font-medium text-blue-400 mb-1">Recommended Solution</h4>
-                        <p className="text-blue-300 text-sm">{vuln.solution}</p>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:text-white">
-                            View Details
-                          </Button>
-                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:text-white">
-                            Create Ticket
-                          </Button>
-                        </div>
-                        <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
-                          Mark as False Positive
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="templates" className="space-y-6">
-            <Card className="bg-slate-800/50 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white">Scan Templates</CardTitle>
-                <CardDescription className="text-slate-300">Pre-configured scan templates for different scenarios</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4">
-                  {scanTemplates.map((template) => (
-                    <div key={template.id} className="flex items-center justify-between p-4 border border-slate-600 rounded-lg bg-slate-700/30">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-white">{template.name}</h3>
-                          <Badge 
-                            className={template.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-slate-500/20 text-slate-400 border-slate-500/30'}
-                            variant="secondary"
-                          >
-                            {template.status}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-slate-300 mb-2">{template.description}</p>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div>
-                            <span className="text-slate-400">Targets:</span>
-                            <p className="font-mono text-slate-300">{template.targets}</p>
-                          </div>
-                          <div>
-                            <span className="text-slate-400">Schedule:</span>
-                            <p className="text-slate-300">{template.schedule}</p>
-                          </div>
-                          <div>
-                            <span className="text-slate-400">Last Run:</span>
-                            <p className="text-slate-300">{template.lastRun}</p>
-                          </div>
-                          <div>
-                            <span className="text-slate-400">Next Run:</span>
-                            <p className="text-slate-300">{template.nextRun}</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 ml-4">
-                        <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:text-white">
-                          <Play className="h-4 w-4 mr-1" />
-                          Run Now
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
-                          <Settings className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

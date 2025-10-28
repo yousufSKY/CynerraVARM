@@ -6,43 +6,30 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Shield, 
   AlertTriangle, 
   CheckCircle, 
-  TrendingUp, 
-  Server, 
-  Globe, 
   Activity,
-  Eye,
-  Download,
-  Filter,
-  RefreshCw
+  RefreshCw,
+  AlertCircle,
+  Loader2,
+  Play
 } from 'lucide-react';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  AreaChart,
-  Area
-} from 'recharts';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
+// Import our custom hooks and types
+import { useScans, useScanStats } from '@/hooks/use-scans';
+import { ScanStatus, ScanProfile, SCAN_STATUS_COLORS, SCAN_PROFILE_CONFIGS } from '@/types/api';
+
 export default function Dashboard() {
-  const [timeRange, setTimeRange] = useState('7d');
   const { user, isLoaded, isSignedIn } = useUser();
   const router = useRouter();
+
+  // API hooks
+  const { scans, loading: scansLoading, error: scansError, refreshScans, createScan } = useScans();
+  const { stats, loading: statsLoading, error: statsError } = useScanStats();
 
   // Handle authentication state
   useEffect(() => {
@@ -62,420 +49,295 @@ export default function Dashboard() {
 
   // Redirect if not signed in
   if (!isSignedIn) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#151528] to-[#1a1a2e] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400"></div>
-      </div>
-    );
+    return null;
   }
 
-  // Mock data for demonstrations
-  const vulnerabilityTrends = [
-    { date: '2024-01-01', critical: 12, high: 25, medium: 45, low: 78 },
-    { date: '2024-01-02', critical: 8, high: 30, medium: 42, low: 80 },
-    { date: '2024-01-03', critical: 15, high: 28, medium: 38, low: 72 },
-    { date: '2024-01-04', critical: 6, high: 22, medium: 40, low: 85 },
-    { date: '2024-01-05', critical: 10, high: 35, medium: 48, low: 90 },
-    { date: '2024-01-06', critical: 4, high: 20, medium: 35, low: 68 },
-    { date: '2024-01-07', critical: 7, high: 26, medium: 43, low: 75 },
-  ];
-
-  const riskDistribution = [
-    { name: 'Critical', value: 52, color: '#dc2626' },
-    { name: 'High', value: 186, color: '#ea580c' },
-    { name: 'Medium', value: 291, color: '#ca8a04' },
-    { name: 'Low', value: 526, color: '#16a34a' },
-  ];
-
-  const assetTypes = [
-    { type: 'Servers', vulnerabilities: 145, assets: 24 },
-    { type: 'Workstations', vulnerabilities: 298, assets: 156 },
-    { type: 'Network Devices', vulnerabilities: 78, assets: 12 },
-    { type: 'Cloud Resources', vulnerabilities: 234, assets: 45 },
-    { type: 'IoT Devices', vulnerabilities: 89, assets: 67 },
-  ];
-
-  const recentScans = [
-    { 
-      id: 1, 
-      target: 'Production Network', 
-      status: 'completed', 
-      vulnerabilities: 45, 
-      timestamp: '2024-01-07 14:30',
-      duration: '2h 15m'
-    },
-    { 
-      id: 2, 
-      target: 'Web Servers', 
-      status: 'running', 
-      vulnerabilities: null, 
-      timestamp: '2024-01-07 16:00',
-      duration: '45m'
-    },
-    { 
-      id: 3, 
-      target: 'Database Cluster', 
-      status: 'completed', 
-      vulnerabilities: 12, 
-      timestamp: '2024-01-07 12:15',
-      duration: '1h 30m'
-    },
-  ];
-
-  const threatIntelligence = [
-    {
-      id: 1,
-      cve: 'CVE-2024-0001',
-      severity: 'Critical',
-      score: 9.8,
-      description: 'Remote code execution vulnerability in Apache HTTP Server',
-      affected: 12,
-      published: '2024-01-07'
-    },
-    {
-      id: 2,
-      cve: 'CVE-2024-0002',
-      severity: 'High',
-      score: 8.5,
-      description: 'SQL injection vulnerability in PostgreSQL',
-      affected: 5,
-      published: '2024-01-06'
-    },
-    {
-      id: 3,
-      cve: 'CVE-2024-0003',
-      severity: 'High',
-      score: 8.2,
-      description: 'Cross-site scripting in React components',
-      affected: 18,
-      published: '2024-01-05'
-    },
-  ];
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity.toLowerCase()) {
-      case 'critical': return 'bg-red-100 text-red-800 border-red-300';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-300';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'low': return 'bg-green-100 text-green-800 border-green-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'running': return 'bg-blue-100 text-blue-800';
-      case 'failed': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'completed': return <CheckCircle className="h-4 w-4 text-green-400" />;
+      case 'running': return <Activity className="h-4 w-4 text-blue-400 animate-pulse" />;
+      case 'failed': return <AlertTriangle className="h-4 w-4 text-red-400" />;
+      case 'pending': return <Activity className="h-4 w-4 text-yellow-400" />;
+      default: return <Activity className="h-4 w-4 text-slate-400" />;
     }
   };
+
+  const startQuickScan = async () => {
+    const defaultTargets = '127.0.0.1';
+    const newScan = await createScan({
+      targets: defaultTargets,
+      scan_profile: ScanProfile.QUICK
+    });
+
+    if (newScan) {
+      router.push('/dashboard/scanning');
+    }
+  };
+
+  // Filter scans by status
+  const recentScans = scans.slice(0, 5);
 
   return (
     <DashboardLayout>
-      <div className="p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">
+            <h1 className="text-3xl font-bold text-white">
               Welcome back, {user?.firstName || 'User'}!
             </h1>
-            <p className="text-slate-300 text-sm sm:text-base">Here's your comprehensive security overview</p>
+            <p className="text-gray-400 mt-2">Here's your security overview</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-              <RefreshCw className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Refresh</span>
+          <div className="flex gap-3">
+            <Button 
+              onClick={startQuickScan} 
+              className="bg-cyan-600 hover:bg-cyan-700 text-white"
+              disabled={scansLoading}
+            >
+              {scansLoading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4 mr-2" />
+              )}
+              Quick Scan
             </Button>
-            <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-              <Filter className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Filter</span>
-            </Button>
-            <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-              <Download className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Export</span>
+            <Button 
+              variant="outline" 
+              onClick={refreshScans}
+              disabled={scansLoading}
+              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${scansLoading ? 'animate-spin' : ''}`} />
+              Refresh
             </Button>
           </div>
         </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-300">Total Vulnerabilities</p>
-                  <p className="text-2xl md:text-3xl font-bold text-white">1,055</p>
-                  <div className="flex items-center mt-1">
-                    <TrendingUp className="h-4 w-4 text-red-400 mr-1" />
-                    <span className="text-xs md:text-sm text-red-400">+12% from last week</span>
-                  </div>
+        {/* Show errors if any */}
+        {(scansError || statsError) && (
+          <Alert className="border-red-500/50 bg-red-500/10">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-red-400">
+              {scansError || statsError}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-red-500/20 rounded-lg">
+                  <AlertTriangle className="h-6 w-6 text-red-400" />
                 </div>
-                <div className="bg-red-500/20 p-2 md:p-3 rounded-full ml-3">
-                  <AlertTriangle className="h-5 w-5 md:h-6 md:w-6 text-red-400" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-400">Total Vulnerabilities</p>
+                  {statsLoading ? (
+                    <div className="h-7 w-16 bg-gray-700 animate-pulse rounded"></div>
+                  ) : (
+                    <p className="text-2xl font-bold text-white">{stats?.total_vulnerabilities || 0}</p>
+                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-300">Critical Risks</p>
-                  <p className="text-2xl md:text-3xl font-bold text-white">52</p>
-                  <div className="flex items-center mt-1">
-                    <TrendingUp className="h-4 w-4 text-red-400 mr-1" />
-                    <span className="text-xs md:text-sm text-red-400">+3 new today</span>
-                  </div>
+          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-blue-500/20 rounded-lg">
+                  <Activity className="h-6 w-6 text-blue-400" />
                 </div>
-                <div className="bg-red-500/20 p-2 md:p-3 rounded-full ml-3">
-                  <Shield className="h-5 w-5 md:h-6 md:w-6 text-red-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-300">Remediated</p>
-                  <p className="text-2xl md:text-3xl font-bold text-white">234</p>
-                  <div className="flex items-center mt-1">
-                    <CheckCircle className="h-4 w-4 text-green-400 mr-1" />
-                    <span className="text-xs md:text-sm text-green-400">+18 this week</span>
-                  </div>
-                </div>
-                <div className="bg-green-500/20 p-2 md:p-3 rounded-full ml-3">
-                  <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-green-400" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-400">Active Scans</p>
+                  {statsLoading ? (
+                    <div className="h-7 w-8 bg-gray-700 animate-pulse rounded"></div>
+                  ) : (
+                    <p className="text-2xl font-bold text-white">{stats?.scans_running || 0}</p>
+                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-300">Risk Score</p>
-                  <p className="text-2xl md:text-3xl font-bold text-white">7.2</p>
-                  <div className="flex items-center mt-1">
-                    <Activity className="h-4 w-4 text-orange-400 mr-1" />
-                    <span className="text-xs md:text-sm text-orange-400">High Risk</span>
-                  </div>
+          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-green-500/20 rounded-lg">
+                  <CheckCircle className="h-6 w-6 text-green-400" />
                 </div>
-                <div className="bg-orange-500/20 p-2 md:p-3 rounded-full ml-3">
-                  <Activity className="h-5 w-5 md:h-6 md:w-6 text-orange-400" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-400">Completed Scans</p>
+                  {statsLoading ? (
+                    <div className="h-7 w-8 bg-gray-700 animate-pulse rounded"></div>
+                  ) : (
+                    <p className="text-2xl font-bold text-white">{stats?.scans_completed || 0}</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-orange-500/20 rounded-lg">
+                  <Shield className="h-6 w-6 text-orange-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-400">Risk Score</p>
+                  {statsLoading ? (
+                    <div className="h-7 w-8 bg-gray-700 animate-pulse rounded"></div>
+                  ) : (
+                    <p className="text-2xl font-bold text-white">{stats?.average_risk_score?.toFixed(1) || '0.0'}</p>
+                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
-          {/* Vulnerability Trends */}
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-white">Vulnerability Trends</CardTitle>
-              <CardDescription className="text-slate-300">7-day vulnerability discovery and remediation trends</CardDescription>
+        {/* Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Scans */}
+          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-white">Recent Scans</CardTitle>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={refreshScans}
+                disabled={scansLoading}
+                className="text-gray-400 hover:text-white"
+              >
+                <RefreshCw className={`h-4 w-4 ${scansLoading ? 'animate-spin' : ''}`} />
+              </Button>
             </CardHeader>
             <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={vulnerabilityTrends}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis 
-                      dataKey="date" 
-                      stroke="#9ca3af"
-                      fontSize={12}
-                    />
-                    <YAxis 
-                      stroke="#9ca3af"
-                      fontSize={12}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1f2937',
-                        border: '1px solid #374151',
-                        borderRadius: '8px',
-                        color: '#f9fafb'
-                      }}
-                    />
-                    <Area type="monotone" dataKey="critical" stackId="1" stroke="#dc2626" fill="#dc2626" fillOpacity={0.8} />
-                    <Area type="monotone" dataKey="high" stackId="1" stroke="#ea580c" fill="#ea580c" fillOpacity={0.8} />
-                    <Area type="monotone" dataKey="medium" stackId="1" stroke="#ca8a04" fill="#ca8a04" fillOpacity={0.8} />
-                    <Area type="monotone" dataKey="low" stackId="1" stroke="#16a34a" fill="#16a34a" fillOpacity={0.8} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+              {scansLoading ? (
+                <div className="space-y-3">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="flex items-center space-x-4">
+                      <div className="h-4 w-4 bg-gray-700 animate-pulse rounded"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-gray-700 animate-pulse rounded w-3/4"></div>
+                        <div className="h-3 bg-gray-700 animate-pulse rounded w-1/2"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : recentScans.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
+                  <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No scans found</p>
+                  <p className="text-sm">Create your first scan to get started</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {recentScans.map((scan) => (
+                    <div key={scan.id} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-0">
+                      <div className="flex items-center space-x-3">
+                        {getStatusIcon(scan.status)}
+                        <div>
+                          <p className="text-white font-medium">{scan.targets}</p>
+                          <p className="text-sm text-gray-400">
+                            {SCAN_PROFILE_CONFIGS[scan.scan_profile]?.name || scan.scan_profile}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge 
+                          className={`${SCAN_STATUS_COLORS[scan.status]} border`}
+                        >
+                          {scan.status}
+                        </Badge>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {new Date(scan.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Risk Distribution */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          {/* Quick Actions */}
+          <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-white">Risk Distribution</CardTitle>
-              <CardDescription className="text-slate-300">Current vulnerability severity breakdown</CardDescription>
+              <CardTitle className="text-white">Quick Actions</CardTitle>
+              <CardDescription className="text-gray-400">
+                Common security assessment tasks
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={riskDistribution}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={120}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {riskDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1f2937',
-                        border: '1px solid #374151',
-                        borderRadius: '8px',
-                        color: '#f9fafb'
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex flex-wrap gap-4 mt-4">
-                {riskDistribution.map((item, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
-                      style={{ backgroundColor: item.color }}
-                    />
-                    <span className="text-sm text-slate-300">{item.name}: {item.value}</span>
-                  </div>
-                ))}
-              </div>
+            <CardContent className="space-y-4">
+              <Button 
+                onClick={startQuickScan}
+                className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={scansLoading}
+              >
+                <Play className="h-4 w-4 mr-2" />
+                Start Quick Network Scan
+              </Button>
+              <Button 
+                onClick={() => router.push('/dashboard/scanning')}
+                variant="outline" 
+                className="w-full justify-start border-gray-600 text-gray-300 hover:bg-gray-800"
+              >
+                <Activity className="h-4 w-4 mr-2" />
+                View All Scans
+              </Button>
+              <Button 
+                onClick={() => router.push('/dashboard/reports')}
+                variant="outline" 
+                className="w-full justify-start border-gray-600 text-gray-300 hover:bg-gray-800"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Generate Report
+              </Button>
+              <Button 
+                onClick={() => router.push('/dashboard/assets')}
+                variant="outline" 
+                className="w-full justify-start border-gray-600 text-gray-300 hover:bg-gray-800"
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Manage Assets
+              </Button>
             </CardContent>
           </Card>
         </div>
 
-        {/* Asset Vulnerabilities */}
-        <Card className="bg-slate-800/50 border-slate-700">
+        {/* System Status */}
+        <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-white">Asset Vulnerability Summary</CardTitle>
-            <CardDescription className="text-slate-300">Vulnerabilities by asset type</CardDescription>
+            <CardTitle className="text-white">System Status</CardTitle>
+            <CardDescription className="text-gray-400">
+              Current system health and statistics
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={assetTypes}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis 
-                    dataKey="type" 
-                    stroke="#9ca3af"
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    stroke="#9ca3af"
-                    fontSize={12}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1f2937',
-                      border: '1px solid #374151',
-                      borderRadius: '8px',
-                      color: '#f9fafb'
-                    }}
-                  />
-                  <Bar dataKey="vulnerabilities" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Scanner Status</span>
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 bg-green-400 rounded-full"></div>
+                  <span className="text-green-400 text-sm">Online</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Last Update</span>
+                <span className="text-white text-sm">
+                  {stats?.last_scan_date ? new Date(stats.last_scan_date).toLocaleDateString() : 'Never'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Total Hosts Scanned</span>
+                <span className="text-white text-sm">{stats?.total_hosts_scanned || 0}</span>
+              </div>
             </div>
           </CardContent>
         </Card>
-
-        {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
-          {/* Recent Scans */}
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Eye className="h-5 w-5" />
-                Recent Scans
-              </CardTitle>
-              <CardDescription className="text-slate-300">Latest vulnerability scanning activity</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentScans.map((scan) => (
-                  <div key={scan.id} className="flex items-center justify-between p-4 border border-slate-600 rounded-lg bg-slate-700/30">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-white">{scan.target}</h4>
-                        <Badge className={getStatusColor(scan.status)} variant="secondary">
-                          {scan.status}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-slate-300">{scan.timestamp}</p>
-                      <p className="text-sm text-slate-300">Duration: {scan.duration}</p>
-                    </div>
-                    <div className="text-right">
-                      {scan.vulnerabilities !== null && (
-                        <p className="text-lg font-semibold text-white">{scan.vulnerabilities}</p>
-                      )}
-                      {scan.status === 'running' && (
-                        <div className="flex items-center gap-2">
-                          <div className="animate-spin h-4 w-4 border-2 border-cyan-400 border-t-transparent rounded-full" />
-                          <span className="text-sm text-cyan-400">Scanning...</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Threat Intelligence */}
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Globe className="h-5 w-5" />
-                Latest Threat Intelligence
-              </CardTitle>
-              <CardDescription className="text-slate-300">Recent CVE discoveries affecting your assets</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {threatIntelligence.map((threat) => (
-                  <div key={threat.id} className="p-4 border border-slate-600 rounded-lg bg-slate-700/30">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="font-mono text-xs border-slate-500 text-slate-300">
-                          {threat.cve}
-                        </Badge>
-                        <Badge className={getSeverityColor(threat.severity)} variant="secondary">
-                          {threat.severity}
-                        </Badge>
-                      </div>
-                      <span className="text-sm font-semibold text-white">
-                        CVSS {threat.score}
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-200 mb-2">{threat.description}</p>
-                    <div className="flex justify-between text-xs text-slate-400">
-                      <span>{threat.affected} assets affected</span>
-                      <span>Published: {threat.published}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </DashboardLayout>
   );
