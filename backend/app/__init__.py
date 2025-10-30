@@ -1,1 +1,0 @@
-# Cynerra VARM Backend Application

@@ -1,14 +1,12 @@
 /**
  * API Client exports
- * Switch between mock and real implementations
+ * Uses the real backend API
  */
 
-// Import both implementations
-import { apiClient as realApiClient } from './api-client';
-import { apiClient as mockApiClient } from './mock-api-client';
+import { apiClient } from './api-client';
 
-// Export the mock client by default
-export const apiClient = mockApiClient;
+// Export the real API client
+export { apiClient };
 
 // Export type definitions
-export type { ApiResponse } from './mock-api-client';
+export type { ApiResponse } from './api-client';

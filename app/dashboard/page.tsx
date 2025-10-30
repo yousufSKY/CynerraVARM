@@ -21,6 +21,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 
 // Import our custom hooks and types
 import { useScans, useScanStats } from '@/hooks/use-scans';
+import { useScanStatusMonitor } from '@/hooks/use-scan-status-monitor';
 import { ScanStatus, ScanProfile, SCAN_STATUS_COLORS, SCAN_PROFILE_CONFIGS } from '@/types/api';
 
 export default function Dashboard() {
@@ -29,6 +30,9 @@ export default function Dashboard() {
 
   // API hooks
   const { scans, loading: scansLoading, error: scansError, refreshScans, createScan } = useScans();
+  
+  // Monitor scan status changes and emit notifications
+  useScanStatusMonitor(scans);
   const { stats, loading: statsLoading, error: statsError } = useScanStats();
 
   // Handle authentication state
@@ -37,6 +41,26 @@ export default function Dashboard() {
       router.push('/sign-in');
     }
   }, [isLoaded, isSignedIn, router]);
+
+  // Auto-refresh scans when there are active scans
+  useEffect(() => {
+    if (!isSignedIn || scansLoading) return;
+
+    // Check if there are any running scans
+    const hasRunningScans = scans.some(scan => 
+      scan.status === ScanStatus.RUNNING || 
+      scan.status === ScanStatus.PENDING
+    );
+
+    if (hasRunningScans) {
+      // Poll every 5 seconds when there are active scans
+      const interval = setInterval(() => {
+        refreshScans();
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isSignedIn, scans, scansLoading, refreshScans]);
 
   // Show loading state while user data is loading
   if (!isLoaded) {
@@ -63,19 +87,96 @@ export default function Dashboard() {
   };
 
   const startQuickScan = async () => {
-    const defaultTargets = '127.0.0.1';
-    const newScan = await createScan({
-      targets: defaultTargets,
-      scan_profile: ScanProfile.QUICK
-    });
-
-    if (newScan) {
-      router.push('/dashboard/scanning');
-    }
+    // Redirect to scanning page where users can configure targets
+    router.push('/dashboard/scanning');
   };
 
   // Filter scans by status
   const recentScans = scans.slice(0, 5);
+  
+  // Filter scans by status for calculations
+  const runningScans = scans.filter(scan => 
+    scan.status === ScanStatus.RUNNING || 
+    scan.status === ScanStatus.PENDING
+  );
+  
+  const completedScans = scans.filter(scan => 
+    scan.status === ScanStatus.COMPLETED ||
+    scan.status === ScanStatus.FAILED ||
+    scan.status === ScanStatus.CANCELLED
+  );
+
+  // Debug logging for overview
+  console.log('🏠 Dashboard Overview Debug:', {
+    totalScans: scans.length,
+    recentScans: recentScans.length,
+    runningScans: runningScans.length,
+    completedScans: completedScans.length,
+    scansLoading,
+    scansError,
+    rawScans: scans.map(scan => ({
+      id: scan.id,
+      status: scan.status,
+      targets: scan.targets,
+      created_at: scan.created_at
+    }))
+  });
+
+  // Calculate statistics from actual scan data
+  const calculatedStats = {
+    scans_running: runningScans.length,
+    scans_completed: completedScans.filter(scan => scan.status === ScanStatus.COMPLETED).length, // Only count successful completions
+    total_vulnerabilities: completedScans
+      .filter(scan => scan.status === ScanStatus.COMPLETED) // Only count vulnerabilities from successful scans
+      .reduce((sum, scan) => {
+        // Try multiple sources for vulnerability count
+        let vulnCount = 0;
+        
+        console.log(`🔍 [Overview] Checking vulnerabilities for scan ${(scan as any).scan_id || scan.id}:`, {
+          direct_field: scan.vulnerabilities_found,
+          parsed_results: (scan as any).parsed_results?.summary,
+          findings: (scan as any).parsed_results?.findings,
+          hosts: (scan as any).parsed_results?.parsed_json?.hosts
+        });
+        
+        // First try the direct field
+        if (scan.vulnerabilities_found) {
+          vulnCount = scan.vulnerabilities_found;
+          console.log(`✅ [Overview] Using direct field: ${vulnCount}`);
+        }
+        // Then try parsed results summary
+        else if ((scan as any).parsed_results?.summary?.total_findings) {
+          vulnCount = (scan as any).parsed_results.summary.total_findings;
+          console.log(`✅ [Overview] Using parsed results total_findings: ${vulnCount}`);
+        }
+        // Then try counting findings array
+        else if ((scan as any).parsed_results?.findings && Array.isArray((scan as any).parsed_results.findings)) {
+          vulnCount = (scan as any).parsed_results.findings.length;
+          console.log(`✅ [Overview] Using findings array count: ${vulnCount}`);
+        }
+        // For detailed scan results, check individual host findings
+        else if ((scan as any).parsed_results?.parsed_json?.hosts) {
+          vulnCount = (scan as any).parsed_results.parsed_json.hosts.reduce((hostSum: number, host: any) => {
+            if (host.findings && Array.isArray(host.findings)) {
+              return hostSum + host.findings.length;
+            }
+            return hostSum;
+          }, 0);
+          console.log(`✅ [Overview] Using host findings count: ${vulnCount}`);
+        }
+        else {
+          console.log(`⚠️ [Overview] No vulnerability data found for scan`);
+        }
+        
+        console.log(`📊 [Overview] Final vulnerability count for this scan: ${vulnCount}`);
+        return sum + vulnCount;
+      }, 0),
+    average_risk_score: completedScans.filter(scan => scan.status === ScanStatus.COMPLETED).length > 0 
+      ? completedScans
+          .filter(scan => scan.status === ScanStatus.COMPLETED)
+          .reduce((sum, scan) => sum + (scan.risk_score || 0), 0) / completedScans.filter(scan => scan.status === ScanStatus.COMPLETED).length
+      : 0,
+  };
 
   return (
     <DashboardLayout>
@@ -133,10 +234,10 @@ export default function Dashboard() {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-400">Total Vulnerabilities</p>
-                  {statsLoading ? (
+                  {scansLoading ? (
                     <div className="h-7 w-16 bg-gray-700 animate-pulse rounded"></div>
                   ) : (
-                    <p className="text-2xl font-bold text-white">{stats?.total_vulnerabilities || 0}</p>
+                    <p className="text-2xl font-bold text-white">{calculatedStats.total_vulnerabilities}</p>
                   )}
                 </div>
               </div>
@@ -151,10 +252,10 @@ export default function Dashboard() {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-400">Active Scans</p>
-                  {statsLoading ? (
+                  {scansLoading ? (
                     <div className="h-7 w-8 bg-gray-700 animate-pulse rounded"></div>
                   ) : (
-                    <p className="text-2xl font-bold text-white">{stats?.scans_running || 0}</p>
+                    <p className="text-2xl font-bold text-white">{calculatedStats.scans_running}</p>
                   )}
                 </div>
               </div>
@@ -169,10 +270,10 @@ export default function Dashboard() {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-400">Completed Scans</p>
-                  {statsLoading ? (
+                  {scansLoading ? (
                     <div className="h-7 w-8 bg-gray-700 animate-pulse rounded"></div>
                   ) : (
-                    <p className="text-2xl font-bold text-white">{stats?.scans_completed || 0}</p>
+                    <p className="text-2xl font-bold text-white">{calculatedStats.scans_completed}</p>
                   )}
                 </div>
               </div>
@@ -187,10 +288,10 @@ export default function Dashboard() {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-400">Risk Score</p>
-                  {statsLoading ? (
+                  {scansLoading ? (
                     <div className="h-7 w-8 bg-gray-700 animate-pulse rounded"></div>
                   ) : (
-                    <p className="text-2xl font-bold text-white">{stats?.average_risk_score?.toFixed(1) || '0.0'}</p>
+                    <p className="text-2xl font-bold text-white">{calculatedStats.average_risk_score.toFixed(1)}</p>
                   )}
                 </div>
               </div>
@@ -235,14 +336,18 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {recentScans.map((scan) => (
-                    <div key={scan.id} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-0">
+                  {recentScans.map((scan) => {
+                    const scanId = (scan as any).scan_id || scan.id;
+                    const target = (scan as any).target || scan.targets;
+                    const profile = (scan as any).profile || scan.scan_profile;
+                    return (
+                    <div key={scanId} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-0">
                       <div className="flex items-center space-x-3">
                         {getStatusIcon(scan.status)}
                         <div>
-                          <p className="text-white font-medium">{scan.targets}</p>
+                          <p className="text-white font-medium">{target}</p>
                           <p className="text-sm text-gray-400">
-                            {SCAN_PROFILE_CONFIGS[scan.scan_profile]?.name || scan.scan_profile}
+                            {SCAN_PROFILE_CONFIGS[profile]?.name || profile}
                           </p>
                         </div>
                       </div>
@@ -257,7 +362,7 @@ export default function Dashboard() {
                         </p>
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </CardContent>

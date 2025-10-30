@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { SessionManager } from '@/components/SessionManager';
 import { ApiProvider } from '@/components/providers/api-provider';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -26,11 +27,13 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <body className={inter.className}>
           <ApiProvider>
-            <SessionManager />
-            {children}
+            <NotificationProvider>
+              <SessionManager />
+              {children}
+            </NotificationProvider>
           </ApiProvider>
         </body>
       </html>

@@ -29,37 +29,46 @@ export function useScans() {
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchScans = useCallback(async (params?: { skip?: number; limit?: number; status?: string }) => {
-    if (!isSignedIn || !apiClient.hasAuthToken()) return;
-
+    console.log('🔵 fetchScans called:', { params });
+    
+    // For test endpoints, we don't need authentication
     setLoading(true);
     setError(null);
 
     try {
+      console.log('📡 Calling apiClient.getScans...');
       const response = await apiClient.getScans(params);
+      console.log('📡 apiClient.getScans response:', response);
+      
       if (response.error) {
         setError(apiClient.formatError(response.error));
+        console.error('❌ getScans error:', response.error);
       } else if (response.data) {
+        console.log(`✅ fetchScans success: ${response.data.length} scans`);
         setScans(response.data);
+      } else {
+        console.warn('⚠️ getScans returned no data');
+        setScans([]);
       }
     } catch (err) {
       setError('Failed to fetch scans');
-      console.error('Error fetching scans:', err);
+      console.error('❌ Error fetching scans:', err);
     } finally {
       setLoading(false);
     }
-  }, [isSignedIn]);
+  }, []); // Remove dependencies
 
   const refreshScans = useCallback(async () => {
-    if (!isSignedIn || loading) return;
+    // Always allow refresh for test endpoints
+    if (loading) return;
 
     setRefreshing(true);
     await fetchScans();
     setRefreshing(false);
-  }, [isSignedIn, loading, fetchScans]);
+  }, [loading, fetchScans]);
 
   const createScan = useCallback(async (scanData: ScanCreate): Promise<ScanResponse | null> => {
-    if (!isSignedIn) return null;
-
+    // Always allow scan creation for test endpoints
     setError(null);
 
     try {
@@ -68,9 +77,33 @@ export function useScans() {
         setError(apiClient.formatError(response.error));
         return null;
       } else if (response.data) {
-        // Add new scan to the list
-        setScans(prev => [response.data!, ...prev]);
-        return response.data;
+        console.log('✅ Scan created:', response.data);
+        // Refresh the scan list to get the updated scans
+        await fetchScans();
+        
+        // Create a basic scan response object for immediate return
+        const basicScanResponse: ScanResponse = {
+          id: response.data.scan_id,
+          user_id: 'test-user',
+          targets: scanData.targets,
+          scan_profile: scanData.scan_profile,
+          status: response.data.status as any,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          started_at: undefined,
+          completed_at: undefined,
+          duration_seconds: undefined,
+          success: true,
+          hosts_found: 0,
+          hosts_up: 0,
+          open_ports: 0,
+          services_detected: [],
+          vulnerabilities_found: 0,
+          risk_score: 0,
+          cve_references: []
+        };
+        
+        return basicScanResponse;
       }
     } catch (err) {
       setError('Failed to create scan');
@@ -78,7 +111,7 @@ export function useScans() {
     }
 
     return null;
-  }, [isSignedIn]);
+  }, [fetchScans]);
 
   const cancelScan = useCallback(async (scanId: string): Promise<boolean> => {
     if (!isSignedIn) return false;
@@ -89,12 +122,13 @@ export function useScans() {
         setError(apiClient.formatError(response.error));
         return false;
       } else {
-        // Update scan status in the list
-        setScans(prev => prev.map(scan => 
-          scan.id === scanId 
+        // Update scan status in the list - handle both scan_id and id
+        setScans(prev => prev.map(scan => {
+          const currentScanId = (scan as any).scan_id || scan.id;
+          return currentScanId === scanId 
             ? { ...scan, status: ScanStatus.CANCELLED }
-            : scan
-        ));
+            : scan;
+        }));
         return true;
       }
     } catch (err) {
@@ -124,26 +158,13 @@ export function useScans() {
     }
   }, [isSignedIn]);
 
-  // Auto-refresh scans on mount and when user signs in
+  // Auto-refresh scans on mount
   useEffect(() => {
-    if (isSignedIn) {
-      // Wait a bit for the auth token to be set by ApiProvider
-      const timer = setTimeout(() => {
-        if (apiClient.hasAuthToken()) {
-          fetchScans();
-        } else {
-          // Retry after another brief delay
-          setTimeout(() => {
-            if (apiClient.hasAuthToken()) {
-              fetchScans();
-            }
-          }, 500);
-        }
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isSignedIn, fetchScans]);
+    console.log('🔵 useScans effect triggered - fetching scans immediately');
+    
+    // Always fetch on mount for test endpoints
+    fetchScans();
+  }, [fetchScans]);
 
   return {
     scans,
@@ -247,13 +268,12 @@ export function useScanProgress(scanId: string | null, enabled: boolean = true) 
   }, [isSignedIn, scanId, enabled]);
 
   const startPolling = useCallback(() => {
-    if (!enabled || !scanId || pollIntervalRef.current) return;
+    // Removed automatic polling to reduce backend load
+    // Users can manually refresh progress if needed
+    if (!enabled || !scanId) return;
 
-    // Initial fetch
+    // Only do initial fetch, no continuous polling
     fetchProgress();
-
-    // Start polling every 2 seconds
-    pollIntervalRef.current = setInterval(fetchProgress, 2000);
   }, [enabled, scanId, fetchProgress]);
 
   const stopPolling = useCallback(() => {
@@ -315,22 +335,9 @@ export function useScanStats() {
   }, [isSignedIn]);
 
   useEffect(() => {
-    if (isSignedIn) {
-      // Wait a bit for the auth token to be set by ApiProvider
-      const timer = setTimeout(() => {
-        if (apiClient.hasAuthToken()) {
-          fetchStats();
-        } else {
-          // Retry after another brief delay
-          setTimeout(() => {
-            if (apiClient.hasAuthToken()) {
-              fetchStats();
-            }
-          }, 500);
-        }
-      }, 100);
-      
-      return () => clearTimeout(timer);
+    // Only fetch stats on mount if user is signed in and has auth token
+    if (isSignedIn && apiClient.hasAuthToken()) {
+      fetchStats();
     }
   }, [isSignedIn, fetchStats]);
 
@@ -450,7 +457,7 @@ export function useScanProfiles() {
           value: key as ScanProfile,
           description: config.description,
           estimated_duration: config.estimated_duration,
-          typical_ports: config.typical_ports,
+          typical_ports: config.typical_ports || 0,
         })));
       }
     } catch (err) {
@@ -492,12 +499,8 @@ export function useBackendHealth() {
   }, []);
 
   useEffect(() => {
+    // Initial health check only, no continuous polling to reduce backend load
     checkHealth();
-    
-    // Check every 30 seconds
-    const interval = setInterval(checkHealth, 30000);
-    
-    return () => clearInterval(interval);
   }, [checkHealth]);
 
   return {

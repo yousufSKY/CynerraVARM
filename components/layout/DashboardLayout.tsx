@@ -17,7 +17,11 @@ import {
   Users,
   Activity,
   TrendingUp,
-  LogOut
+  LogOut,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Info
 } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
@@ -32,6 +36,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -43,6 +48,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { notifications, unreadCount, markAsRead, markAllAsRead, clearNotification } = useNotifications();
   
   // Auto logout functionality
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -185,11 +191,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: 'View Assets', action: () => router.push('/dashboard/assets') },
   ];
 
-  const notifications = [
-    { id: 1, title: 'Critical vulnerability detected', type: 'critical', time: '2 min ago' },
-    { id: 2, title: 'Security scan completed', type: 'success', time: '1 hour ago' },
-    { id: 3, title: 'New assets discovered', type: 'info', time: '3 hours ago' },
-  ];
+  // Helper function to get notification icon
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'success':
+        return <CheckCircle className="h-4 w-4 text-green-400" />;
+      case 'error':
+        return <XCircle className="h-4 w-4 text-red-400" />;
+      case 'warning':
+        return <AlertTriangle className="h-4 w-4 text-yellow-400" />;
+      default:
+        return <Info className="h-4 w-4 text-blue-400" />;
+    }
+  };
 
   if (!isLoaded) {
     return (
@@ -268,24 +282,66 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="relative text-slate-100 hover:text-cyan-100 hover:bg-slate-700/50 transition-colors">
                     <Bell className="h-5 w-5" />
-                    {notifications.length > 0 && (
+                    {unreadCount > 0 && (
                       <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-red-500 text-white text-xs flex items-center justify-center">
-                        {notifications.length}
+                        {unreadCount}
                       </Badge>
                     )}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80 bg-slate-800 border-slate-700">
-                  <DropdownMenuLabel className="text-cyan-100 font-semibold">Notifications</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="w-96 bg-slate-800 border-slate-700 max-h-[500px] overflow-y-auto">
+                  <div className="flex items-center justify-between px-4 py-2">
+                    <DropdownMenuLabel className="text-cyan-100 font-semibold p-0">Notifications</DropdownMenuLabel>
+                    {notifications.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-slate-400 hover:text-cyan-100"
+                        onClick={markAllAsRead}
+                      >
+                        Mark all as read
+                      </Button>
+                    )}
+                  </div>
                   <DropdownMenuSeparator className="bg-slate-700" />
-                  {notifications.map((notification) => (
-                    <DropdownMenuItem key={notification.id} className="p-4 hover:bg-slate-700/80 transition-colors">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm text-slate-100 font-medium">{notification.title}</p>
-                        <p className="text-xs text-slate-300">{notification.time}</p>
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
+                  {notifications.length === 0 ? (
+                    <div className="p-8 text-center text-slate-400">
+                      <Bell className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No notifications</p>
+                    </div>
+                  ) : (
+                    <>
+                      {notifications.map((notification) => (
+                        <DropdownMenuItem 
+                          key={notification.id} 
+                          className={`p-4 hover:bg-slate-700/80 transition-colors flex items-start gap-3 cursor-pointer ${
+                            !notification.read ? 'bg-slate-700/30' : ''
+                          }`}
+                          onClick={() => {
+                            markAsRead(notification.id);
+                            if (notification.scanId) {
+                              router.push('/dashboard/scanning');
+                            }
+                          }}
+                        >
+                          <div className="flex-shrink-0 mt-0.5">
+                            {getNotificationIcon(notification.type)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm ${!notification.read ? 'text-white font-medium' : 'text-slate-100'}`}>
+                              {notification.title}
+                            </p>
+                            <p className="text-xs text-slate-400 mt-1">{notification.time}</p>
+                          </div>
+                          {!notification.read && (
+                            <div className="flex-shrink-0">
+                              <div className="h-2 w-2 bg-cyan-400 rounded-full"></div>
+                            </div>
+                          )}
+                        </DropdownMenuItem>
+                      ))}
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
 
