@@ -1,9 +1,20 @@
+'use client'
+
 import { SignIn } from '@clerk/nextjs'
 import Link from 'next/link'
 import { ArrowLeft, Shield, Lock, Eye, Users, Globe } from 'lucide-react'
 import { cynerraTheme } from '@/lib/clerk-theme'
+import { useSearchParams } from 'next/navigation'
 
 export default function Page() {
+  const searchParams = useSearchParams()
+  const redirectUrl = searchParams.get('redirect_url')
+  
+  // Use Clerk's native redirect - fallbackRedirectUrl is used after sign-in
+  const afterSignInUrl = redirectUrl && redirectUrl.includes('/dashboard') 
+    ? redirectUrl 
+    : '/dashboard'
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#151528] to-[#1a1a2e] relative overflow-hidden">
       {/* Enhanced Background Effects - Responsive */}
@@ -146,6 +157,10 @@ export default function Page() {
                 <div className="relative bg-[#1a1a2e]/90 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-blue-900/30 shadow-2xl p-4 sm:p-6 md:p-8">
                   <SignIn 
                     appearance={cynerraTheme}
+                    routing="hash"
+                    signUpUrl="/sign-up"
+                    fallbackRedirectUrl={afterSignInUrl}
+                    forceRedirectUrl={afterSignInUrl}
                   />
                 </div>
               </div>

@@ -20,20 +20,20 @@ export enum ScanProfile {
   VULNERABILITY = 'vulnerability',
   UDP = 'udp',
   
-  // Web Application Scans (OWASP ZAP) - Target: URL
-  ZAP_BASELINE = 'zap-baseline',
-  ZAP_FULL = 'zap-full',
-  ZAP_API = 'zap-api',
+  // Web Application Scans (AI-Powered ZAP Analysis) - Target: URL
+  ZAP_BASELINE = 'ai-zap-analysis',
+  ZAP_FULL = 'ai-zap-analysis',
+  ZAP_API = 'ai-zap-analysis',
   
-  // Web Server Scans (Nikto) - Target: URL
-  NIKTO_BASIC = 'nikto-basic',
-  NIKTO_FULL = 'nikto-full',
-  NIKTO_FAST = 'nikto-fast',
+  // Web Server Scans (AI-Powered Nikto Analysis) - Target: URL
+  NIKTO_BASIC = 'ai-nikto-analysis',
+  NIKTO_FULL = 'ai-nikto-analysis',
+  NIKTO_FAST = 'ai-nikto-analysis',
   
-  // SQL Injection Scans (SQLMap) - Target: URL with params
-  SQLMAP_BASIC = 'sqlmap-basic',
-  SQLMAP_THOROUGH = 'sqlmap-thorough',
-  SQLMAP_AGGRESSIVE = 'sqlmap-aggressive'
+  // SQL Injection Scans (AI-Powered SQLMap Analysis) - Target: URL with params
+  SQLMAP_BASIC = 'ai-sqlmap-analysis',
+  SQLMAP_THOROUGH = 'ai-sqlmap-analysis',
+  SQLMAP_AGGRESSIVE = 'ai-sqlmap-analysis'
 }
 
 export type ScannerType = 'port' | 'web';
@@ -77,10 +77,14 @@ export interface ScanSummary {
   low: number;
   info: number;
   risk_score: number;           // 0-100
-  risk_level: string;           // CRITICAL|HIGH|MEDIUM|LOW
-  scanner: string;              // nmap|zap|nikto|sqlmap
+  risk_level: string;           // CRITICAL|HIGH|MEDIUM|LOW|MINIMAL
+  scanner: string;              // nmap|zap|nikto|sqlmap|ai
   scanner_version: string;
   scan_duration_seconds?: number;
+  // AI-specific fields
+  ai_risk_assessment?: string;  // AI's assessment of overall risk
+  tool_simulated?: string;      // Which tool's output was simulated (zap-baseline, nikto, sqlmap, etc.)
+  scan_level?: string;          // quick|basic|detailed
 }
 
 export interface ScanInfo {
@@ -108,6 +112,9 @@ export interface ScanResults {
     scan_info: ScanInfo;
     parsed_json: {
       findings: Finding[];
+      // AI-specific fields
+      recommendations?: string[];
+      tool_notes?: string;
     };
   };
 }
@@ -118,6 +125,9 @@ export interface ScanDetailResponse {
   summary: ScanSummary;
   parsed_json: {
     findings: Finding[];
+    // AI-specific fields
+    recommendations?: string[];
+    tool_notes?: string;
   };
   created_at: string;
 }
@@ -246,6 +256,7 @@ export interface ScanProfileInfo {
   color?: string;
   isAggressive?: boolean;
   warningMessage?: string;
+  isAI?: boolean;              // Whether this is an AI-powered scan
 }
 
 // Constants for UI configuration
@@ -273,17 +284,20 @@ export const SCANNER_INFO = {
   zap: {
     name: 'OWASP ZAP',
     icon: '🕷️',
-    color: 'text-purple-400 bg-purple-500/20 border-purple-500/30'
+    color: 'text-purple-400 bg-purple-500/20 border-purple-500/30',
+    aiPowered: true
   },
   nikto: {
     name: 'Nikto',
     icon: '🔧',
-    color: 'text-green-400 bg-green-500/20 border-green-500/30'
+    color: 'text-green-400 bg-green-500/20 border-green-500/30',
+    aiPowered: true
   },
   sqlmap: {
     name: 'SQLMap',
     icon: '💉',
-    color: 'text-red-400 bg-red-500/20 border-red-500/30'
+    color: 'text-red-400 bg-red-500/20 border-red-500/30',
+    aiPowered: true
   }
 };
 
@@ -350,112 +364,117 @@ export const SCAN_PROFILE_CONFIGS: Record<ScanProfile, ScanProfileInfo> = {
     color: 'text-orange-400'
   },
   
-  // Web Application Scans (OWASP ZAP)
+  // Web Application Scans (AI-Powered OWASP ZAP Analysis)
   [ScanProfile.ZAP_BASELINE]: {
     name: 'ZAP Baseline',
     value: ScanProfile.ZAP_BASELINE,
-    description: 'Passive web app scan',
-    estimated_duration: '~10 minutes',
+    description: 'AI-powered passive web app analysis',
+    estimated_duration: '~20 seconds',
     scanner: 'zap',
     targetType: 'url',
     targetPlaceholder: 'https://example.com',
     icon: 'Globe',
-    color: 'text-purple-400'
+    color: 'text-purple-400',
+    isAI: true
   },
   [ScanProfile.ZAP_FULL]: {
     name: 'ZAP Full Active Scan',
     value: ScanProfile.ZAP_FULL,
-    description: 'AGGRESSIVE active scan',
-    estimated_duration: '~60 minutes',
+    description: 'AI-powered comprehensive web vulnerability analysis',
+    estimated_duration: '~25 seconds',
     scanner: 'zap',
     targetType: 'url',
     targetPlaceholder: 'https://example.com',
     icon: 'AlertTriangle',
     color: 'text-red-500',
-    isAggressive: true,
-    warningMessage: '⚠️ WARNING: This is an AGGRESSIVE scan that may:\n• Exploit vulnerabilities\n• Affect system performance\n• Trigger security alerts\n\nOnly proceed with explicit authorization!'
+    isAI: true
   },
   [ScanProfile.ZAP_API]: {
     name: 'ZAP API Scan',
     value: ScanProfile.ZAP_API,
-    description: 'API security testing',
-    estimated_duration: '~30 minutes',
+    description: 'AI-powered API security testing',
+    estimated_duration: '~20 seconds',
     scanner: 'zap',
     targetType: 'url',
     targetPlaceholder: 'https://api.example.com',
     icon: 'Code',
-    color: 'text-blue-400'
+    color: 'text-blue-400',
+    isAI: true
   },
   
-  // Web Server Scans (Nikto)
+  // Web Server Scans (AI-Powered Nikto Analysis)
   [ScanProfile.NIKTO_BASIC]: {
     name: 'Nikto Basic',
     value: ScanProfile.NIKTO_BASIC,
-    description: 'Basic server checks',
-    estimated_duration: '~10 minutes',
+    description: 'AI-powered basic server vulnerability checks',
+    estimated_duration: '~20 seconds',
     scanner: 'nikto',
     targetType: 'url',
     targetPlaceholder: 'https://example.com',
     icon: 'Server',
-    color: 'text-green-400'
+    color: 'text-green-400',
+    isAI: true
   },
   [ScanProfile.NIKTO_FULL]: {
     name: 'Nikto Comprehensive',
     value: ScanProfile.NIKTO_FULL,
-    description: 'Comprehensive scan',
-    estimated_duration: '~30 minutes',
+    description: 'AI-powered comprehensive server analysis',
+    estimated_duration: '~25 seconds',
     scanner: 'nikto',
     targetType: 'url',
     targetPlaceholder: 'https://example.com',
     icon: 'ServerCog',
-    color: 'text-blue-400'
+    color: 'text-blue-400',
+    isAI: true
   },
   [ScanProfile.NIKTO_FAST]: {
     name: 'Nikto Fast',
     value: ScanProfile.NIKTO_FAST,
-    description: 'Quick server scan',
-    estimated_duration: '~5 minutes',
+    description: 'AI-powered quick server scan',
+    estimated_duration: '~15 seconds',
     scanner: 'nikto',
     targetType: 'url',
     targetPlaceholder: 'https://example.com',
     icon: 'Zap',
-    color: 'text-cyan-400'
+    color: 'text-cyan-400',
+    isAI: true
   },
   
-  // SQL Injection Scans (SQLMap)
+  // SQL Injection Scans (AI-Powered SQLMap Analysis)
   [ScanProfile.SQLMAP_BASIC]: {
     name: 'SQLMap Basic',
     value: ScanProfile.SQLMAP_BASIC,
-    description: 'Basic SQL injection test',
-    estimated_duration: '~10 minutes',
+    description: 'AI-powered basic SQL injection analysis',
+    estimated_duration: '~20 seconds',
     scanner: 'sqlmap',
     targetType: 'url-with-params',
     targetPlaceholder: 'http://example.com/page.php?id=1',
     icon: 'Database',
-    color: 'text-yellow-400'
+    color: 'text-yellow-400',
+    isAI: true
   },
   [ScanProfile.SQLMAP_THOROUGH]: {
     name: 'SQLMap Thorough',
     value: ScanProfile.SQLMAP_THOROUGH,
-    description: 'Extensive testing',
-    estimated_duration: '~30 minutes',
+    description: 'AI-powered extensive SQL injection testing',
+    estimated_duration: '~25 seconds',
     scanner: 'sqlmap',
     targetType: 'url-with-params',
     targetPlaceholder: 'http://example.com/page.php?id=1',
     icon: 'Database',
-    color: 'text-orange-400'
+    color: 'text-orange-400',
+    isAI: true
   },
   [ScanProfile.SQLMAP_AGGRESSIVE]: {
     name: 'SQLMap Aggressive',
     value: ScanProfile.SQLMAP_AGGRESSIVE,
-    description: 'AGGRESSIVE - may exploit!',
-    estimated_duration: '~60 minutes',
+    description: 'AI-powered comprehensive SQL injection analysis',
+    estimated_duration: '~30 seconds',
     scanner: 'sqlmap',
     targetType: 'url-with-params',
     targetPlaceholder: 'http://example.com/page.php?id=1',
     icon: 'AlertTriangle',
     color: 'text-red-500',
-    isAggressive: true,
-    warningMessage: '⚠️ WARNING: This is an AGGRESSIVE scan that may:\n• Exploit vulnerabilities\n• Modify database data\n• Affect system performance\n• Trigger security alerts\n\nOnly proceed with explicit authorization!'
+    isAI: true
   }
 };

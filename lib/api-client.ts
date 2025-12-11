@@ -190,178 +190,119 @@ class ApiClient {
   }
 
   /**
-   * Get all scans (backwards compatibility with workaround for broken history endpoint)
+   * Get all scans
+   * Note: /api/scans requires Firebase auth which we don't have (using Clerk)
+   * So we use the legacy method with /api/test endpoints for now
    */
-  async getScans(params?: { skip?: number; limit?: number; status?: string }): Promise<ApiResponse<ScanResponse[]>> {
+  async getScans(params?: { skip?: number; limit?: number; status?: string; scanner_type?: ScannerType }): Promise<ApiResponse<ScanResponse[]>> {
+    console.log('🔍 Getting scans with params:', params);
+    
+    // Since backend requires Firebase auth and we use Clerk,
+    // go directly to legacy method which uses test endpoints
+    return this.getScansLegacy(params);
+  }
+
+  /**
+   * Convert backend scan format to frontend ScanResponse format
+   */
+  private convertBackendScan(scan: any): ScanResponse {
+    const parsedResults = scan.parsed_results;
+    
+    return {
+      scan_id: scan.scan_id,
+      id: scan.scan_id,
+      user_id: scan.initiated_by_uid || 'current-user',
+      target: scan.target,
+      targets: scan.target,
+      profile: scan.profile,
+      scan_profile: scan.profile,
+      status: scan.status,
+      scanner_type: scan.scanner_type || (scan.profile?.startsWith('ai-') ? 'web' : 'port'),
+      created_at: scan.created_at,
+      started_at: scan.started_at,
+      completed_at: scan.finished_at,
+      finished_at: scan.finished_at,
+      updated_at: scan.finished_at || scan.started_at || scan.created_at,
+      success: scan.status === 'COMPLETED',
+      parsed_results: parsedResults,
+      
+      // Extract summary data
+      hosts_found: parsedResults?.summary?.total_hosts || 0,
+      hosts_up: parsedResults?.summary?.total_hosts || 0,
+      open_ports: parsedResults?.summary?.total_open_ports || 0,
+      services_detected: parsedResults?.summary?.top_services?.map((s: any) => s.name) || [],
+      vulnerabilities_found: parsedResults?.summary?.total_findings || 
+                            parsedResults?.parsed_json?.findings?.length || 0,
+      risk_score: parsedResults?.summary?.risk_score || 0,
+      cve_references: []
+    };
+  }
+
+  /**
+   * Legacy method for getting scans (fallback if new endpoint fails)
+   */
+  private async getScansLegacy(params?: { skip?: number; limit?: number; status?: string }): Promise<ApiResponse<ScanResponse[]>> {
     try {
-      console.log('🔍 Getting scans with params:', params);
-      
-      // WORKAROUND: The scan history endpoint is returning empty results even though scans exist
-      // Strategy: Try to discover scan IDs dynamically and fetch them individually
-      
-      console.log('⚠️ WORKAROUND: Scan history API is broken, discovering scans dynamically...');
+      console.log('⚠️ Using legacy scan fetching method...');
       
       const scans: ScanResponse[] = [];
       
-      // Method 1: Try to get recently created scan IDs from localStorage or memory
+      // Get recently created scan IDs from localStorage
       const recentScanIds = this.getRecentScanIds();
       console.log(`Found ${recentScanIds.length} recent scan IDs`);
       
-      // Method 2: Add known scan IDs from the database (manually discovered)
-      const knownScanIds = [
-        'cbeb7be3-366d-4112-ad0f-a9080d4d390e', // Confirmed working scan from Firestore
-        // TODO: Add more scan IDs as they're discovered or created
-        // When users create new scans, they'll be automatically tracked
-      ];
-
-      // Method 3: Try to discover additional scan IDs
-      console.log('🔍 Attempting to discover additional scan IDs...');
+      // Try to discover additional scan IDs
       const discoveredIds = await this.discoverScanIds();
       console.log(`Discovered ${discoveredIds.length} additional scan IDs`);
       
       // Combine all scan IDs and remove duplicates
-      const combinedIds = [...recentScanIds, ...knownScanIds, ...discoveredIds];
-      const allScanIds = Array.from(new Set(combinedIds));
+      const allScanIds = Array.from(new Set([...recentScanIds, ...discoveredIds]));
       
       console.log(`Attempting to fetch ${allScanIds.length} scans individually...`);
       
       for (const scanId of allScanIds) {
         try {
-          console.log(`Fetching scan: ${scanId}`);
           const scanResponse = await this.getScan(scanId);
           if (scanResponse.data) {
-            const scan = scanResponse.data;
-            
-            // Convert backend format to frontend format
-            const frontendScan: ScanResponse = {
-              id: scan.scan_id,
-              user_id: scan.initiated_by_uid || 'current-user',
-              targets: scan.target,
-              scan_profile: scan.profile as any,
-              status: scan.status as any,
-              scanner_type: scan.profile.includes('nmap') || scan.profile.includes('quick') || scan.profile.includes('full') ? 'port' : 'web',
-              created_at: scan.created_at,
-              started_at: scan.started_at,
-              completed_at: scan.finished_at,
-              updated_at: scan.finished_at || scan.started_at || scan.created_at,
-              success: scan.status === 'COMPLETED',
-              
-              // Extract data from parsed_results if available (using any type for now)
-              hosts_found: (scan.parsed_results as any)?.summary?.total_hosts || 0,
-              hosts_up: (scan.parsed_results as any)?.summary?.total_hosts || 0,
-              open_ports: (scan.parsed_results as any)?.summary?.total_open_ports || 0,
-              services_detected: (scan.parsed_results as any)?.summary?.top_services?.map((s: any) => s.name) || [],
-              vulnerabilities_found: (() => {
-                // Try multiple sources for vulnerability count
-                let vulnCount = 0;
-                const parsedResults = scan.parsed_results as any;
-                
-                console.log(`🔍 [API Client] Processing vulnerability data for scan ${scan.scan_id}:`, {
-                  summary: parsedResults?.summary,
-                  findings: parsedResults?.findings,
-                  hosts: parsedResults?.parsed_json?.hosts
-                });
-                
-                // First try total_findings from summary
-                if (parsedResults?.summary?.total_findings) {
-                  vulnCount = parsedResults.summary.total_findings;
-                  console.log(`✅ [API Client] Using total_findings: ${vulnCount}`);
-                }
-                // Then try counting findings array
-                else if (parsedResults?.findings && Array.isArray(parsedResults.findings)) {
-                  vulnCount = parsedResults.findings.length;
-                  console.log(`✅ [API Client] Using findings array: ${vulnCount}`);
-                }
-                // For detailed scan results, count host findings
-                else if (parsedResults?.parsed_json?.hosts) {
-                  vulnCount = parsedResults.parsed_json.hosts.reduce((sum: number, host: any) => {
-                    return sum + (host.findings?.length || 0);
-                  }, 0);
-                  console.log(`✅ [API Client] Using host findings: ${vulnCount}`);
-                }
-                // Fallback to high_risk_ports_count if nothing else available
-                else if (parsedResults?.summary?.high_risk_ports_count) {
-                  vulnCount = parsedResults.summary.high_risk_ports_count;
-                  console.log(`⚠️ [API Client] Fallback to high_risk_ports_count: ${vulnCount}`);
-                }
-                else {
-                  console.log(`⚠️ [API Client] No vulnerability data found`);
-                }
-                
-                console.log(`📊 [API Client] Final vulnerability count: ${vulnCount}`);
-                return vulnCount;
-              })(),
-              risk_score: (scan.parsed_results as any)?.summary?.risk_score || 0,
-              cve_references: [] // Will be populated when available
-            };
-            
-            scans.push(frontendScan);
-            console.log(`✅ Successfully fetched scan: ${scanId} (${scan.status})`);
+            scans.push(this.convertBackendScan(scanResponse.data));
+            console.log(`✅ Successfully fetched scan: ${scanId}`);
           }
         } catch (scanError) {
           console.warn(`Failed to fetch scan ${scanId}:`, scanError);
         }
       }
       
-      // Also try the original scan history approach (in case it gets fixed)
+      // Also try the original scan history approach
       try {
         const historyResponse = await this.getScanHistory('default-asset', { 
           limit: params?.limit || 50 
         });
 
         if (historyResponse.data && historyResponse.data.scans.length > 0) {
-          console.log('✅ Scan history endpoint is working again!');
-          
-          // Convert backend format to frontend format
-          const historyScans: ScanResponse[] = historyResponse.data.scans.map(scan => ({
-            id: scan.scan_id,
-            user_id: 'current-user',
-            targets: scan.target,
-            scan_profile: scan.profile,
-            status: scan.status,
-            scanner_type: scan.scanner_type,
-            created_at: scan.created_at,
-            started_at: scan.started_at,
-            completed_at: scan.finished_at,
-            updated_at: scan.finished_at || scan.started_at || scan.created_at,
-            success: scan.status === ScanStatus.COMPLETED,
-            hosts_found: 0,
-            hosts_up: 0,
-            open_ports: 0,
-            services_detected: [],
-            vulnerabilities_found: 0,
-            risk_score: 0,
-            cve_references: []
-          }));
+          console.log('✅ Scan history endpoint returned data');
           
           // Merge with direct scans (remove duplicates)
-          const allScans = [...scans];
-          historyScans.forEach(historyScan => {
-            if (!allScans.find(s => s.id === historyScan.id)) {
-              allScans.push(historyScan);
+          historyResponse.data.scans.forEach(scan => {
+            if (!scans.find(s => s.scan_id === scan.scan_id)) {
+              scans.push(this.convertBackendScan(scan));
             }
           });
-          
-          return {
-            data: allScans,
-            success: true
-          };
         }
       } catch (historyError) {
-        console.warn('Scan history endpoint still failing:', historyError);
+        console.warn('Scan history endpoint failed:', historyError);
       }
 
       // Sort scans by created date (most recent first)
       scans.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-      console.log(`✅ Workaround returned ${scans.length} scans`);
+      console.log(`✅ Legacy method returned ${scans.length} scans`);
       return {
         data: scans,
         success: true
       };
       
     } catch (error) {
-      console.error('❌ Error in getScans:', error);
+      console.error('❌ Error in getScansLegacy:', error);
       return {
         error: error instanceof Error ? error.message : 'Failed to fetch scans',
         success: false

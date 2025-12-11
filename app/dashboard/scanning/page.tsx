@@ -779,6 +779,7 @@ export default function VulnerabilityScanning() {
                                             <Badge variant="outline" className="text-xs border-purple-500/50 text-purple-400">
                                               <Shield className="h-3 w-3 mr-1" />
                                               Web
+                                              {config.isAI && <span className="ml-1">🤖</span>}
                                             </Badge>
                                           )}
                                           {/* Specific Scanner Badge */}
@@ -1218,72 +1219,97 @@ export default function VulnerabilityScanning() {
                       {/* Web Scan Profile Selection */}
                       <div>
                         <Label htmlFor="scan_profile" className="text-gray-300">Web Scan Type</Label>
-                        <Select 
-                          value={scanForm.scan_profile} 
-                          onValueChange={(value) => setScanForm(prev => ({ ...prev, scan_profile: value as ScanProfile }))}
-                        >
-                          <SelectTrigger className="bg-gray-800 border-gray-600 text-white mt-2">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-800 border-gray-600 max-h-[500px]">
-                            {/* Web Application Scans (ZAP) */}
-                            <SelectGroup>
-                              <SelectLabel className="text-purple-400 pl-2">🕷️ Web Application (OWASP ZAP)</SelectLabel>
-                              {[ScanProfile.ZAP_BASELINE, ScanProfile.ZAP_FULL, ScanProfile.ZAP_API].map((profile) => {
-                                const config = SCAN_PROFILE_CONFIGS[profile];
-                                return (
-                                  <SelectItem key={profile} value={profile} className="text-white hover:bg-gray-700 pl-6">
-                                    <div className="py-1">
-                                      <div className="font-medium flex items-center gap-1">
-                                        {config.name}
-                                        {config.isAggressive && <span className="text-red-400">⚠️</span>}
-                                      </div>
-                                      <div className="text-xs text-gray-400">{config.description}</div>
-                                      <div className="text-xs text-gray-500 mt-0.5">⏱️ {config.estimated_duration}</div>
-                                    </div>
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectGroup>
-                            
-                            {/* Web Server Scans (Nikto) */}
-                            <SelectGroup>
-                              <SelectLabel className="text-green-400 pl-2 mt-2">🔧 Web Server (Nikto)</SelectLabel>
-                              {[ScanProfile.NIKTO_BASIC, ScanProfile.NIKTO_FULL, ScanProfile.NIKTO_FAST].map((profile) => {
-                                const config = SCAN_PROFILE_CONFIGS[profile];
-                                return (
-                                  <SelectItem key={profile} value={profile} className="text-white hover:bg-gray-700 pl-6">
-                                    <div className="py-1">
-                                      <div className="font-medium">{config.name}</div>
-                                      <div className="text-xs text-gray-400">{config.description}</div>
-                                      <div className="text-xs text-gray-500 mt-0.5">⏱️ {config.estimated_duration}</div>
-                                    </div>
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectGroup>
-                            
-                            {/* SQL Injection Scans (SQLMap) */}
-                            <SelectGroup>
-                              <SelectLabel className="text-yellow-400 pl-2 mt-2">💉 SQL Injection (SQLMap)</SelectLabel>
-                              {[ScanProfile.SQLMAP_BASIC, ScanProfile.SQLMAP_THOROUGH, ScanProfile.SQLMAP_AGGRESSIVE].map((profile) => {
-                                const config = SCAN_PROFILE_CONFIGS[profile];
-                                return (
-                                  <SelectItem key={profile} value={profile} className="text-white hover:bg-gray-700 pl-6">
-                                    <div className="py-1">
-                                      <div className="font-medium flex items-center gap-1">
-                                        {config.name}
-                                        {config.isAggressive && <span className="text-red-400">⚠️</span>}
-                                      </div>
-                                      <div className="text-xs text-gray-400">{config.description}</div>
-                                      <div className="text-xs text-gray-500 mt-0.5">⏱️ {config.estimated_duration}</div>
-                                    </div>
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
+                        {(() => {
+                          // Define web scan profiles with unique keys for the Select component
+                          const webProfiles = [
+                            { key: 'ZAP_BASELINE', profile: ScanProfile.ZAP_BASELINE, group: 'zap' },
+                            { key: 'ZAP_FULL', profile: ScanProfile.ZAP_FULL, group: 'zap' },
+                            { key: 'ZAP_API', profile: ScanProfile.ZAP_API, group: 'zap' },
+                            { key: 'NIKTO_BASIC', profile: ScanProfile.NIKTO_BASIC, group: 'nikto' },
+                            { key: 'NIKTO_FULL', profile: ScanProfile.NIKTO_FULL, group: 'nikto' },
+                            { key: 'NIKTO_FAST', profile: ScanProfile.NIKTO_FAST, group: 'nikto' },
+                            { key: 'SQLMAP_BASIC', profile: ScanProfile.SQLMAP_BASIC, group: 'sqlmap' },
+                            { key: 'SQLMAP_THOROUGH', profile: ScanProfile.SQLMAP_THOROUGH, group: 'sqlmap' },
+                            { key: 'SQLMAP_AGGRESSIVE', profile: ScanProfile.SQLMAP_AGGRESSIVE, group: 'sqlmap' },
+                          ];
+                          
+                          // Find current selection key
+                          const currentKey = webProfiles.find(p => p.profile === scanForm.scan_profile)?.key || 'ZAP_BASELINE';
+                          
+                          return (
+                            <Select 
+                              value={currentKey} 
+                              onValueChange={(value) => {
+                                const selected = webProfiles.find(p => p.key === value);
+                                if (selected) {
+                                  setScanForm(prev => ({ ...prev, scan_profile: selected.profile }));
+                                }
+                              }}
+                            >
+                              <SelectTrigger className="bg-gray-800 border-gray-600 text-white mt-2">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="bg-gray-800 border-gray-600 max-h-[500px]">
+                                {/* Web Application Scans (ZAP) */}
+                                <SelectGroup>
+                                  <SelectLabel className="text-purple-400 pl-2">🕷️ Web Application (OWASP ZAP)</SelectLabel>
+                                  {webProfiles.filter(p => p.group === 'zap').map((item) => {
+                                    const config = SCAN_PROFILE_CONFIGS[item.profile];
+                                    return (
+                                      <SelectItem key={item.key} value={item.key} className="text-white hover:bg-gray-700 pl-6">
+                                        <div className="py-1">
+                                          <div className="font-medium flex items-center gap-1">
+                                            {config.name}
+                                            {config.isAggressive && <span className="text-red-400">⚠️</span>}
+                                          </div>
+                                          <div className="text-xs text-gray-400">{config.description}</div>
+                                          <div className="text-xs text-gray-500 mt-0.5">⏱️ {config.estimated_duration}</div>
+                                        </div>
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectGroup>
+                                
+                                {/* Web Server Scans (Nikto) */}
+                                <SelectGroup>
+                                  <SelectLabel className="text-green-400 pl-2 mt-2">🔧 Web Server (Nikto)</SelectLabel>
+                                  {webProfiles.filter(p => p.group === 'nikto').map((item) => {
+                                    const config = SCAN_PROFILE_CONFIGS[item.profile];
+                                    return (
+                                      <SelectItem key={item.key} value={item.key} className="text-white hover:bg-gray-700 pl-6">
+                                        <div className="py-1">
+                                          <div className="font-medium">{config.name}</div>
+                                          <div className="text-xs text-gray-400">{config.description}</div>
+                                          <div className="text-xs text-gray-500 mt-0.5">⏱️ {config.estimated_duration}</div>
+                                        </div>
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectGroup>
+                                
+                                {/* SQL Injection Scans (SQLMap) */}
+                                <SelectGroup>
+                                  <SelectLabel className="text-yellow-400 pl-2 mt-2">💉 SQL Injection (SQLMap)</SelectLabel>
+                                  {webProfiles.filter(p => p.group === 'sqlmap').map((item) => {
+                                    const config = SCAN_PROFILE_CONFIGS[item.profile];
+                                    return (
+                                      <SelectItem key={item.key} value={item.key} className="text-white hover:bg-gray-700 pl-6">
+                                        <div className="py-1">
+                                          <div className="font-medium flex items-center gap-1">
+                                            {config.name}
+                                            {config.isAggressive && <span className="text-red-400">⚠️</span>}
+                                          </div>
+                                          <div className="text-xs text-gray-400">{config.description}</div>
+                                          <div className="text-xs text-gray-500 mt-0.5">⏱️ {config.estimated_duration}</div>
+                                        </div>
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                          );
+                        })()}
                       </div>
                       
                       {/* Target URL Input */}
@@ -1373,179 +1399,170 @@ export default function VulnerabilityScanning() {
               </div>
 
               {/* Web Scan Profiles Cards */}
-              <div className="space-y-8">
-                {/* OWASP ZAP Section */}
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <span className="text-purple-400">🕷️</span>
-                    OWASP ZAP - Web Application Scanner
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                    <span className="text-2xl">🌐</span>
+                    AI-Powered Web Security Scanners
+                    <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 text-sm ml-2">
+                      🤖 Instant Analysis
+                    </Badge>
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[ScanProfile.ZAP_BASELINE, ScanProfile.ZAP_FULL, ScanProfile.ZAP_API].map((profile) => {
-                      const config = SCAN_PROFILE_CONFIGS[profile];
-                      return (
-                        <Card key={profile} className="bg-gray-900/50 border-gray-700 backdrop-blur-sm hover:border-purple-500/50 transition-colors">
-                          <CardHeader>
-                            <CardTitle className="text-white flex items-center gap-2">
-                              <Shield className="h-5 w-5 text-purple-400" />
-                              {config.name}
-                              {config.isAggressive && <span className="text-red-400">⚠️</span>}
-                            </CardTitle>
-                            <CardDescription className="text-gray-400">
-                              {config.description}
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-400">Scanner:</span>
-                              <Badge variant="outline" className="border-purple-500/50 text-purple-400">
-                                <Shield className="h-3 w-3 mr-1" />
-                                OWASP ZAP
-                              </Badge>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-400">Duration:</span>
-                              <span className="text-white">{config.estimated_duration}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-400">Target Type:</span>
-                              <span className="text-white">Web URL</span>
-                            </div>
-                            <Button
-                              onClick={() => {
-                                setScanForm(prev => ({ 
-                                  ...prev, 
-                                  scan_profile: profile,
-                                  targets: 'http://testphp.vulnweb.com' 
-                                }));
-                                setShowCreateDialog(true);
-                              }}
-                              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                            >
-                              <Play className="h-4 w-4 mr-2" />
-                              Configure & Start
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
+                </div>
+                <p className="text-gray-400 text-sm -mt-2">
+                  AI-powered vulnerability analysis that simulates professional security tools. Results in 50 seconds to 10 minutes.
+                </p>
+                
+                {/* AI Web Security Scanner Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* OWASP ZAP Scanner */}
+                  <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm hover:border-purple-500/50 transition-colors relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl -mr-12 -mt-12"></div>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-white flex items-center gap-2">
+                          <span className="text-2xl">🕷️</span>
+                          Web App Scanner
+                        </CardTitle>
+                        <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 text-xs">
+                          🤖 AI
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-gray-400">
+                        AI-powered OWASP ZAP analysis for web application vulnerabilities
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Simulates:</span>
+                        <Badge variant="outline" className="border-purple-500/50 text-purple-400">
+                          OWASP ZAP
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Duration:</span>
+                        <span className="text-cyan-400 font-semibold">50s - 10min</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Detects:</span>
+                        <span className="text-white text-xs">XSS, CSRF, Headers, Cookies</span>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setScanForm(prev => ({ 
+                            ...prev, 
+                            scan_profile: ScanProfile.ZAP_BASELINE,
+                            targets: 'http://testphp.vulnweb.com' 
+                          }));
+                          setShowCreateDialog(true);
+                        }}
+                        className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white"
+                      >
+                        <Play className="h-4 w-4 mr-2" />
+                        Start ZAP Analysis
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Nikto Scanner */}
+                  <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm hover:border-green-500/50 transition-colors relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/10 rounded-full blur-2xl -mr-12 -mt-12"></div>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-white flex items-center gap-2">
+                          <span className="text-2xl">🔧</span>
+                          Server Scanner
+                        </CardTitle>
+                        <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 text-xs">
+                          🤖 AI
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-gray-400">
+                        AI-powered Nikto analysis for web server misconfigurations
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Simulates:</span>
+                        <Badge variant="outline" className="border-green-500/50 text-green-400">
+                          Nikto
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Duration:</span>
+                        <span className="text-cyan-400 font-semibold">50s - 10min</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Detects:</span>
+                        <span className="text-white text-xs">Server Issues, SSL, Dirs</span>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setScanForm(prev => ({ 
+                            ...prev, 
+                            scan_profile: ScanProfile.NIKTO_BASIC,
+                            targets: 'http://testphp.vulnweb.com' 
+                          }));
+                          setShowCreateDialog(true);
+                        }}
+                        className="w-full bg-gradient-to-r from-green-600 to-cyan-600 hover:from-green-700 hover:to-cyan-700 text-white"
+                      >
+                        <Play className="h-4 w-4 mr-2" />
+                        Start Nikto Analysis
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* SQLMap Scanner */}
+                  <Card className="bg-gray-900/50 border-gray-700 backdrop-blur-sm hover:border-yellow-500/50 transition-colors relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-500/10 rounded-full blur-2xl -mr-12 -mt-12"></div>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-white flex items-center gap-2">
+                          <span className="text-2xl">💉</span>
+                          SQL Injection
+                        </CardTitle>
+                        <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 text-xs">
+                          🤖 AI
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-gray-400">
+                        AI-powered SQLMap analysis for SQL injection vulnerabilities
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Simulates:</span>
+                        <Badge variant="outline" className="border-yellow-500/50 text-yellow-400">
+                          SQLMap
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Duration:</span>
+                        <span className="text-cyan-400 font-semibold">50s - 10min</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Detects:</span>
+                        <span className="text-white text-xs">SQLi, Blind SQLi, DB Enum</span>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setScanForm(prev => ({ 
+                            ...prev, 
+                            scan_profile: ScanProfile.SQLMAP_BASIC,
+                            targets: 'http://testphp.vulnweb.com/artists.php?artist=1' 
+                          }));
+                          setShowCreateDialog(true);
+                        }}
+                        className="w-full bg-gradient-to-r from-yellow-600 to-cyan-600 hover:from-yellow-700 hover:to-cyan-700 text-white"
+                      >
+                        <Play className="h-4 w-4 mr-2" />
+                        Start SQLMap Analysis
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
 
-                {/* Nikto Section */}
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <span className="text-green-400">🔧</span>
-                    Nikto - Web Server Scanner
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[ScanProfile.NIKTO_BASIC, ScanProfile.NIKTO_FULL, ScanProfile.NIKTO_FAST].map((profile) => {
-                      const config = SCAN_PROFILE_CONFIGS[profile];
-                      return (
-                        <Card key={profile} className="bg-gray-900/50 border-gray-700 backdrop-blur-sm hover:border-green-500/50 transition-colors">
-                          <CardHeader>
-                            <CardTitle className="text-white flex items-center gap-2">
-                              <Terminal className="h-5 w-5 text-green-400" />
-                              {config.name}
-                            </CardTitle>
-                            <CardDescription className="text-gray-400">
-                              {config.description}
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-400">Scanner:</span>
-                              <Badge variant="outline" className="border-green-500/50 text-green-400">
-                                <Terminal className="h-3 w-3 mr-1" />
-                                Nikto
-                              </Badge>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-400">Duration:</span>
-                              <span className="text-white">{config.estimated_duration}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-400">Target Type:</span>
-                              <span className="text-white">Web URL</span>
-                            </div>
-                            <Button
-                              onClick={() => {
-                                setScanForm(prev => ({ 
-                                  ...prev, 
-                                  scan_profile: profile,
-                                  targets: 'http://testphp.vulnweb.com' 
-                                }));
-                                setShowCreateDialog(true);
-                              }}
-                              className="w-full bg-green-600 hover:bg-green-700 text-white"
-                            >
-                              <Play className="h-4 w-4 mr-2" />
-                              Configure & Start
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* SQLMap Section */}
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <span className="text-yellow-400">💉</span>
-                    SQLMap - SQL Injection Scanner
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[ScanProfile.SQLMAP_BASIC, ScanProfile.SQLMAP_THOROUGH, ScanProfile.SQLMAP_AGGRESSIVE].map((profile) => {
-                      const config = SCAN_PROFILE_CONFIGS[profile];
-                      return (
-                        <Card key={profile} className="bg-gray-900/50 border-gray-700 backdrop-blur-sm hover:border-yellow-500/50 transition-colors">
-                          <CardHeader>
-                            <CardTitle className="text-white flex items-center gap-2">
-                              <Terminal className="h-5 w-5 text-yellow-400" />
-                              {config.name}
-                              {config.isAggressive && <span className="text-red-400">⚠️</span>}
-                            </CardTitle>
-                            <CardDescription className="text-gray-400">
-                              {config.description}
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-400">Scanner:</span>
-                              <Badge variant="outline" className="border-yellow-500/50 text-yellow-400">
-                                <Terminal className="h-3 w-3 mr-1" />
-                                SQLMap
-                              </Badge>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-400">Duration:</span>
-                              <span className="text-white">{config.estimated_duration}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-400">Target Type:</span>
-                              <span className="text-white">URL with Parameters</span>
-                            </div>
-                            <Button
-                              onClick={() => {
-                                setScanForm(prev => ({ 
-                                  ...prev, 
-                                  scan_profile: profile,
-                                  targets: 'http://testphp.vulnweb.com/artists.php?artist=1' 
-                                }));
-                                setShowCreateDialog(true);
-                              }}
-                              className="w-full bg-yellow-600 hover:bg-yellow-700 text-white"
-                            >
-                              <Play className="h-4 w-4 mr-2" />
-                              Configure & Start
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                </div>
               </div>
             </div>
           </TabsContent>
@@ -1804,18 +1821,19 @@ export default function VulnerabilityScanning() {
                                     <Badge variant="outline" className="border-purple-500/50 text-purple-400 bg-purple-500/10 text-xs px-2 py-0.5">
                                       <Shield className="h-3 w-3 mr-1" />
                                       Web
+                                      {config?.isAI && <span className="ml-1">🤖</span>}
                                     </Badge>
                                   )}
                                 </div>
                               </TableCell>
                               <TableCell className="py-2">
                                 <div className="flex flex-col gap-1">
-                                  <Badge variant="outline" className="border-green-500/50 text-green-400 bg-green-500/10 w-fit text-xs px-2 py-0.5">
+                                  <Badge variant="outline" className="w-fit text-xs px-2 py-0.5 border-green-500/50 text-green-400 bg-green-500/10">
                                     {config?.name || profile || 'N/A'}
                                   </Badge>
                                   {scannerInfo && (
-                                    <Badge variant="outline" className={`text-xs w-fit bg-blue-500/10 border-blue-500/50 text-blue-400 px-2 py-0.5`}>
-                                      {scannerInfo.icon} {scannerInfo.name}
+                                    <Badge variant="outline" className={`text-xs w-fit px-2 py-0.5 ${scannerInfo.color}`}>
+                                      {scannerInfo.icon} {scannerInfo.name} {config?.isAI && '🤖'}
                                     </Badge>
                                   )}
                                 </div>
@@ -1985,42 +2003,41 @@ export default function VulnerabilityScanning() {
               {/* Scan Results */}
               {selectedScanDetails.parsed_results && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Scan Results</h3>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    Scan Results
+                    {/* AI Badge */}
+                    {(selectedScanDetails.parsed_results as any)?.summary?.tool_simulated && (
+                      <Badge variant="outline" className="border-cyan-500/50 text-cyan-400">
+                        🤖 AI Analysis (simulating {(selectedScanDetails.parsed_results as any).summary.tool_simulated})
+                      </Badge>
+                    )}
+                  </h3>
                   
                   {/* Summary */}
                   {(selectedScanDetails.parsed_results as any)?.summary && (
                     <div className="bg-gray-800 rounded-lg p-4 mb-4">
-                      <h4 className="font-semibold mb-2">Summary</h4>
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        Summary
+                        {(selectedScanDetails.parsed_results as any).summary.ai_risk_assessment && (
+                          <span className="text-xs text-cyan-400">(AI Assessment: {(selectedScanDetails.parsed_results as any).summary.ai_risk_assessment})</span>
+                        )}
+                      </h4>
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-400">Total Hosts:</span>
-                          <span className="ml-2 font-semibold">{(selectedScanDetails.parsed_results as any).summary.total_hosts || 0}</span>
+                          <span className="text-gray-400">Total Findings:</span>
+                          <span className="ml-2 font-semibold">{(selectedScanDetails.parsed_results as any).summary.total_findings || (selectedScanDetails.parsed_results as any).summary.total_hosts || 0}</span>
+                        </div>
+                        {/* Severity Breakdown */}
+                        <div>
+                          <span className="text-gray-400">Critical/High:</span>
+                          <span className="ml-2 font-semibold text-red-400">
+                            {((selectedScanDetails.parsed_results as any).summary.critical || 0) + ((selectedScanDetails.parsed_results as any).summary.high || 0)}
+                          </span>
                         </div>
                         <div>
-                          <span className="text-gray-400">Open Ports:</span>
-                          <span className="ml-2 font-semibold">{(selectedScanDetails.parsed_results as any).summary.total_open_ports || 0}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Vulnerabilities:</span>
-                          <span className="ml-2 font-semibold text-orange-400">
-                            {(() => {
-                              let vulnCount = 0;
-                              // Count from summary
-                              if ((selectedScanDetails.parsed_results as any).summary.total_findings) {
-                                vulnCount = (selectedScanDetails.parsed_results as any).summary.total_findings;
-                              }
-                              // Count from findings array
-                              else if ((selectedScanDetails.parsed_results as any).findings) {
-                                vulnCount = (selectedScanDetails.parsed_results as any).findings.length;
-                              }
-                              // Count from host findings
-                              else if ((selectedScanDetails.parsed_results as any).parsed_json?.hosts) {
-                                vulnCount = (selectedScanDetails.parsed_results as any).parsed_json.hosts.reduce((sum: number, host: any) => {
-                                  return sum + (host.findings?.length || 0);
-                                }, 0);
-                              }
-                              return vulnCount;
-                            })()}
+                          <span className="text-gray-400">Medium/Low:</span>
+                          <span className="ml-2 font-semibold text-yellow-400">
+                            {((selectedScanDetails.parsed_results as any).summary.medium || 0) + ((selectedScanDetails.parsed_results as any).summary.low || 0)}
                           </span>
                         </div>
                         <div>
@@ -2036,6 +2053,7 @@ export default function VulnerabilityScanning() {
                         <div>
                           <span className="text-gray-400">Risk Level:</span>
                           <span className={`ml-2 font-semibold ${
+                            (selectedScanDetails.parsed_results as any).summary.risk_level === 'CRITICAL' ? 'text-red-500' :
                             (selectedScanDetails.parsed_results as any).summary.risk_level === 'HIGH' ? 'text-red-400' :
                             (selectedScanDetails.parsed_results as any).summary.risk_level === 'MEDIUM' ? 'text-yellow-400' :
                             'text-green-400'
@@ -2044,6 +2062,56 @@ export default function VulnerabilityScanning() {
                           </span>
                         </div>
                       </div>
+                      
+                      {/* Severity Breakdown Bar */}
+                      {(selectedScanDetails.parsed_results as any).summary.total_findings > 0 && (
+                        <div className="mt-4">
+                          <div className="flex h-3 rounded-full overflow-hidden bg-gray-700">
+                            {(selectedScanDetails.parsed_results as any).summary.critical > 0 && (
+                              <div 
+                                className="bg-red-600" 
+                                style={{ width: `${((selectedScanDetails.parsed_results as any).summary.critical / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
+                                title={`Critical: ${(selectedScanDetails.parsed_results as any).summary.critical}`}
+                              />
+                            )}
+                            {(selectedScanDetails.parsed_results as any).summary.high > 0 && (
+                              <div 
+                                className="bg-orange-500" 
+                                style={{ width: `${((selectedScanDetails.parsed_results as any).summary.high / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
+                                title={`High: ${(selectedScanDetails.parsed_results as any).summary.high}`}
+                              />
+                            )}
+                            {(selectedScanDetails.parsed_results as any).summary.medium > 0 && (
+                              <div 
+                                className="bg-yellow-500" 
+                                style={{ width: `${((selectedScanDetails.parsed_results as any).summary.medium / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
+                                title={`Medium: ${(selectedScanDetails.parsed_results as any).summary.medium}`}
+                              />
+                            )}
+                            {(selectedScanDetails.parsed_results as any).summary.low > 0 && (
+                              <div 
+                                className="bg-blue-500" 
+                                style={{ width: `${((selectedScanDetails.parsed_results as any).summary.low / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
+                                title={`Low: ${(selectedScanDetails.parsed_results as any).summary.low}`}
+                              />
+                            )}
+                            {(selectedScanDetails.parsed_results as any).summary.info > 0 && (
+                              <div 
+                                className="bg-gray-500" 
+                                style={{ width: `${((selectedScanDetails.parsed_results as any).summary.info / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
+                                title={`Info: ${(selectedScanDetails.parsed_results as any).summary.info}`}
+                              />
+                            )}
+                          </div>
+                          <div className="flex justify-between mt-1 text-xs text-gray-400">
+                            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-red-600 rounded-full"></span> Critical: {(selectedScanDetails.parsed_results as any).summary.critical || 0}</span>
+                            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-orange-500 rounded-full"></span> High: {(selectedScanDetails.parsed_results as any).summary.high || 0}</span>
+                            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-yellow-500 rounded-full"></span> Medium: {(selectedScanDetails.parsed_results as any).summary.medium || 0}</span>
+                            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-blue-500 rounded-full"></span> Low: {(selectedScanDetails.parsed_results as any).summary.low || 0}</span>
+                            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-gray-500 rounded-full"></span> Info: {(selectedScanDetails.parsed_results as any).summary.info || 0}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -2095,7 +2163,39 @@ export default function VulnerabilityScanning() {
                     </div>
                   )}
 
-                  {/* Recommendations */}
+                  {/* AI Tool Notes */}
+                  {(selectedScanDetails.parsed_results as any)?.parsed_json?.tool_notes && (
+                    <div className="mt-4">
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        <Info className="h-4 w-4 text-cyan-400" />
+                        About This Analysis
+                      </h4>
+                      <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4 text-sm text-gray-300">
+                        {(selectedScanDetails.parsed_results as any).parsed_json.tool_notes}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI Recommendations */}
+                  {(selectedScanDetails.parsed_results as any)?.parsed_json?.recommendations && (selectedScanDetails.parsed_results as any).parsed_json.recommendations.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        🤖 AI Recommendations
+                      </h4>
+                      <div className="space-y-2">
+                        {(selectedScanDetails.parsed_results as any).parsed_json.recommendations.map((rec: string, index: number) => (
+                          <div key={index} className="bg-cyan-500/10 border border-cyan-500/30 rounded p-3 text-sm">
+                            <div className="flex items-start gap-2">
+                              <span className="text-cyan-400 mt-0.5 flex-shrink-0">💡</span>
+                              <span>{rec}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Legacy Recommendations (from summary) */}
                   {(selectedScanDetails.parsed_results as any)?.summary?.recommendations && (
                     <div className="mt-4">
                       <h4 className="font-semibold mb-2">Recommendations</h4>
@@ -2114,11 +2214,79 @@ export default function VulnerabilityScanning() {
 
                   {/* Security Findings/Vulnerabilities */}
                   {((selectedScanDetails.parsed_results as any)?.findings || 
+                    (selectedScanDetails.parsed_results as any)?.parsed_json?.findings ||
                     (selectedScanDetails.parsed_results as any)?.parsed_json?.hosts?.some((host: any) => host.findings)) && (
                     <div className="mt-4">
                       <h4 className="font-semibold mb-2">Security Findings</h4>
                       <div className="space-y-3">
-                        {/* Direct findings */}
+                        {/* AI findings from parsed_json */}
+                        {(selectedScanDetails.parsed_results as any)?.parsed_json?.findings?.map((finding: any, index: number) => (
+                          <div key={`ai-${index}`} className={`rounded-lg p-4 border ${
+                            finding.severity === 'critical' ? 'bg-red-500/10 border-red-500/30' :
+                            finding.severity === 'high' ? 'bg-orange-500/10 border-orange-500/30' :
+                            finding.severity === 'medium' ? 'bg-yellow-500/10 border-yellow-500/30' :
+                            finding.severity === 'low' ? 'bg-blue-500/10 border-blue-500/30' :
+                            'bg-gray-500/10 border-gray-500/30'
+                          }`}>
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <h5 className="font-semibold">{finding.title || finding.name || 'Security Finding'}</h5>
+                                {finding.finding_id && (
+                                  <span className="text-xs text-gray-500 font-mono">{finding.finding_id}</span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {finding.confidence && (
+                                  <Badge variant="outline" className="text-xs border-gray-500/50 text-gray-400">
+                                    {finding.confidence} confidence
+                                  </Badge>
+                                )}
+                                <Badge className={`${getSeverityColor(finding.severity || 'info')} text-xs`}>
+                                  {finding.severity?.toUpperCase() || 'INFO'}
+                                </Badge>
+                              </div>
+                            </div>
+                            {finding.description && (
+                              <p className="text-sm text-gray-300 mb-2">{finding.description}</p>
+                            )}
+                            {finding.affected_component && (
+                              <p className="text-xs text-gray-400 mb-1">
+                                <strong>Affected:</strong> {finding.affected_component}
+                              </p>
+                            )}
+                            {finding.evidence && (
+                              <p className="text-xs text-gray-400 mb-1">
+                                <strong>Evidence:</strong> {finding.evidence}
+                              </p>
+                            )}
+                            {finding.cwe_id && (
+                              <p className="text-xs text-gray-400 mb-1">
+                                <strong>CWE:</strong> {finding.cwe_id}
+                              </p>
+                            )}
+                            {finding.solution && (
+                              <div className="mt-2 p-2 bg-green-500/10 border border-green-500/30 rounded text-xs">
+                                <strong className="text-green-400">Solution:</strong> {finding.solution}
+                              </div>
+                            )}
+                            {finding.references && finding.references.length > 0 && (
+                              <div className="mt-2 text-xs">
+                                <strong className="text-gray-400">References:</strong>
+                                <ul className="list-disc list-inside ml-2 text-blue-400">
+                                  {finding.references.slice(0, 3).map((ref: string, refIdx: number) => (
+                                    <li key={refIdx}>
+                                      <a href={ref} target="_blank" rel="noopener noreferrer" className="hover:underline truncate">
+                                        {ref.length > 60 ? ref.substring(0, 60) + '...' : ref}
+                                      </a>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+
+                        {/* Direct findings (legacy format) */}
                         {(selectedScanDetails.parsed_results as any)?.findings?.map((finding: any, index: number) => (
                           <div key={index} className={`rounded-lg p-4 border ${
                             finding.severity === 'critical' ? 'bg-red-500/10 border-red-500/30' :

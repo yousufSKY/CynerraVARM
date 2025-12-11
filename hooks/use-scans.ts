@@ -28,7 +28,7 @@ export function useScans() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchScans = useCallback(async (params?: { skip?: number; limit?: number; status?: string }) => {
+  const fetchScans = useCallback(async (params?: { skip?: number; limit?: number; status?: string; scanner_type?: 'port' | 'web' }) => {
     console.log('🔵 fetchScans called:', { params });
     
     // For test endpoints, we don't need authentication
