@@ -7,7 +7,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { apiClient } from '@/lib/api-client';
 import { 
-  ScanResponse, 
+  ScanResponse,
+  ScanResults, 
   ScanDetailResponse, 
   ScanProgressResponse, 
   ScanStatsResponse,
@@ -183,7 +184,7 @@ export function useScans() {
 // Hook for managing individual scan details
 export function useScanDetails(scanId: string | null) {
   const { isSignedIn } = useUser();
-  const [scanDetails, setScanDetails] = useState<ScanDetailResponse | null>(null);
+  const [scanDetails, setScanDetails] = useState<ScanResults | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

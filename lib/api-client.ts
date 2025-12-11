@@ -12,7 +12,8 @@ import {
   ScanResults,
   ScanHistoryResponse,
   ScanProfile,
-  ScannerType
+  ScannerType,
+  PROFILE_TO_API_MAP
 } from '@/types/api';
 
 /**
@@ -129,11 +130,14 @@ class ApiClient {
    * Create/trigger a new scan using real scanner endpoints
    */
   async createScan(scanData: ScanCreate): Promise<ApiResponse<ScanTriggerResponse>> {
+    // Convert frontend profile to backend API profile
+    const apiProfile = PROFILE_TO_API_MAP[scanData.scan_profile] || scanData.scan_profile;
+    
     // Convert frontend format to backend format
     const request: ScanTriggerRequest = {
       asset_id: 'default-asset', // TODO: Make this configurable
       target: scanData.targets,
-      profile: scanData.scan_profile
+      profile: apiProfile as ScanProfile
     };
 
     const response = await this.makeRequest<ScanTriggerResponse>(

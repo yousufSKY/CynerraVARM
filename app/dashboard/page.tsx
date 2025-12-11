@@ -340,6 +340,7 @@ export default function Dashboard() {
                     const scanId = (scan as any).scan_id || scan.id;
                     const target = (scan as any).target || scan.targets;
                     const profile = (scan as any).profile || scan.scan_profile;
+                    const profileConfig = SCAN_PROFILE_CONFIGS[profile as ScanProfile];
                     return (
                     <div key={scanId} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-0">
                       <div className="flex items-center space-x-3">
@@ -347,7 +348,7 @@ export default function Dashboard() {
                         <div>
                           <p className="text-white font-medium">{target}</p>
                           <p className="text-sm text-gray-400">
-                            {SCAN_PROFILE_CONFIGS[profile]?.name || profile}
+                            {profileConfig?.name || profile}
                           </p>
                         </div>
                       </div>

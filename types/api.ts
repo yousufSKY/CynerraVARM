@@ -21,20 +21,42 @@ export enum ScanProfile {
   UDP = 'udp',
   
   // Web Application Scans (AI-Powered ZAP Analysis) - Target: URL
-  ZAP_BASELINE = 'ai-zap-analysis',
-  ZAP_FULL = 'ai-zap-analysis',
-  ZAP_API = 'ai-zap-analysis',
+  // All map to 'ai-zap-analysis' backend profile
+  ZAP_BASELINE = 'zap-baseline',
+  ZAP_FULL = 'zap-full',
+  ZAP_API = 'zap-api',
   
   // Web Server Scans (AI-Powered Nikto Analysis) - Target: URL
-  NIKTO_BASIC = 'ai-nikto-analysis',
-  NIKTO_FULL = 'ai-nikto-analysis',
-  NIKTO_FAST = 'ai-nikto-analysis',
+  // All map to 'ai-nikto-analysis' backend profile
+  NIKTO_BASIC = 'nikto-basic',
+  NIKTO_FULL = 'nikto-full',
+  NIKTO_FAST = 'nikto-fast',
   
   // SQL Injection Scans (AI-Powered SQLMap Analysis) - Target: URL with params
-  SQLMAP_BASIC = 'ai-sqlmap-analysis',
-  SQLMAP_THOROUGH = 'ai-sqlmap-analysis',
-  SQLMAP_AGGRESSIVE = 'ai-sqlmap-analysis'
+  // All map to 'ai-sqlmap-analysis' backend profile
+  SQLMAP_BASIC = 'sqlmap-basic',
+  SQLMAP_THOROUGH = 'sqlmap-thorough',
+  SQLMAP_AGGRESSIVE = 'sqlmap-aggressive'
 }
+
+// Map frontend profiles to backend API profiles
+export const PROFILE_TO_API_MAP: Record<ScanProfile, string> = {
+  [ScanProfile.QUICK]: 'quick',
+  [ScanProfile.FULL]: 'full',
+  [ScanProfile.SERVICE_DETECTION]: 'service-detect',
+  [ScanProfile.VULNERABILITY]: 'vulnerability',
+  [ScanProfile.UDP]: 'udp',
+  // Web profiles all map to their respective AI backend endpoints
+  [ScanProfile.ZAP_BASELINE]: 'ai-zap-analysis',
+  [ScanProfile.ZAP_FULL]: 'ai-zap-analysis',
+  [ScanProfile.ZAP_API]: 'ai-zap-analysis',
+  [ScanProfile.NIKTO_BASIC]: 'ai-nikto-analysis',
+  [ScanProfile.NIKTO_FULL]: 'ai-nikto-analysis',
+  [ScanProfile.NIKTO_FAST]: 'ai-nikto-analysis',
+  [ScanProfile.SQLMAP_BASIC]: 'ai-sqlmap-analysis',
+  [ScanProfile.SQLMAP_THOROUGH]: 'ai-sqlmap-analysis',
+  [ScanProfile.SQLMAP_AGGRESSIVE]: 'ai-sqlmap-analysis',
+};
 
 export type ScannerType = 'port' | 'web';
 export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'info';
@@ -167,15 +189,19 @@ export interface ScanCreate {
 
 export interface ScanResponse {
   id: string;                   // Maps to scan_id
+  scan_id?: string;             // Direct scan_id from backend
   user_id: string;              // Maps to initiated_by_uid
   targets: string;              // Maps to target
+  target?: string;              // Direct target from backend
   scan_profile: ScanProfile;    // Maps to profile
+  profile?: string;             // Direct profile from backend
   status: ScanStatus;
   scanner_type?: ScannerType;   // NEW
   created_at: string;
   updated_at?: string;
   started_at?: string;
   completed_at?: string;
+  finished_at?: string;         // Direct finished_at from backend
   duration_seconds?: number;
   success: boolean;
   hosts_found: number;
@@ -186,6 +212,15 @@ export interface ScanResponse {
   risk_score: number;
   cve_references: string[];
   error_message?: string;
+  parsed_results?: {            // Scan results from backend
+    summary?: ScanSummary;
+    scan_info?: ScanInfo;
+    parsed_json?: {
+      findings?: Finding[];
+      recommendations?: string[];
+      tool_notes?: string;
+    };
+  };
 }
 
 export interface ScanTargetValidation {

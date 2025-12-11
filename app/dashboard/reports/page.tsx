@@ -292,8 +292,9 @@ export default function ReportsCompliance() {
   };
 
   const getScannerTypeBadge = (scan: ScanResponse) => {
-    const isWebScan = scan.profile?.startsWith('ai-') || 
-                      ['ai-zap-analysis', 'ai-nikto-analysis', 'ai-sqlmap-analysis'].includes(scan.profile);
+    const profile = scan.profile || scan.scan_profile || '';
+    const isWebScan = profile.startsWith('ai-') || 
+                      ['ai-zap-analysis', 'ai-nikto-analysis', 'ai-sqlmap-analysis'].includes(profile);
     
     if (isWebScan) {
       return <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30"><Globe className="h-3 w-3 mr-1" />Web 🤖</Badge>;
@@ -322,17 +323,21 @@ export default function ReportsCompliance() {
     return config?.name || profile;
   };
 
+  // Helper to get profile string
+  const getProfile = (scan: ScanResponse) => scan.profile || scan.scan_profile || '';
+  
   // Filter scans based on type
   const filteredScans = scans.filter(scan => {
     if (scanFilter === 'all') return true;
-    const isWebScan = scan.profile?.startsWith('ai-') || 
-                      ['ai-zap-analysis', 'ai-nikto-analysis', 'ai-sqlmap-analysis'].includes(scan.profile);
+    const profile = getProfile(scan);
+    const isWebScan = profile.startsWith('ai-') || 
+                      ['ai-zap-analysis', 'ai-nikto-analysis', 'ai-sqlmap-analysis'].includes(profile);
     return scanFilter === 'web' ? isWebScan : !isWebScan;
   });
 
   // Calculate stats
-  const portScans = scans.filter(s => !s.profile?.startsWith('ai-'));
-  const webScans = scans.filter(s => s.profile?.startsWith('ai-'));
+  const portScans = scans.filter(s => !getProfile(s).startsWith('ai-'));
+  const webScans = scans.filter(s => getProfile(s).startsWith('ai-'));
   const completedScans = scans.filter(s => s.status === ScanStatus.COMPLETED);
 
   // Handle view scan details
@@ -763,7 +768,7 @@ export default function ReportsCompliance() {
                             </TableCell>
                             <TableCell>{getScannerTypeBadge(scan)}</TableCell>
                             <TableCell className="text-slate-300 text-sm">
-                              {getProfileName(scan.profile)}
+                              {getProfileName(getProfile(scan))}
                             </TableCell>
                             <TableCell>{getScanStatusBadge(scan.status)}</TableCell>
                             <TableCell className="hidden md:table-cell">
@@ -850,38 +855,38 @@ export default function ReportsCompliance() {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               <div className="text-center p-3 bg-red-500/10 rounded-lg">
                                 <div className="text-2xl font-bold text-red-400">
-                                  {selectedScan?.parsed_results?.summary?.critical ?.critical || 0}
+                                  {selectedScan?.parsed_results?.summary?.critical || 0}
                                 </div>
                                 <div className="text-xs text-slate-400">Critical</div>
                               </div>
                               <div className="text-center p-3 bg-orange-500/10 rounded-lg">
                                 <div className="text-2xl font-bold text-orange-400">
-                                  {selectedScan?.parsed_results?.summary?.high ?.high || 0}
+                                  {selectedScan?.parsed_results?.summary?.high || 0}
                                 </div>
                                 <div className="text-xs text-slate-400">High</div>
                               </div>
                               <div className="text-center p-3 bg-yellow-500/10 rounded-lg">
                                 <div className="text-2xl font-bold text-yellow-400">
-                                  {selectedScan?.parsed_results?.summary?.medium ?.medium || 0}
+                                  {selectedScan?.parsed_results?.summary?.medium || 0}
                                 </div>
                                 <div className="text-xs text-slate-400">Medium</div>
                               </div>
                               <div className="text-center p-3 bg-blue-500/10 rounded-lg">
                                 <div className="text-2xl font-bold text-blue-400">
-                                  {selectedScan?.parsed_results?.summary?.low ?.low || 0}
+                                  {selectedScan?.parsed_results?.summary?.low || 0}
                                 </div>
                                 <div className="text-xs text-slate-400">Low</div>
                               </div>
                             </div>
                             
                             {/* AI Risk Assessment */}
-                            {(selectedScan?.parsed_results?.summary?.ai_risk_assessment ?.ai_risk_assessment) && (
+                            {selectedScan?.parsed_results?.summary?.ai_risk_assessment && (
                               <div className="mt-4 p-3 bg-purple-500/10 rounded-lg border border-purple-500/30">
                                 <div className="flex items-center gap-2 text-purple-400 font-semibold mb-2">
                                   <span>🤖</span> AI Risk Assessment
                                 </div>
                                 <p className="text-slate-300 text-sm">
-                                  {selectedScan?.parsed_results?.summary?.ai_risk_assessment ?.ai_risk_assessment}
+                                  {selectedScan?.parsed_results?.summary?.ai_risk_assessment}
                                 </p>
                               </div>
                             )}
@@ -1339,7 +1344,7 @@ export default function ReportsCompliance() {
                           <div>
                             <h3 className="font-medium text-white">{scan.target}</h3>
                             <div className="flex flex-wrap items-center gap-2 md:gap-4 text-sm text-slate-400 mt-1">
-                              <span>{getProfileName(scan.profile)}</span>
+                              <span>{getProfileName(getProfile(scan))}</span>
                               <span className="hidden sm:inline">•</span>
                               <span className="hidden sm:inline">{formatDate(scan.finished_at || scan.created_at)}</span>
                               <span className="hidden md:inline">•</span>
