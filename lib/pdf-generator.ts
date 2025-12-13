@@ -326,8 +326,39 @@ export function generateScanReportPDF(scan: ScanResponse, options: PDFOptions = 
     }
     yPos += 10;
 
-    // AI Risk Assessment
-    if (summary.ai_risk_assessment) {
+    // AI-Enhanced Network Scan - Combined Risk Assessment
+    if (summary.ai_enhanced) {
+      yPos += 5;
+      doc.setFillColor(6, 182, 212, 20);
+      doc.roundedRect(14, yPos - 4, pageWidth - 28, 35, 2, 2, 'F');
+      
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(6, 182, 212);
+      doc.text('🤖 AI-Enhanced Network Scan', 20, yPos + 4);
+      
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(100, 116, 139);
+      
+      // Risk comparison
+      doc.text(`Nmap Risk: ${summary.risk_level} (${summary.risk_score})`, 20, yPos + 12);
+      doc.text(`AI Risk: ${summary.ai_risk_assessment || 'N/A'}`, 80, yPos + 12);
+      doc.text(`Combined: ${summary.combined_risk_level} (${summary.combined_risk_score})`, 140, yPos + 12);
+      
+      if (summary.ai_findings_count) {
+        doc.text(`AI Findings: ${summary.ai_findings_count}`, 20, yPos + 20);
+      }
+      
+      if (summary.ai_error) {
+        doc.setTextColor(234, 179, 8);
+        doc.text(`Warning: ${summary.ai_error}`, 20, yPos + 28);
+      }
+      
+      yPos += 40;
+    }
+    // AI Web Scan Risk Assessment
+    else if (summary.ai_risk_assessment) {
       yPos += 5;
       doc.setFillColor(139, 92, 246, 20);
       doc.roundedRect(14, yPos - 4, pageWidth - 28, 25, 2, 2, 'F');
@@ -513,6 +544,143 @@ export function generateScanReportPDF(scan: ScanResponse, options: PDFOptions = 
       doc.text(recLines, 28, yPos + 2);
       yPos += recLines.length * 5 + 6;
     });
+  }
+
+  // AI Vulnerability Analysis for AI-Enhanced Network Scans
+  const aiAnalysis = scan.parsed_results?.parsed_json?.ai_vulnerability_analysis;
+  if (aiAnalysis?.ai_analysis_available && aiAnalysis.standardized_findings?.length > 0) {
+    if (yPos > 220) {
+      doc.addPage();
+      yPos = 20;
+    }
+
+    yPos = drawSectionHeader(doc, '🤖 AI Vulnerability Analysis', yPos, template);
+
+    // Analysis info
+    doc.setFontSize(8);
+    doc.setTextColor(...colors.secondary);
+    doc.text(`Model: ${aiAnalysis.model} | Confidence: ${aiAnalysis.analysis_summary?.confidence_level || 'N/A'}`, 14, yPos);
+    yPos += 8;
+
+    // AI findings
+    aiAnalysis.standardized_findings.slice(0, 10).forEach((finding: any, index: number) => {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      // Finding header
+      doc.setFillColor(6, 182, 212);
+      doc.roundedRect(14, yPos - 2, pageWidth - 28, 10, 2, 2, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      const maxTitleLen = 50;
+      const findingTitle = (finding.title || 'Unknown').substring(0, maxTitleLen);
+      doc.text(`${index + 1}. ${findingTitle}`, 18, yPos + 5);
+      
+      // Severity and confidence
+      doc.setFontSize(7);
+      doc.text(`${finding.severity?.toUpperCase() || 'N/A'}`, pageWidth - 50, yPos + 5);
+      if (finding.confidence) {
+        doc.text(`${finding.confidence}`, pageWidth - 20, yPos + 5, { align: 'right' });
+      }
+      
+      yPos += 14;
+      doc.setTextColor(50, 50, 50);
+      doc.setFont('helvetica', 'normal');
+
+      // Description
+      if (finding.description) {
+        doc.setFontSize(8);
+        const descLines = doc.splitTextToSize(finding.description, pageWidth - 36);
+        doc.text(descLines.slice(0, 3), 18, yPos);
+        yPos += Math.min(descLines.length, 3) * 4 + 4;
+      }
+
+      // Affected component
+      if (finding.affected_component || finding.affected_service) {
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(80, 80, 80);
+        doc.text('Affected:', 18, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(50, 50, 50);
+        doc.text((finding.affected_component || finding.affected_service).substring(0, 60), 35, yPos);
+        yPos += 5;
+      }
+
+      // CVE IDs
+      if (finding.cve_ids && finding.cve_ids.length > 0) {
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(80, 80, 80);
+        doc.text('CVEs:', 18, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(220, 38, 38);
+        doc.text(finding.cve_ids.slice(0, 3).join(', '), 32, yPos);
+        yPos += 5;
+      }
+
+      // Solution
+      if (finding.solution || finding.remediation) {
+        yPos += 2;
+        const solText = finding.solution || finding.remediation;
+        const solLines = doc.splitTextToSize(solText, pageWidth - 55);
+        const boxHeight = Math.max(14, solLines.length * 4 + 8);
+        
+        // Solution box background
+        doc.setFillColor(34, 197, 94);
+        doc.roundedRect(18, yPos - 3, pageWidth - 36, boxHeight, 2, 2, 'F');
+        
+        // Solution label
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(255, 255, 255);
+        doc.text('SOLUTION:', 22, yPos + 3);
+        
+        // Solution text
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(255, 255, 255);
+        doc.text(solLines.slice(0, 2), 50, yPos + 3);
+        yPos += boxHeight + 4;
+      }
+
+      yPos += 6;
+    });
+
+    // Security Recommendations from AI
+    if (aiAnalysis.security_recommendations && aiAnalysis.security_recommendations.length > 0) {
+      if (yPos > 220) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      yPos = drawSectionHeader(doc, 'AI Security Recommendations', yPos, template);
+
+      aiAnalysis.security_recommendations.slice(0, 8).forEach((rec: string, index: number) => {
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+        
+        doc.setFillColor(6, 182, 212);
+        doc.circle(20, yPos + 1, 3, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'bold');
+        doc.text(String(index + 1), 20, yPos + 2.5, { align: 'center' });
+        
+        doc.setTextColor(50, 50, 50);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        const recLines = doc.splitTextToSize(rec, pageWidth - 45);
+        doc.text(recLines.slice(0, 2), 28, yPos + 2);
+        yPos += Math.min(recLines.length, 2) * 5 + 6;
+      });
+    }
   }
 
   // Add footers to all pages

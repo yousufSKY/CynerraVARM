@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TypeScript Types for VARM API
  * Matches the real backend scanner schema
  */
@@ -19,6 +19,13 @@ export enum ScanProfile {
   SERVICE_DETECTION = 'service-detect',
   VULNERABILITY = 'vulnerability',
   UDP = 'udp',
+  
+  // AI-Enhanced Network Scans (Nmap + AI Analysis) - Target: IP Address
+  QUICK_AI = 'quick-ai',
+  FULL_AI = 'full-ai',
+  SERVICE_DETECTION_AI = 'service-detect-ai',
+  VULNERABILITY_AI = 'vulnerability-ai',
+  UDP_AI = 'udp-ai',
   
   // Web Application Scans (AI-Powered ZAP Analysis) - Target: URL
   // All map to 'ai-zap-analysis' backend profile
@@ -46,6 +53,12 @@ export const PROFILE_TO_API_MAP: Record<ScanProfile, string> = {
   [ScanProfile.SERVICE_DETECTION]: 'service-detect',
   [ScanProfile.VULNERABILITY]: 'vulnerability',
   [ScanProfile.UDP]: 'udp',
+  // AI-Enhanced Network profiles map to their backend equivalents
+  [ScanProfile.QUICK_AI]: 'quick-ai',
+  [ScanProfile.FULL_AI]: 'full-ai',
+  [ScanProfile.SERVICE_DETECTION_AI]: 'service-detect-ai',
+  [ScanProfile.VULNERABILITY_AI]: 'vulnerability-ai',
+  [ScanProfile.UDP_AI]: 'udp-ai',
   // Web profiles all map to their respective AI backend endpoints
   [ScanProfile.ZAP_BASELINE]: 'ai-zap-analysis',
   [ScanProfile.ZAP_FULL]: 'ai-zap-analysis',
@@ -89,6 +102,42 @@ export interface Finding {
   confidence?: string;          // ZAP specific
   osvdb_id?: string;            // Nikto specific  
   injection_types?: string[];   // SQLMap specific
+  // AI-Enhanced Network Scan fields
+  affected_service?: string;    // Service identifier (e.g., "ssh on 192.168.1.100:22")
+  potential_impact?: string;    // Impact description
+  cve_ids?: string[];           // Array of CVE IDs
+  evidence?: string;            // Evidence for the finding
+  remediation?: string;         // Same as solution (alias)
+}
+
+// AI Vulnerability Analysis for Network Scans
+export interface AIVulnerabilityAnalysis {
+  ai_analysis_available: boolean;
+  model: string;                    // e.g., "gpt-4o"
+  scan_id: string;
+  
+  analysis_summary: {
+    target: string;
+    total_services_analyzed: number;
+    overall_risk_assessment: string;  // LOW|MEDIUM|HIGH|CRITICAL
+    confidence_level: string;         // HIGH|MEDIUM|LOW
+  };
+  
+  vulnerability_findings?: Array<{
+    finding_id: string;
+    title: string;
+    severity: Severity;
+    affected_service: string;
+    description: string;
+    potential_impact: string;
+    cve_ids: string[];
+    remediation: string;
+  }>;
+  
+  standardized_findings: Finding[];  // Uses the extended Finding interface
+  
+  security_recommendations: string[];
+  analysis_notes: string;
 }
 
 export interface ScanSummary {
@@ -103,10 +152,23 @@ export interface ScanSummary {
   scanner: string;              // nmap|zap|nikto|sqlmap|ai
   scanner_version: string;
   scan_duration_seconds?: number;
-  // AI-specific fields
-  ai_risk_assessment?: string;  // AI's assessment of overall risk
-  tool_simulated?: string;      // Which tool's output was simulated (zap-baseline, nikto, sqlmap, etc.)
-  scan_level?: string;          // quick|basic|detailed
+  
+  // AI-Enhanced Network Scan fields (for real Nmap + AI analysis)
+  ai_enhanced?: boolean;         // true if AI analysis was performed
+  ai_findings_count?: number;    // Number of vulnerabilities found by AI
+  combined_risk_score?: number;  // Combined Nmap + AI risk (0-100)
+  combined_risk_level?: string;  // MINIMAL|LOW|MEDIUM|HIGH|CRITICAL
+  ai_error?: string;             // Error message if AI analysis failed
+  
+  // AI Web Scan fields (for simulated web vulnerability reports)
+  ai_risk_assessment?: string;   // AI's assessment of overall risk
+  tool_simulated?: string;       // Which tool's output was simulated (zap-baseline, nikto, sqlmap, etc.)
+  scan_level?: string;           // quick|basic|detailed
+  
+  // Nmap-specific fields (for network scans)
+  total_hosts?: number;
+  hosts_up?: number;
+  total_open_ports?: number;
 }
 
 export interface ScanInfo {
@@ -134,9 +196,12 @@ export interface ScanResults {
     scan_info: ScanInfo;
     parsed_json: {
       findings: Finding[];
-      // AI-specific fields
+      // AI Web Scan fields
       recommendations?: string[];
       tool_notes?: string;
+      // AI-Enhanced Network Scan fields
+      ai_vulnerability_analysis?: AIVulnerabilityAnalysis;
+      hosts?: any[];  // Nmap host data
     };
   };
 }
@@ -147,9 +212,12 @@ export interface ScanDetailResponse {
   summary: ScanSummary;
   parsed_json: {
     findings: Finding[];
-    // AI-specific fields
+    // AI Web Scan fields
     recommendations?: string[];
     tool_notes?: string;
+    // AI-Enhanced Network Scan fields
+    ai_vulnerability_analysis?: AIVulnerabilityAnalysis;
+    hosts?: any[];  // Nmap host data
   };
   created_at: string;
 }
@@ -219,6 +287,8 @@ export interface ScanResponse {
       findings?: Finding[];
       recommendations?: string[];
       tool_notes?: string;
+      ai_vulnerability_analysis?: AIVulnerabilityAnalysis;
+      hosts?: any[];
     };
   };
 }
@@ -291,7 +361,8 @@ export interface ScanProfileInfo {
   color?: string;
   isAggressive?: boolean;
   warningMessage?: string;
-  isAI?: boolean;              // Whether this is an AI-powered scan
+  isAI?: boolean;              // Whether this is an AI-powered scan (web scans or AI-enhanced)
+  aiEnhanced?: boolean;        // Whether this is a real scan with AI enhancement (network scans only)
 }
 
 // Constants for UI configuration
@@ -313,24 +384,24 @@ export const RISK_LEVEL_COLORS = {
 export const SCANNER_INFO = {
   nmap: {
     name: 'Nmap',
-    icon: '🔍',
+    icon: 'ðŸ”',
     color: 'text-blue-400 bg-blue-500/20 border-blue-500/30'
   },
   zap: {
     name: 'OWASP ZAP',
-    icon: '🕷️',
+    icon: 'ðŸ•·ï¸',
     color: 'text-purple-400 bg-purple-500/20 border-purple-500/30',
     aiPowered: true
   },
   nikto: {
     name: 'Nikto',
-    icon: '🔧',
+    icon: 'ðŸ”§',
     color: 'text-green-400 bg-green-500/20 border-green-500/30',
     aiPowered: true
   },
   sqlmap: {
     name: 'SQLMap',
-    icon: '💉',
+    icon: 'ðŸ’‰',
     color: 'text-red-400 bg-red-500/20 border-red-500/30',
     aiPowered: true
   }
@@ -397,6 +468,78 @@ export const SCAN_PROFILE_CONFIGS: Record<ScanProfile, ScanProfileInfo> = {
     targetPlaceholder: '192.168.1.1',
     icon: 'Radio',
     color: 'text-orange-400'
+  },
+  
+  // AI-Enhanced Network Scans (Real Nmap + AI Vulnerability Analysis)
+  [ScanProfile.QUICK_AI]: {
+    name: 'Quick Scan + AI Analysis',
+    value: ScanProfile.QUICK_AI,
+    description: 'Fast port scan with AI vulnerability analysis',
+    estimated_duration: '~2 minutes',
+    typical_ports: 1000,
+    scanner: 'nmap',
+    targetType: 'ip',
+    targetPlaceholder: '192.168.1.1',
+    icon: 'Zap',
+    color: 'text-cyan-400',
+    isAI: true,
+    aiEnhanced: true
+  },
+  [ScanProfile.FULL_AI]: {
+    name: 'Full Scan + AI Analysis',
+    value: ScanProfile.FULL_AI,
+    description: 'Comprehensive port scan with AI vulnerability analysis',
+    estimated_duration: '5-15 minutes',
+    typical_ports: 65535,
+    scanner: 'nmap',
+    targetType: 'ip',
+    targetPlaceholder: '192.168.1.1',
+    icon: 'ShieldCheck',
+    color: 'text-cyan-400',
+    isAI: true,
+    aiEnhanced: true
+  },
+  [ScanProfile.SERVICE_DETECTION_AI]: {
+    name: 'Service Detection + AI',
+    value: ScanProfile.SERVICE_DETECTION_AI,
+    description: 'Service version detection with AI vulnerability analysis',
+    estimated_duration: '~5 minutes',
+    typical_ports: 1000,
+    scanner: 'nmap',
+    targetType: 'ip',
+    targetPlaceholder: '192.168.1.1',
+    icon: 'Eye',
+    color: 'text-cyan-400',
+    isAI: true,
+    aiEnhanced: true
+  },
+  [ScanProfile.VULNERABILITY_AI]: {
+    name: 'Vulnerability Scan + AI',
+    value: ScanProfile.VULNERABILITY_AI,
+    description: 'NSE vulnerability scripts with AI vulnerability analysis',
+    estimated_duration: '15-30 minutes',
+    typical_ports: 1000,
+    scanner: 'nmap',
+    targetType: 'ip',
+    targetPlaceholder: '192.168.1.1',
+    icon: 'Shield',
+    color: 'text-cyan-400',
+    isAI: true,
+    aiEnhanced: true
+  },
+  [ScanProfile.UDP_AI]: {
+    name: 'UDP Scan + AI',
+    value: ScanProfile.UDP_AI,
+    description: 'UDP port scan with AI vulnerability analysis',
+    estimated_duration: '2-5 minutes',
+    typical_ports: 1000,
+    scanner: 'nmap',
+    targetType: 'ip',
+    targetPlaceholder: '192.168.1.1',
+    icon: 'Radio',
+    color: 'text-cyan-400',
+    isAI: true,
+    aiEnhanced: true
   },
   
   // Web Application Scans (AI-Powered OWASP ZAP Analysis)
@@ -500,7 +643,7 @@ export const SCAN_PROFILE_CONFIGS: Record<ScanProfile, ScanProfileInfo> = {
     color: 'text-orange-400',
     isAI: true
   },
-  [ScanProfile.SQLMAP_AGGRESSIVE]: {
+[ScanProfile.SQLMAP_AGGRESSIVE]: {
     name: 'SQLMap Aggressive',
     value: ScanProfile.SQLMAP_AGGRESSIVE,
     description: 'AI-powered comprehensive SQL injection analysis',
@@ -513,3 +656,4 @@ export const SCAN_PROFILE_CONFIGS: Record<ScanProfile, ScanProfileInfo> = {
     isAI: true
   }
 };
+

@@ -1122,55 +1122,120 @@ export default function VulnerabilityScanning() {
                 </Dialog>
               </div>
 
-              {/* Network Scan Profiles Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[ScanProfile.QUICK, ScanProfile.FULL, ScanProfile.SERVICE_DETECTION, ScanProfile.VULNERABILITY, ScanProfile.UDP].map((profile) => {
-                  const config = SCAN_PROFILE_CONFIGS[profile];
-                  return (
-                    <Card key={profile} className="bg-gray-900/50 border-gray-700 backdrop-blur-sm hover:border-blue-500/50 transition-colors">
-                      <CardHeader>
-                        <CardTitle className="text-white flex items-center gap-2">
-                          <Terminal className="h-5 w-5 text-blue-400" />
-                          {config.name}
-                        </CardTitle>
-                        <CardDescription className="text-gray-400">
-                          {config.description}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-400">Scanner:</span>
-                          <Badge variant="outline" className="border-blue-500/50 text-blue-400">
-                            <Terminal className="h-3 w-3 mr-1" />
-                            Nmap
-                          </Badge>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-400">Duration:</span>
-                          <span className="text-white">{config.estimated_duration}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-400">Target Type:</span>
-                          <span className="text-white">IP Address</span>
-                        </div>
-                        <Button
-                          onClick={() => {
-                            setScanForm(prev => ({ 
-                              ...prev, 
-                              scan_profile: profile,
-                              targets: prev.targets || '192.168.1.1' 
-                            }));
-                            setShowCreateDialog(true);
-                          }}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Configure & Start
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+              {/* Standard Network Scan Profiles Cards */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-white mb-4">Standard Network Scans</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[ScanProfile.QUICK, ScanProfile.FULL, ScanProfile.SERVICE_DETECTION, ScanProfile.VULNERABILITY, ScanProfile.UDP].map((profile) => {
+                    const config = SCAN_PROFILE_CONFIGS[profile];
+                    return (
+                      <Card key={profile} className="bg-gray-900/50 border-gray-700 backdrop-blur-sm hover:border-blue-500/50 transition-colors">
+                        <CardHeader>
+                          <CardTitle className="text-white flex items-center gap-2">
+                            <Terminal className="h-5 w-5 text-blue-400" />
+                            {config.name}
+                          </CardTitle>
+                          <CardDescription className="text-gray-400">
+                            {config.description}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-400">Scanner:</span>
+                            <Badge variant="outline" className="border-blue-500/50 text-blue-400">
+                              <Terminal className="h-3 w-3 mr-1" />
+                              Nmap
+                            </Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-400">Duration:</span>
+                            <span className="text-white">{config.estimated_duration}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-400">Target Type:</span>
+                            <span className="text-white">IP Address</span>
+                          </div>
+                          <Button
+                            onClick={() => {
+                              setScanForm(prev => ({ 
+                                ...prev, 
+                                scan_profile: profile,
+                                targets: prev.targets || '192.168.1.1' 
+                              }));
+                              setShowCreateDialog(true);
+                            }}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            Configure & Start
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* AI-Enhanced Network Scan Profiles Cards */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <h3 className="text-lg font-semibold text-white">AI-Enhanced Network Scans</h3>
+                  <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-0">
+                    🤖 AI-Powered
+                  </Badge>
+                </div>
+                <p className="text-gray-400 text-sm mb-6">
+                  Real Nmap scans combined with AI vulnerability analysis for deeper insights
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[ScanProfile.QUICK_AI, ScanProfile.FULL_AI, ScanProfile.SERVICE_DETECTION_AI, ScanProfile.VULNERABILITY_AI, ScanProfile.UDP_AI].map((profile) => {
+                    const config = SCAN_PROFILE_CONFIGS[profile];
+                    return (
+                      <Card key={profile} className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 border-cyan-500/30 backdrop-blur-sm hover:border-cyan-400 transition-all duration-300">
+                        <CardHeader>
+                          <CardTitle className="text-white flex items-center gap-2">
+                            <Terminal className="h-5 w-5 text-cyan-400" />
+                            {config.name}
+                            <span className="text-xl">🤖</span>
+                          </CardTitle>
+                          <CardDescription className="text-gray-300">
+                            {config.description}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-400">Powered by:</span>
+                            <Badge className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white border-0">
+                              🤖 AI Analysis
+                            </Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-400">Duration:</span>
+                            <span className="text-cyan-400 font-semibold">{config.estimated_duration}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-400">Target Type:</span>
+                            <span className="text-white">IP Address</span>
+                          </div>
+                          <Button
+                            onClick={() => {
+                              setScanForm(prev => ({ 
+                                ...prev, 
+                                scan_profile: profile,
+                                targets: prev.targets || '192.168.1.1' 
+                              }));
+                              setShowCreateDialog(true);
+                            }}
+                            className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white border-0"
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            Start AI Scan
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </TabsContent>
@@ -1813,9 +1878,14 @@ export default function VulnerabilityScanning() {
                               <TableCell className="py-2">
                                 <div className="flex items-center gap-1">
                                   {isNetworkScan ? (
-                                    <Badge variant="outline" className="border-blue-500/50 text-blue-400 bg-blue-500/10 text-xs px-2 py-0.5">
+                                    <Badge variant="outline" className={`${
+                                      config?.aiEnhanced 
+                                        ? 'border-cyan-500/50 text-cyan-400 bg-cyan-500/10' 
+                                        : 'border-blue-500/50 text-blue-400 bg-blue-500/10'
+                                    } text-xs px-2 py-0.5`}>
                                       <Network className="h-3 w-3 mr-1" />
                                       Network
+                                      {config?.aiEnhanced && <span className="ml-1">🤖</span>}
                                     </Badge>
                                   ) : (
                                     <Badge variant="outline" className="border-purple-500/50 text-purple-400 bg-purple-500/10 text-xs px-2 py-0.5">
@@ -2005,10 +2075,16 @@ export default function VulnerabilityScanning() {
                 <div>
                   <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                     Scan Results
-                    {/* AI Badge */}
+                    {/* AI-Enhanced Network Scan Badge */}
+                    {(selectedScanDetails.parsed_results as any)?.summary?.ai_enhanced && (
+                      <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 bg-cyan-500/10">
+                        🤖 AI-Enhanced Scan
+                      </Badge>
+                    )}
+                    {/* AI Web Scan Badge */}
                     {(selectedScanDetails.parsed_results as any)?.summary?.tool_simulated && (
-                      <Badge variant="outline" className="border-cyan-500/50 text-cyan-400">
-                        🤖 AI Analysis (simulating {(selectedScanDetails.parsed_results as any).summary.tool_simulated})
+                      <Badge variant="outline" className="border-purple-500/50 text-purple-400 bg-purple-500/10">
+                        🤖 AI Web Analysis (simulating {(selectedScanDetails.parsed_results as any).summary.tool_simulated})
                       </Badge>
                     )}
                   </h3>
@@ -2016,100 +2092,342 @@ export default function VulnerabilityScanning() {
                   {/* Summary */}
                   {(selectedScanDetails.parsed_results as any)?.summary && (
                     <div className="bg-gray-800 rounded-lg p-4 mb-4">
-                      <h4 className="font-semibold mb-2 flex items-center gap-2">
-                        Summary
-                        {(selectedScanDetails.parsed_results as any).summary.ai_risk_assessment && (
-                          <span className="text-xs text-cyan-400">(AI Assessment: {(selectedScanDetails.parsed_results as any).summary.ai_risk_assessment})</span>
+                      <h4 className="font-semibold mb-2">Summary</h4>
+                      
+                      {/* Check if this is a scan with vulnerability findings (AI-enhanced or web scans) */}
+                      {((selectedScanDetails.parsed_results as any).summary.ai_enhanced || 
+                        (selectedScanDetails.parsed_results as any).summary.tool_simulated || 
+                        (selectedScanDetails.parsed_results as any).summary.total_findings > 0) ? (
+                        <>
+                          {/* Vulnerability-based summary for AI-enhanced/web scans */}
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                            <div>
+                              <span className="text-gray-400">Total Findings:</span>
+                              <span className="ml-2 font-semibold">{(selectedScanDetails.parsed_results as any).summary.total_findings || 0}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Critical/High:</span>
+                              <span className="ml-2 font-semibold text-red-400">
+                                {((selectedScanDetails.parsed_results as any).summary.critical || 0) + ((selectedScanDetails.parsed_results as any).summary.high || 0)}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Medium/Low:</span>
+                              <span className="ml-2 font-semibold text-yellow-400">
+                                {((selectedScanDetails.parsed_results as any).summary.medium || 0) + ((selectedScanDetails.parsed_results as any).summary.low || 0)}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Risk Score:</span>
+                              <span className={`ml-2 font-semibold ${
+                                ((selectedScanDetails.parsed_results as any).summary.risk_score || 0) >= 70 ? 'text-red-400' :
+                                ((selectedScanDetails.parsed_results as any).summary.risk_score || 0) >= 40 ? 'text-yellow-400' :
+                                'text-green-400'
+                              }`}>
+                                {(selectedScanDetails.parsed_results as any).summary.risk_score || 0}/100
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Risk Level:</span>
+                              <span className={`ml-2 font-semibold ${
+                                (selectedScanDetails.parsed_results as any).summary.risk_level === 'CRITICAL' ? 'text-red-500' :
+                                (selectedScanDetails.parsed_results as any).summary.risk_level === 'HIGH' ? 'text-red-400' :
+                                (selectedScanDetails.parsed_results as any).summary.risk_level === 'MEDIUM' ? 'text-yellow-400' :
+                                'text-green-400'
+                              }`}>
+                                {(selectedScanDetails.parsed_results as any).summary.risk_level || 'LOW'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Severity Breakdown Bar */}
+                          {(selectedScanDetails.parsed_results as any).summary.total_findings > 0 && (
+                            <div className="mt-4">
+                              <div className="flex h-3 rounded-full overflow-hidden bg-gray-700">
+                                {(selectedScanDetails.parsed_results as any).summary.critical > 0 && (
+                                  <div 
+                                    className="bg-red-600" 
+                                    style={{ width: `${((selectedScanDetails.parsed_results as any).summary.critical / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
+                                    title={`Critical: ${(selectedScanDetails.parsed_results as any).summary.critical}`}
+                                  />
+                                )}
+                                {(selectedScanDetails.parsed_results as any).summary.high > 0 && (
+                                  <div 
+                                    className="bg-orange-500" 
+                                    style={{ width: `${((selectedScanDetails.parsed_results as any).summary.high / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
+                                    title={`High: ${(selectedScanDetails.parsed_results as any).summary.high}`}
+                                  />
+                                )}
+                                {(selectedScanDetails.parsed_results as any).summary.medium > 0 && (
+                                  <div 
+                                    className="bg-yellow-500" 
+                                    style={{ width: `${((selectedScanDetails.parsed_results as any).summary.medium / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
+                                    title={`Medium: ${(selectedScanDetails.parsed_results as any).summary.medium}`}
+                                  />
+                                )}
+                                {(selectedScanDetails.parsed_results as any).summary.low > 0 && (
+                                  <div 
+                                    className="bg-blue-500" 
+                                    style={{ width: `${((selectedScanDetails.parsed_results as any).summary.low / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
+                                    title={`Low: ${(selectedScanDetails.parsed_results as any).summary.low}`}
+                                  />
+                                )}
+                                {(selectedScanDetails.parsed_results as any).summary.info > 0 && (
+                                  <div 
+                                    className="bg-gray-500" 
+                                    style={{ width: `${((selectedScanDetails.parsed_results as any).summary.info / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
+                                    title={`Info: ${(selectedScanDetails.parsed_results as any).summary.info}`}
+                                  />
+                                )}
+                              </div>
+                              <div className="flex justify-between mt-1 text-xs text-gray-400">
+                                <span className="flex items-center gap-1"><span className="w-2 h-2 bg-red-600 rounded-full"></span> Critical: {(selectedScanDetails.parsed_results as any).summary.critical || 0}</span>
+                                <span className="flex items-center gap-1"><span className="w-2 h-2 bg-orange-500 rounded-full"></span> High: {(selectedScanDetails.parsed_results as any).summary.high || 0}</span>
+                                <span className="flex items-center gap-1"><span className="w-2 h-2 bg-yellow-500 rounded-full"></span> Medium: {(selectedScanDetails.parsed_results as any).summary.medium || 0}</span>
+                                <span className="flex items-center gap-1"><span className="w-2 h-2 bg-blue-500 rounded-full"></span> Low: {(selectedScanDetails.parsed_results as any).summary.low || 0}</span>
+                                <span className="flex items-center gap-1"><span className="w-2 h-2 bg-gray-500 rounded-full"></span> Info: {(selectedScanDetails.parsed_results as any).summary.info || 0}</span>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {/* Network scan summary (hosts, ports, services) for standard Nmap scans */}
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="bg-gray-700/30 rounded-lg p-3 text-center">
+                              <div className="text-2xl font-bold text-blue-400">
+                                {(selectedScanDetails.parsed_results as any).summary.total_hosts || 0}
+                              </div>
+                              <div className="text-xs text-gray-400 mt-1">Total Hosts</div>
+                            </div>
+                            <div className="bg-gray-700/30 rounded-lg p-3 text-center">
+                              <div className="text-2xl font-bold text-green-400">
+                                {(selectedScanDetails.parsed_results as any).summary.hosts_up || 0}
+                              </div>
+                              <div className="text-xs text-gray-400 mt-1">Hosts Up</div>
+                            </div>
+                            <div className="bg-gray-700/30 rounded-lg p-3 text-center">
+                              <div className="text-2xl font-bold text-cyan-400">
+                                {(selectedScanDetails.parsed_results as any).summary.total_open_ports || 0}
+                              </div>
+                              <div className="text-xs text-gray-400 mt-1">Open Ports</div>
+                            </div>
+                            <div className="bg-gray-700/30 rounded-lg p-3 text-center">
+                              <div className={`text-2xl font-bold ${
+                                ((selectedScanDetails.parsed_results as any).summary.risk_score || 0) >= 70 ? 'text-red-400' :
+                                ((selectedScanDetails.parsed_results as any).summary.risk_score || 0) >= 40 ? 'text-yellow-400' :
+                                'text-green-400'
+                              }`}>
+                                {(selectedScanDetails.parsed_results as any).summary.risk_score || 0}/100
+                              </div>
+                              <div className="text-xs text-gray-400 mt-1">Risk Score</div>
+                            </div>
+                          </div>
+                          <div className="mt-3 text-xs text-gray-400 text-center">
+                            <span className="font-semibold text-gray-300">Risk Level:</span>{' '}
+                            <span className={`${
+                              (selectedScanDetails.parsed_results as any).summary.risk_level === 'CRITICAL' ? 'text-red-400' :
+                              (selectedScanDetails.parsed_results as any).summary.risk_level === 'HIGH' ? 'text-orange-400' :
+                              (selectedScanDetails.parsed_results as any).summary.risk_level === 'MEDIUM' ? 'text-yellow-400' :
+                              'text-green-400'
+                            }`}>
+                              {(selectedScanDetails.parsed_results as any).summary.risk_level || 'LOW'}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {/* AI-Enhanced Network Scan Analysis */}
+                  {(selectedScanDetails.parsed_results as any)?.summary?.ai_enhanced && (
+                    <div className="mt-6 space-y-4">
+                      {/* Risk Comparison */}
+                      <div className="p-4 bg-cyan-500/10 rounded-lg border border-cyan-500/30">
+                        <div className="flex items-center gap-2 text-cyan-400 font-semibold mb-4">
+                          <span>🤖</span> AI-Enhanced Network Scan Analysis
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div className="p-3 bg-gray-800/50 rounded">
+                            <div className="text-xs text-gray-400 mb-1">Nmap Risk</div>
+                            <div className={`text-lg font-bold ${
+                              (selectedScanDetails.parsed_results as any).summary.risk_level === 'CRITICAL' ? 'text-red-400' :
+                              (selectedScanDetails.parsed_results as any).summary.risk_level === 'HIGH' ? 'text-orange-400' :
+                              (selectedScanDetails.parsed_results as any).summary.risk_level === 'MEDIUM' ? 'text-yellow-400' :
+                              'text-blue-400'
+                            }`}>
+                              {(selectedScanDetails.parsed_results as any).summary.risk_level}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              Score: {(selectedScanDetails.parsed_results as any).summary.risk_score}
+                            </div>
+                          </div>
+                          <div className="p-3 bg-gray-800/50 rounded">
+                            <div className="text-xs text-gray-400 mb-1">AI Risk</div>
+                            <div className={`text-lg font-bold ${
+                              (selectedScanDetails.parsed_results as any).summary.ai_risk_assessment === 'CRITICAL' ? 'text-red-400' :
+                              (selectedScanDetails.parsed_results as any).summary.ai_risk_assessment === 'HIGH' ? 'text-orange-400' :
+                              (selectedScanDetails.parsed_results as any).summary.ai_risk_assessment === 'MEDIUM' ? 'text-yellow-400' :
+                              'text-blue-400'
+                            }`}>
+                              {(selectedScanDetails.parsed_results as any).summary.ai_risk_assessment || 'N/A'}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {(selectedScanDetails.parsed_results as any).summary.ai_findings_count || 0} findings
+                            </div>
+                          </div>
+                          <div className="p-3 bg-gray-900 rounded border-2 border-cyan-500/50">
+                            <div className="text-xs text-gray-400 mb-1">Combined Risk</div>
+                            <div className={`text-xl font-bold ${
+                              (selectedScanDetails.parsed_results as any).summary.combined_risk_level === 'CRITICAL' ? 'text-red-400' :
+                              (selectedScanDetails.parsed_results as any).summary.combined_risk_level === 'HIGH' ? 'text-orange-400' :
+                              (selectedScanDetails.parsed_results as any).summary.combined_risk_level === 'MEDIUM' ? 'text-yellow-400' :
+                              'text-blue-400'
+                            }`}>
+                              {(selectedScanDetails.parsed_results as any).summary.combined_risk_level || 'N/A'}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              Score: {(selectedScanDetails.parsed_results as any).summary.combined_risk_score || 0}
+                            </div>
+                          </div>
+                        </div>
+                        {(selectedScanDetails.parsed_results as any).summary.ai_error && (
+                          <div className="mt-3 p-2 bg-yellow-500/10 rounded border border-yellow-500/30 text-yellow-400 text-xs">
+                            <span className="font-semibold">AI Analysis Warning:</span> {(selectedScanDetails.parsed_results as any).summary.ai_error}
+                          </div>
                         )}
-                      </h4>
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-400">Total Findings:</span>
-                          <span className="ml-2 font-semibold">{(selectedScanDetails.parsed_results as any).summary.total_findings || (selectedScanDetails.parsed_results as any).summary.total_hosts || 0}</span>
-                        </div>
-                        {/* Severity Breakdown */}
-                        <div>
-                          <span className="text-gray-400">Critical/High:</span>
-                          <span className="ml-2 font-semibold text-red-400">
-                            {((selectedScanDetails.parsed_results as any).summary.critical || 0) + ((selectedScanDetails.parsed_results as any).summary.high || 0)}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Medium/Low:</span>
-                          <span className="ml-2 font-semibold text-yellow-400">
-                            {((selectedScanDetails.parsed_results as any).summary.medium || 0) + ((selectedScanDetails.parsed_results as any).summary.low || 0)}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Risk Score:</span>
-                          <span className={`ml-2 font-semibold ${
-                            ((selectedScanDetails.parsed_results as any).summary.risk_score || 0) >= 70 ? 'text-red-400' :
-                            ((selectedScanDetails.parsed_results as any).summary.risk_score || 0) >= 40 ? 'text-yellow-400' :
-                            'text-green-400'
-                          }`}>
-                            {(selectedScanDetails.parsed_results as any).summary.risk_score || 0}/100
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Risk Level:</span>
-                          <span className={`ml-2 font-semibold ${
-                            (selectedScanDetails.parsed_results as any).summary.risk_level === 'CRITICAL' ? 'text-red-500' :
-                            (selectedScanDetails.parsed_results as any).summary.risk_level === 'HIGH' ? 'text-red-400' :
-                            (selectedScanDetails.parsed_results as any).summary.risk_level === 'MEDIUM' ? 'text-yellow-400' :
-                            'text-green-400'
-                          }`}>
-                            {(selectedScanDetails.parsed_results as any).summary.risk_level || 'LOW'}
-                          </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI Vulnerability Analysis Details */}
+                  {(selectedScanDetails.parsed_results as any)?.parsed_json?.ai_vulnerability_analysis?.ai_analysis_available && (
+                    <div className="mt-6 space-y-4">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-white">🤖 AI Vulnerability Analysis</h4>
+                        <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30">
+                          {(selectedScanDetails.parsed_results as any).parsed_json.ai_vulnerability_analysis.model}
+                        </Badge>
+                      </div>
+
+                      {/* Analysis Summary */}
+                      <div className="p-3 bg-gray-800/50 rounded-lg">
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <div className="text-gray-400">Target</div>
+                            <div className="text-white font-semibold">
+                              {(selectedScanDetails.parsed_results as any).parsed_json.ai_vulnerability_analysis.analysis_summary.target}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-400">Services Analyzed</div>
+                            <div className="text-white font-semibold">
+                              {(selectedScanDetails.parsed_results as any).parsed_json.ai_vulnerability_analysis.analysis_summary.total_services_analyzed}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-400">Confidence</div>
+                            <div className="text-white font-semibold">
+                              {(selectedScanDetails.parsed_results as any).parsed_json.ai_vulnerability_analysis.analysis_summary.confidence_level}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      
-                      {/* Severity Breakdown Bar */}
-                      {(selectedScanDetails.parsed_results as any).summary.total_findings > 0 && (
-                        <div className="mt-4">
-                          <div className="flex h-3 rounded-full overflow-hidden bg-gray-700">
-                            {(selectedScanDetails.parsed_results as any).summary.critical > 0 && (
-                              <div 
-                                className="bg-red-600" 
-                                style={{ width: `${((selectedScanDetails.parsed_results as any).summary.critical / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
-                                title={`Critical: ${(selectedScanDetails.parsed_results as any).summary.critical}`}
-                              />
-                            )}
-                            {(selectedScanDetails.parsed_results as any).summary.high > 0 && (
-                              <div 
-                                className="bg-orange-500" 
-                                style={{ width: `${((selectedScanDetails.parsed_results as any).summary.high / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
-                                title={`High: ${(selectedScanDetails.parsed_results as any).summary.high}`}
-                              />
-                            )}
-                            {(selectedScanDetails.parsed_results as any).summary.medium > 0 && (
-                              <div 
-                                className="bg-yellow-500" 
-                                style={{ width: `${((selectedScanDetails.parsed_results as any).summary.medium / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
-                                title={`Medium: ${(selectedScanDetails.parsed_results as any).summary.medium}`}
-                              />
-                            )}
-                            {(selectedScanDetails.parsed_results as any).summary.low > 0 && (
-                              <div 
-                                className="bg-blue-500" 
-                                style={{ width: `${((selectedScanDetails.parsed_results as any).summary.low / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
-                                title={`Low: ${(selectedScanDetails.parsed_results as any).summary.low}`}
-                              />
-                            )}
-                            {(selectedScanDetails.parsed_results as any).summary.info > 0 && (
-                              <div 
-                                className="bg-gray-500" 
-                                style={{ width: `${((selectedScanDetails.parsed_results as any).summary.info / (selectedScanDetails.parsed_results as any).summary.total_findings) * 100}%` }}
-                                title={`Info: ${(selectedScanDetails.parsed_results as any).summary.info}`}
-                              />
-                            )}
-                          </div>
-                          <div className="flex justify-between mt-1 text-xs text-gray-400">
-                            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-red-600 rounded-full"></span> Critical: {(selectedScanDetails.parsed_results as any).summary.critical || 0}</span>
-                            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-orange-500 rounded-full"></span> High: {(selectedScanDetails.parsed_results as any).summary.high || 0}</span>
-                            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-yellow-500 rounded-full"></span> Medium: {(selectedScanDetails.parsed_results as any).summary.medium || 0}</span>
-                            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-blue-500 rounded-full"></span> Low: {(selectedScanDetails.parsed_results as any).summary.low || 0}</span>
-                            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-gray-500 rounded-full"></span> Info: {(selectedScanDetails.parsed_results as any).summary.info || 0}</span>
-                          </div>
+
+                      {/* AI-Identified Vulnerabilities */}
+                      {(selectedScanDetails.parsed_results as any).parsed_json.ai_vulnerability_analysis.standardized_findings?.length > 0 && (
+                        <div className="space-y-3">
+                          <h5 className="font-semibold text-white">
+                            AI-Identified Vulnerabilities ({(selectedScanDetails.parsed_results as any).parsed_json.ai_vulnerability_analysis.standardized_findings.length})
+                          </h5>
+                          {(selectedScanDetails.parsed_results as any).parsed_json.ai_vulnerability_analysis.standardized_findings.map((finding: any, index: number) => (
+                            <div key={finding.finding_id || index} className="p-4 bg-gray-800/50 rounded-lg border border-cyan-500/20">
+                              <div className="flex items-start justify-between mb-2">
+                                <h6 className="font-semibold text-white flex items-center gap-2">
+                                  {finding.title}
+                                  {finding.confidence && (
+                                    <Badge className={`text-xs ${
+                                      finding.confidence === 'HIGH' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                                      finding.confidence === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                                      'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                                    }`}>
+                                      {finding.confidence}
+                                    </Badge>
+                                  )}
+                                </h6>
+                                <Badge className={`${
+                                  finding.severity === 'critical' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                  finding.severity === 'high' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' :
+                                  finding.severity === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                                  finding.severity === 'low' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                                  'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                                } text-xs px-2 py-1`}>
+                                  {finding.severity?.toUpperCase()}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-gray-300 mb-2">{finding.description}</p>
+                              
+                              {(finding.affected_component || finding.affected_service) && (
+                                <p className="text-xs text-gray-400 mb-2">
+                                  <span className="font-semibold">Affected:</span> {finding.affected_component || finding.affected_service}
+                                </p>
+                              )}
+                              
+                              {finding.potential_impact && (
+                                <div className="mt-2 p-2 bg-orange-500/10 rounded border border-orange-500/30">
+                                  <p className="text-xs text-orange-400">
+                                    <span className="font-semibold">Potential Impact:</span> {finding.potential_impact}
+                                  </p>
+                                </div>
+                              )}
+                              
+                              {finding.cve_ids && finding.cve_ids.length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {finding.cve_ids.map((cve: string) => (
+                                    <a
+                                      key={cve}
+                                      href={`https://nvd.nist.gov/vuln/detail/${cve}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs px-2 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition-colors"
+                                    >
+                                      {cve}
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                              
+                              {(finding.solution || finding.remediation) && (
+                                <div className="mt-2 p-2 bg-green-500/10 rounded border border-green-500/30">
+                                  <p className="text-xs text-green-400">
+                                    <span className="font-semibold">Solution:</span> {finding.solution || finding.remediation}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Security Recommendations */}
+                      {(selectedScanDetails.parsed_results as any).parsed_json.ai_vulnerability_analysis.security_recommendations?.length > 0 && (
+                        <div>
+                          <h5 className="font-semibold text-white mb-2">Security Recommendations</h5>
+                          <ul className="space-y-2">
+                            {(selectedScanDetails.parsed_results as any).parsed_json.ai_vulnerability_analysis.security_recommendations.map((rec: string, index: number) => (
+                              <li key={index} className="text-sm text-gray-300 flex items-start gap-2">
+                                <span className="text-cyan-400 mt-0.5">•</span>
+                                <span>{rec}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Analysis Notes */}
+                      {(selectedScanDetails.parsed_results as any).parsed_json.ai_vulnerability_analysis.analysis_notes && (
+                        <div className="text-xs text-gray-400 italic border-t border-gray-700 pt-3">
+                          {(selectedScanDetails.parsed_results as any).parsed_json.ai_vulnerability_analysis.analysis_notes}
                         </div>
                       )}
                     </div>

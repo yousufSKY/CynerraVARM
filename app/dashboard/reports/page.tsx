@@ -293,11 +293,16 @@ export default function ReportsCompliance() {
 
   const getScannerTypeBadge = (scan: ScanResponse) => {
     const profile = scan.profile || scan.scan_profile || '';
+    const isAIEnhanced = scan.parsed_results?.summary?.ai_enhanced === true;
     const isWebScan = profile.startsWith('ai-') || 
                       ['ai-zap-analysis', 'ai-nikto-analysis', 'ai-sqlmap-analysis'].includes(profile);
+    const isAINetworkScan = profile.endsWith('-ai');
     
-    if (isWebScan) {
+    if (isWebScan && !isAINetworkScan) {
       return <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30"><Globe className="h-3 w-3 mr-1" />Web 🤖</Badge>;
+    }
+    if (isAIEnhanced || isAINetworkScan) {
+      return <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30"><Network className="h-3 w-3 mr-1" />Network 🤖</Badge>;
     }
     return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30"><Network className="h-3 w-3 mr-1" />Network</Badge>;
   };
@@ -879,8 +884,69 @@ export default function ReportsCompliance() {
                               </div>
                             </div>
                             
-                            {/* AI Risk Assessment */}
-                            {selectedScan?.parsed_results?.summary?.ai_risk_assessment && (
+                            {/* AI-Enhanced Network Scan Risk Comparison */}
+                            {selectedScan?.parsed_results?.summary?.ai_enhanced && (
+                              <div className="mt-4 space-y-3">
+                                <div className="p-4 bg-cyan-500/10 rounded-lg border border-cyan-500/30">
+                                  <div className="flex items-center gap-2 text-cyan-400 font-semibold mb-3">
+                                    <span>🤖</span> AI-Enhanced Network Scan
+                                  </div>
+                                  <div className="grid grid-cols-3 gap-4 text-center">
+                                    <div>
+                                      <div className="text-xs text-slate-400 mb-1">Nmap Risk</div>
+                                      <div className={`text-lg font-bold ${
+                                        selectedScan.parsed_results.summary.risk_level === 'CRITICAL' ? 'text-red-400' :
+                                        selectedScan.parsed_results.summary.risk_level === 'HIGH' ? 'text-orange-400' :
+                                        selectedScan.parsed_results.summary.risk_level === 'MEDIUM' ? 'text-yellow-400' :
+                                        'text-blue-400'
+                                      }`}>
+                                        {selectedScan.parsed_results.summary.risk_level}
+                                      </div>
+                                      <div className="text-xs text-slate-500">Score: {selectedScan.parsed_results.summary.risk_score}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs text-slate-400 mb-1">AI Risk</div>
+                                      <div className={`text-lg font-bold ${
+                                        selectedScan.parsed_results.summary.ai_risk_assessment === 'CRITICAL' ? 'text-red-400' :
+                                        selectedScan.parsed_results.summary.ai_risk_assessment === 'HIGH' ? 'text-orange-400' :
+                                        selectedScan.parsed_results.summary.ai_risk_assessment === 'MEDIUM' ? 'text-yellow-400' :
+                                        'text-blue-400'
+                                      }`}>
+                                        {selectedScan.parsed_results.summary.ai_risk_assessment}
+                                      </div>
+                                      <div className="text-xs text-slate-500">
+                                        {selectedScan.parsed_results.summary.ai_findings_count || 0} findings
+                                      </div>
+                                    </div>
+                                    <div className="bg-slate-800/50 rounded-lg p-2">
+                                      <div className="text-xs text-slate-400 mb-1">Combined</div>
+                                      <div className={`text-xl font-bold ${
+                                        selectedScan.parsed_results.summary.combined_risk_level === 'CRITICAL' ? 'text-red-400' :
+                                        selectedScan.parsed_results.summary.combined_risk_level === 'HIGH' ? 'text-orange-400' :
+                                        selectedScan.parsed_results.summary.combined_risk_level === 'MEDIUM' ? 'text-yellow-400' :
+                                        'text-blue-400'
+                                      }`}>
+                                        {selectedScan.parsed_results.summary.combined_risk_level}
+                                      </div>
+                                      <div className="text-xs text-slate-500">
+                                        Score: {selectedScan.parsed_results.summary.combined_risk_score}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {selectedScan.parsed_results.summary.ai_error && (
+                                  <div className="p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
+                                    <div className="text-yellow-400 text-sm">
+                                      <span className="font-semibold">AI Analysis Warning:</span> {selectedScan.parsed_results.summary.ai_error}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            
+                            {/* AI Web Scan Risk Assessment */}
+                            {!selectedScan?.parsed_results?.summary?.ai_enhanced && selectedScan?.parsed_results?.summary?.ai_risk_assessment && (
                               <div className="mt-4 p-3 bg-purple-500/10 rounded-lg border border-purple-500/30">
                                 <div className="flex items-center gap-2 text-purple-400 font-semibold mb-2">
                                   <span>🤖</span> AI Risk Assessment
@@ -888,6 +954,128 @@ export default function ReportsCompliance() {
                                 <p className="text-slate-300 text-sm">
                                   {selectedScan?.parsed_results?.summary?.ai_risk_assessment}
                                 </p>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* AI Vulnerability Analysis for AI-Enhanced Network Scans */}
+                      {selectedScan?.parsed_results?.parsed_json?.ai_vulnerability_analysis?.ai_analysis_available && (
+                        <Card className="bg-slate-800/50 border-cyan-500/30">
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-white text-lg flex items-center gap-2">
+                              <span>🤖</span> AI Vulnerability Analysis
+                              <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 ml-2">
+                                {selectedScan.parsed_results.parsed_json.ai_vulnerability_analysis.model}
+                              </Badge>
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            {/* Analysis Summary */}
+                            <div className="p-3 bg-slate-700/30 rounded-lg">
+                              <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                  <div className="text-slate-400">Services Analyzed</div>
+                                  <div className="text-white font-semibold">
+                                    {selectedScan.parsed_results.parsed_json.ai_vulnerability_analysis.analysis_summary.total_services_analyzed}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-slate-400">Confidence Level</div>
+                                  <div className="text-white font-semibold">
+                                    {selectedScan.parsed_results.parsed_json.ai_vulnerability_analysis.analysis_summary.confidence_level}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* AI-Identified Vulnerabilities */}
+                            {selectedScan.parsed_results.parsed_json.ai_vulnerability_analysis.standardized_findings?.length > 0 && (
+                              <div className="space-y-3">
+                                <h4 className="font-semibold text-white">
+                                  AI-Identified Vulnerabilities ({selectedScan.parsed_results.parsed_json.ai_vulnerability_analysis.standardized_findings.length})
+                                </h4>
+                                {selectedScan.parsed_results.parsed_json.ai_vulnerability_analysis.standardized_findings.map((finding: Finding, index: number) => (
+                                  <div key={finding.finding_id || index} className="p-4 bg-slate-700/30 rounded-lg border border-cyan-500/20">
+                                    <div className="flex items-start justify-between mb-2">
+                                      <h5 className="font-semibold text-white flex items-center gap-2">
+                                        {finding.title}
+                                        {finding.confidence && (
+                                          <Badge className={`text-xs ${
+                                            finding.confidence === 'HIGH' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                                            finding.confidence === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                                            'bg-slate-500/20 text-slate-400 border-slate-500/30'
+                                          }`}>
+                                            {finding.confidence}
+                                          </Badge>
+                                        )}
+                                      </h5>
+                                      {getSeverityBadge(finding.severity)}
+                                    </div>
+                                    <p className="text-sm text-slate-300 mb-2">{finding.description}</p>
+                                    
+                                    {(finding.affected_component || finding.affected_service) && (
+                                      <p className="text-xs text-slate-400 mb-2">
+                                        <span className="font-semibold">Affected:</span> {finding.affected_component || finding.affected_service}
+                                      </p>
+                                    )}
+                                    
+                                    {finding.potential_impact && (
+                                      <div className="mt-2 p-2 bg-orange-500/10 rounded border border-orange-500/30">
+                                        <p className="text-xs text-orange-400">
+                                          <span className="font-semibold">Potential Impact:</span> {finding.potential_impact}
+                                        </p>
+                                      </div>
+                                    )}
+                                    
+                                    {finding.cve_ids && finding.cve_ids.length > 0 && (
+                                      <div className="mt-2 flex flex-wrap gap-2">
+                                        {finding.cve_ids.map((cve: string) => (
+                                          <a
+                                            key={cve}
+                                            href={`https://nvd.nist.gov/vuln/detail/${cve}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-xs px-2 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition-colors"
+                                          >
+                                            {cve}
+                                          </a>
+                                        ))}
+                                      </div>
+                                    )}
+                                    
+                                    {(finding.solution || finding.remediation) && (
+                                      <div className="mt-2 p-2 bg-green-500/10 rounded border border-green-500/30">
+                                        <p className="text-xs text-green-400">
+                                          <span className="font-semibold">Solution:</span> {finding.solution || finding.remediation}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Security Recommendations */}
+                            {selectedScan.parsed_results.parsed_json.ai_vulnerability_analysis.security_recommendations?.length > 0 && (
+                              <div>
+                                <h4 className="font-semibold text-white mb-2">Security Recommendations</h4>
+                                <ul className="space-y-2">
+                                  {selectedScan.parsed_results.parsed_json.ai_vulnerability_analysis.security_recommendations.map((rec: string, index: number) => (
+                                    <li key={index} className="text-sm text-slate-300 flex items-start gap-2">
+                                      <span className="text-cyan-400 mt-1">•</span>
+                                      <span>{rec}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {/* Analysis Notes */}
+                            {selectedScan.parsed_results.parsed_json.ai_vulnerability_analysis.analysis_notes && (
+                              <div className="text-xs text-slate-400 italic border-t border-slate-700 pt-3">
+                                {selectedScan.parsed_results.parsed_json.ai_vulnerability_analysis.analysis_notes}
                               </div>
                             )}
                           </CardContent>

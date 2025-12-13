@@ -21,7 +21,8 @@ import {
   CheckCircle,
   XCircle,
   AlertTriangle,
-  Info
+  Info,
+  Bot
 } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
@@ -181,6 +182,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: 'Risk Assessment', href: '/dashboard/risk', icon: BarChart3 },
     { name: 'Scanning', href: '/dashboard/scanning', icon: Scan },
     { name: 'Reports', href: '/dashboard/reports', icon: FileText },
+    { name: 'Chatbot', href: '/dashboard/chatbot', icon: Bot },
     { name: 'Profile', href: '/dashboard/profile', icon: Users },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
   ];
@@ -254,6 +256,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
             {/* Right section */}
             <div className="flex items-center space-x-4">
+              {/* Chatbot quick access */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-slate-100 hover:text-cyan-100 hover:bg-slate-700/50 transition-colors hidden sm:inline-flex"
+                onClick={() => router.push('/dashboard/chatbot')}
+              >
+                <Bot className="h-5 w-5 mr-2" />
+                Chatbot
+              </Button>
+
               {/* Quick Actions */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
